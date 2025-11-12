@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable
+from typing import List, Optional, Dict, Any, Union, Type, ForwardRef, Set, Literal, Callable, Awaitable, Tuple
 from pydantic import BaseModel, Field, RootModel
 import re
 import os
@@ -12631,6 +12631,8 @@ async def extract_file_content_direct(
     prompt: str,
     cookies: Dict[str, str],
     max_chunks_per_file: int = 50,
+    combine_chunks: bool = True,
+    include_chunk_metadata: bool = False,
     progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
 ) -> Dict[str, Any]:
     """
@@ -12676,16 +12678,19 @@ async def extract_file_content_direct(
             raise ValueError(f"No chunks found for file_ids {file_ids} - file may not be indexed to Vespa yet")
         
         # Convert API response to expected format
-        extracted_context = {
+        extracted_context: Dict[str, Any] = {
             "file_summaries": [],
             "file_contents": [],
             "folder_contexts": [],
             "key_topics": [],
+            "file_chunks": [],
             "metadata": {
                 "total_files": len(file_ids),
                 "total_chunks": result["total_chunks"],
                 "extraction_method": "direct_api",
-                "extraction_time": time.time()
+                "extraction_time": time.time(),
+                "combine_chunks": combine_chunks,
+                "include_chunk_metadata": include_chunk_metadata,
             }
         }
         
@@ -12693,26 +12698,61 @@ async def extract_file_content_direct(
         for file_id, chunks in result["files"].items():
             if not chunks:
                 continue
-            
+
+            file_id_int = int(file_id)
+
             # Get document name from first chunk
             doc_name = chunks[0]["semantic_identifier"] if chunks else f"File {file_id}"
-            
-            # Combine all chunk contents for this file
-            combined_content = "\n\n".join([
-                chunk["content"] for chunk in chunks
-            ])
-            
-            # Create summary from first chunk or beginning of content
-            if len(combined_content) > 500:
-                summary = f"{doc_name}: {combined_content[:500]}..."
+
+            # Prepare summary (always at file level)
+            combined_content_for_summary = "\n\n".join([chunk["content"] for chunk in chunks])
+            if len(combined_content_for_summary) > 500:
+                summary = f"{doc_name}: {combined_content_for_summary[:500]}..."
             else:
-                summary = f"{doc_name}: {combined_content}"
-            
+                summary = f"{doc_name}: {combined_content_for_summary}"
             extracted_context["file_summaries"].append(summary)
-            # Store as string for compatibility with existing code that expects file_contents as list of strings
-            extracted_context["file_contents"].append(combined_content)
-            
-            logger.info(f"[DIRECT_EXTRACT] Processed file {file_id}: {len(chunks)} chunks, {len(combined_content)} chars")
+
+            if combine_chunks:
+                # Combine all chunk contents for this file (legacy behavior)
+                combined_content = combined_content_for_summary
+                extracted_context["file_contents"].append(combined_content)
+                if include_chunk_metadata:
+                    for chunk_index, chunk in enumerate(chunks):
+                        extracted_context["file_chunks"].append({
+                            "file_id": file_id_int,
+                            "chunk_id": chunk.get("chunk_id"),
+                            "document_id": chunk.get("document_id"),
+                            "semantic_identifier": chunk.get("semantic_identifier"),
+                            "source_type": chunk.get("source_type"),
+                            "relevance_score": chunk.get("relevance_score"),
+                            "chunk_index": chunk_index,
+                            "content": chunk.get("content", "")
+                        })
+            else:
+                # Keep chunks separate for downstream processing
+                for chunk_index, chunk in enumerate(chunks):
+                    chunk_text = chunk.get("content", "")
+                    if not chunk_text:
+                        continue
+
+                    extracted_context["file_contents"].append(chunk_text)
+
+                    if include_chunk_metadata:
+                        extracted_context["file_chunks"].append({
+                            "file_id": file_id_int,
+                            "chunk_id": chunk.get("chunk_id"),
+                            "document_id": chunk.get("document_id"),
+                            "semantic_identifier": chunk.get("semantic_identifier"),
+                            "source_type": chunk.get("source_type"),
+                            "relevance_score": chunk.get("relevance_score"),
+                            "chunk_index": chunk_index,
+                            "content": chunk_text
+                        })
+
+            logger.info(
+                f"[DIRECT_EXTRACT] Processed file {file_id}: {len(chunks)} chunks, "
+                f"{len(combined_content_for_summary)} chars (mode={'combined' if combine_chunks else 'per_chunk'})"
+            )
         
         # Extract topics from content (simple keyword extraction)
         all_text = " ".join(extracted_context["file_summaries"])
@@ -12767,9 +12807,9 @@ def build_focused_query(skeleton_item: dict, product_type: str) -> str:
         return f"Find detailed information about module: {module}. Focus on: {topics}"
     
     elif product_type in ["Lesson Presentation", "Text Presentation"]:
-        # Item: {"title": "...", "bullet_points": [...]}
+        # Item: {"title": "...", "bullet_points": [...]} or {"title": "...", "key_themes": [...]}
         title = skeleton_item.get('title', '')
-        bullets = skeleton_item.get('bullet_points', [])
+        bullets = skeleton_item.get('bullet_points') or skeleton_item.get('key_themes', [])
         if bullets:
             bullets_str = ', '.join(bullets)
             return f"Find specific facts and details about: {title}. Topics: {bullets_str}"
@@ -12965,6 +13005,7 @@ async def collect_agentic_context(
         Enhanced file_context dict compatible with existing code
     """
     import time
+    import hashlib
     
     stage1_start = time.time()
     
@@ -13012,6 +13053,7 @@ async def collect_agentic_context(
     logger.info(f"[AGENTIC_STAGE2_START] collecting chunks for {len(skeleton_items)} items")
     
     all_focused_chunks = []
+    seen_chunk_keys: Set[Tuple[Any, Any]] = set()
     stage2_start = time.time()
     
     for i, item in enumerate(skeleton_items):
@@ -13033,22 +13075,84 @@ async def collect_agentic_context(
                 file_ids=file_ids,
                 prompt=focused_query,
                 cookies=cookies,
-                max_chunks_per_file=5  # Reduced for focus
+                max_chunks_per_file=5,  # Reduced for focus
+                combine_chunks=False,
+                include_chunk_metadata=True
             )
             
             item_time = time.time() - item_start
-            chunks_count = len(focused_context.get('file_contents', []))
-            logger.info(f"[AGENTIC_STAGE2_ITEM] chunks_retrieved={chunks_count}")
+            chunk_entries = focused_context.get('file_chunks') or []
+
+            # Fallback: create chunk entries from raw contents if metadata missing
+            if not chunk_entries:
+                fallback_contents = focused_context.get('file_contents', []) or []
+                for idx, content in enumerate(fallback_contents):
+                    chunk_entries.append({
+                        "file_id": None,
+                        "chunk_id": f"fallback_{i}_{idx}",
+                        "semantic_identifier": None,
+                        "relevance_score": None,
+                        "content": content
+                    })
+
+            raw_chunk_count = len(chunk_entries)
+            unique_added = 0
+
+            if raw_chunk_count == 0:
+                logger.warning(f"[AGENTIC_STAGE2_ITEM] No chunks returned for item {i+1}")
+            else:
+                section_title = item.get('title') or item.get('module_name') or item.get('topic_name') or f'Item {i+1}'
+
+                for chunk_entry in chunk_entries:
+                    chunk_content = (chunk_entry or {}).get("content") or ""
+                    if not chunk_content.strip():
+                        continue
+
+                    file_id_for_chunk = chunk_entry.get("file_id")
+                    chunk_id = chunk_entry.get("chunk_id")
+
+                    if chunk_id is not None and file_id_for_chunk is not None:
+                        chunk_key = (file_id_for_chunk, chunk_id)
+                    else:
+                        chunk_key = (
+                            file_id_for_chunk,
+                            hashlib.md5(chunk_content.encode("utf-8")).hexdigest()
+                        )
+
+                    if chunk_key in seen_chunk_keys:
+                        continue
+
+                    seen_chunk_keys.add(chunk_key)
+                    unique_added += 1
+
+                    source_name = chunk_entry.get("semantic_identifier") or f"File {file_id_for_chunk or 'unknown'}"
+                    relevance_score = chunk_entry.get("relevance_score")
+
+                    header_lines = [
+                        f"## Section: {section_title}",
+                        f"Source: {source_name}"
+                    ]
+                    if relevance_score is not None:
+                        header_lines.append(f"Relevance Score: {relevance_score:.3f}")
+                    header_lines.append(f"Focus Query: {focused_query}")
+
+                    chunk_with_header = "\n".join(header_lines) + "\n\n" + chunk_content
+
+                    all_focused_chunks.append({
+                        'content': chunk_with_header,
+                        'file_id': file_id_for_chunk,
+                        'chunk_id': chunk_id,
+                        'section_title': section_title,
+                        'source_name': source_name,
+                        'query': focused_query,
+                        'relevance_score': relevance_score
+                    })
+
+            logger.info(
+                f"[AGENTIC_STAGE2_ITEM] chunks_retrieved={raw_chunk_count} unique_added={unique_added}"
+            )
             logger.info(f"[AGENTIC_STAGE2_ITEM] time={item_time:.2f}s")
             
-            # Tag chunks with skeleton info for traceability
-            for content in focused_context.get('file_contents', []):
-                all_focused_chunks.append({
-                    'content': content,
-                    'skeleton_item': item,
-                    'query': focused_query
-                })
-                
         except Exception as e:
             logger.error(f"[AGENTIC_STAGE2_ITEM] Error extracting chunks for item {i+1}: {e}")
             # Continue with other items even if one fails
@@ -13081,6 +13185,19 @@ async def collect_agentic_context(
     
     # STAGE 3: Convert collected chunks back to file_context format
     # This allows existing assembler and generation logic to work unchanged
+    chunk_metadata = [
+        {
+            'index': idx,
+            'file_id': chunk.get('file_id'),
+            'chunk_id': chunk.get('chunk_id'),
+            'source_name': chunk.get('source_name'),
+            'section_title': chunk.get('section_title'),
+            'query': chunk.get('query'),
+            'relevance_score': chunk.get('relevance_score')
+        }
+        for idx, chunk in enumerate(all_focused_chunks)
+    ]
+
     enhanced_context = {
         'file_contents': [chunk['content'] for chunk in all_focused_chunks],
         'file_summaries': [],  # Will be built by assembler if needed
@@ -13092,7 +13209,9 @@ async def collect_agentic_context(
             'chunks_per_item': total_chunks / len(skeleton_items) if skeleton_items else 0,
             'stage1_time': stage1_time,
             'stage2_time': stage2_time,
-            'total_time': total_time
+            'total_time': total_time,
+            'unique_chunk_count': total_chunks,
+            'chunk_metadata': chunk_metadata
         }
     }
     
