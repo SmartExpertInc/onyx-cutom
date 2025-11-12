@@ -111,6 +111,65 @@ const COMPONENT_NAME_QUIZ = "QuizDisplay";
 const COMPONENT_NAME_TEXT_PRESENTATION = "TextPresentationDisplay";
 const COMPONENT_NAME_LESSON_PLAN = "LessonPlanDisplay";
 
+const VIDEO_PRODUCT_SOURCE_ID_KEYS = [
+  'sourceVideoLessonProjectId',
+  'sourceVideoLessonId',
+  'sourceLessonProjectId',
+  'sourceLessonId',
+  'parentVideoLessonProjectId',
+  'parentVideoLessonId',
+  'videoLessonProjectId',
+  'videoLessonId',
+  'originalVideoLessonProjectId',
+  'originalVideoLessonId',
+  'originVideoLessonProjectId',
+  'originVideoLessonId',
+  'sourceProjectId',
+  'source_project_id',
+  'parentProjectId',
+  'parent_project_id'
+] as const;
+
+const findSourceVideoLessonProjectId = (data: any, visited: WeakSet<object>): string | number | null => {
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+
+  if (visited.has(data as object)) {
+    return null;
+  }
+
+  visited.add(data as object);
+
+  for (const key of VIDEO_PRODUCT_SOURCE_ID_KEYS) {
+    if (key in data) {
+      const value = (data as Record<string, unknown>)[key];
+      if (value !== null && value !== undefined && value !== '') {
+        return value as string | number;
+      }
+    }
+  }
+
+  for (const value of Object.values(data)) {
+    if (value && typeof value === 'object') {
+      const found = findSourceVideoLessonProjectId(value, visited);
+      if (found !== null && found !== undefined) {
+        return found;
+      }
+    }
+  }
+
+  return null;
+};
+
+const getSourceVideoLessonProjectId = (data: any): string | number | null => {
+  if (!data || typeof data !== 'object') {
+    return null;
+  }
+
+  return findSourceVideoLessonProjectId(data, new WeakSet<object>());
+};
+
 type ProjectViewParams = {
   projectId: string;
 };
@@ -2080,10 +2139,12 @@ export default function ProjectInstanceViewPage() {
 
   const isVideoProductComponent = projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
   const videoProductData = isVideoProductComponent ? (editableData as any) : null;
+  const sourceVideoLessonProjectId = useMemo(() => getSourceVideoLessonProjectId(videoProductData), [videoProductData]);
 
   const handleVideoDraftClick = () => {
-    if (projectId) {
-      router.push(`/projects-2/view/${projectId}`);
+    const targetProjectId = sourceVideoLessonProjectId ?? projectId;
+    if (targetProjectId) {
+      router.push(`/projects-2/view/${targetProjectId}`);
     }
   };
 
