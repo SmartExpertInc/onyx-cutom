@@ -359,7 +359,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 {exportOptions && exportOptions.length > 0 && showExportMenu && (
                   <div
                     ref={exportMenuRef}
-                    className="absolute right-0 mt-2 w-56 rounded-lg border border-[#E4E4E7] bg-white py-1 shadow-xl z-[60]"
+                    className="absolute left-0 mt-2 w-56 rounded-lg border border-[#0F58F9] bg-white py-1 shadow-xl z-[60]"
                   >
                     {exportOptions.map((option) => (
                       <button

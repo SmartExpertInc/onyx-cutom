@@ -287,7 +287,7 @@ export default function ProjectInstanceViewPage() {
   const [pdfDownloadReady, setPdfDownloadReady] = useState<{url: string, filename: string} | null>(null);
   const [pdfProgress, setPdfProgress] = useState<{current: number, total: number, message: string} | null>(null);
   
-  const [isAuthorized, setIsAuthorized] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   const normalizeDateValue = (value: string | Date | null | undefined) => {
     if (!value) return null;
