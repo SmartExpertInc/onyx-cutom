@@ -277,9 +277,10 @@ If agentic RAG fails for any reason:
 ## Files Modified
 
 1. **`backend/onyx/server/documents/models.py`**
+   - Added missing import: `from pydantic import model_validator`
    - Extended `FileContentRequest` with `source_types`
    - Extended `FileContentResponse` with `connector_chunks`
-   - Added validation logic
+   - Added validation logic using `@model_validator(mode='after')`
 
 2. **`backend/onyx/server/documents/document.py`**
    - Added `_get_connector_content_by_source_types()` function

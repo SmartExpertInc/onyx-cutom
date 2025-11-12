@@ -8,6 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import model_validator
 
 from onyx.configs.app_configs import MASK_CREDENTIAL_PREFIX
 from onyx.configs.constants import DocumentSource
