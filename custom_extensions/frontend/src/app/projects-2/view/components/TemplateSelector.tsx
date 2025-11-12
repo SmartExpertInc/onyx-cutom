@@ -42,7 +42,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'soft-skills-assessment-slide': 'Assessment Scale + Notes',
     'problems-grid': 'Problems Grid',                         // ✅ Fixed: corrected ID
     'solution-steps-slide': 'Numbered Steps + Icons',
-    'hybrid-work-best-practices-slide': 'Tips List + Illustration'
+    'hybrid-work-best-practices-slide': 'Tips List + Illustration',
+    'thank-you-slide': 'Thank You + Contact Info'
   };
 
   const hasAvatarImageField = (template: TemplateComponentInfo) => {
@@ -55,7 +56,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
   };
 
   // Source all templates that support avatars (avatarPosition, avatar fields, or explicit avatar templates)
-  const excludedTemplateIds = new Set(['thank-you-slide', 'learning-topics-slide', 'learning-topics']);
+  const excludedTemplateIds = new Set(['learning-topics-slide', 'learning-topics']);
 
   const availableTemplates = getAllTemplates()
     .filter(t => !t.id.endsWith('_old'))
@@ -84,7 +85,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'soft-skills-assessment-slide': <Type className="text-gray-700" />, // Scale + notes
     'problems-grid': <LayoutGrid className="text-gray-700" />, // Grid of problems ✅ Fixed
     'solution-steps-slide': <ListChecks className="text-gray-700" />, // Numbered steps
-    'hybrid-work-best-practices-slide': <BookOpenText className="text-gray-700" /> // Tips list
+    'hybrid-work-best-practices-slide': <BookOpenText className="text-gray-700" />, // Tips list
+    'thank-you-slide': <UserRound className="text-gray-700" /> // Thank you + avatar
   };
 
   const renderIcon = (templateId: string, fallback?: React.ReactNode) => {
