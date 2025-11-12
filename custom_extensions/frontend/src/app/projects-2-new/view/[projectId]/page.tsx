@@ -1192,7 +1192,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
         </div>
 
         {/* Right Panel - spans columns 11-12, full height of available space */}
-        <div ref={rightPanelRef} className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-3" style={{ gridColumn: '11 / 13' }}>
+        <div ref={rightPanelRef} className="h-full flex flex-col overflow-y-auto overflow-x-hidden bg-white border border-[#E0E0E0] rounded-lg p-2" style={{ gridColumn: '11 / 13' }}>
           {activeSettingsPanel === 'templates' ? (
             <TemplateSelector 
               currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
