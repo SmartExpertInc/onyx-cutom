@@ -27,6 +27,7 @@ interface ProductViewHeaderProps {
   setIsAuthorized?: (isAuthorized: boolean) => void;
   hideCloudAndArrowIndicators?: boolean;
   enableLinkViewButtons?: boolean;
+  hideAspectRatioBadge?: boolean;
   createdAt?: string | Date | null;
 }
 
@@ -50,6 +51,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   setIsAuthorized,
   hideCloudAndArrowIndicators = false,
   enableLinkViewButtons = false,
+  hideAspectRatioBadge = false,
   createdAt = null
 }) => {
 
@@ -209,7 +211,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 <span className="text-[#4D4D4D] text-[15px] font-medium">A4</span>
                 </div>
               </>)}
-              {isSlideDeck && (
+              {isSlideDeck && !hideAspectRatioBadge && (
                 <>
                   <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <div className="flex items-center gap-2">

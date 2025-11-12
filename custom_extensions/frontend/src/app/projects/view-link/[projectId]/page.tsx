@@ -1969,57 +1969,13 @@ export default function ProjectInstanceViewPage() {
         if (!slideDeckData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noSlideDeckData', 'No slide deck data available')}</div>;
         }
-        // For slide decks, use the new PresentationLayout with sidebar thumbnails
+        // For slide decks, render in view-only mode without editing controls
         return (
           <PresentationLayout
             deck={slideDeckData}
-            isEditable={true}
-            onSave={(updatedDeck) => {
-              // Update the editableData state with the new deck and trigger save
-              console.log('🔍 page.tsx: Received updated deck:', updatedDeck);
-              setEditableData(updatedDeck);
-
-                // Use the updated deck directly for immediate save
-                console.log('🔍 page.tsx: Triggering auto-save with updated data');
-                // Create a temporary auto-save function that uses the updated deck
-                const tempAutoSave = async () => {
-                  if (!projectId || !projectInstanceData) {
-                    console.log('🔍 page.tsx: Missing required data for auto-save');
-                    return;
-                  }
-
-                  const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-                  const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-                  if (devUserId && process.env.NODE_ENV === 'development') {
-                    saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-                  }
-
-                  try {
-                    const payload = { microProductContent: updatedDeck };
-                    console.log('🔍 page.tsx: Sending updated deck to backend:', JSON.stringify(payload, null, 2));
-
-                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
-                      method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
-                    });
-
-                    if (!response.ok) {
-                      console.error('🔍 page.tsx: Auto-save failed:', response.status);
-                      const errorText = await response.text();
-                      console.error('🔍 page.tsx: Auto-save error details:', errorText);
-                    } else {
-                      console.log('🔍 page.tsx: Auto-save successful with updated data');
-                      const responseData = await response.json();
-                      console.log('🔍 page.tsx: Auto-save response:', JSON.stringify(responseData, null, 2));
-                    }
-                  } catch (err: any) {
-                    console.error('🔍 page.tsx: Auto-save error:', err.message);
-                  }
-                };
-
-              tempAutoSave();
-            }}
             theme={currentTheme}
             projectId={projectId}
+            mode="view"
           />
         );
       case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
@@ -2027,57 +1983,13 @@ export default function ProjectInstanceViewPage() {
         if (!videoLessonPresentationData) {
           return <div className="p-6 text-center text-gray-500">{t('interface.projectView.noVideoLessonData', 'No video lesson data available')}</div>;
         }
-        // For video lesson presentations, use the same PresentationLayout but with voiceover support
+        // For video lesson presentations, render in view-only mode
         return (
           <PresentationLayout
             deck={videoLessonPresentationData}
-            isEditable={true}
-            onSave={(updatedDeck) => {
-              // Update the editableData state with the new deck and trigger save
-              console.log('🔍 page.tsx: Received updated video lesson deck:', updatedDeck);
-              setEditableData(updatedDeck);
-
-                // Use the updated deck directly for immediate save
-                console.log('🔍 page.tsx: Triggering auto-save with updated video lesson data');
-                // Create a temporary auto-save function that uses the updated deck
-                const tempAutoSave = async () => {
-                  if (!projectId || !projectInstanceData) {
-                    console.log('🔍 page.tsx: Missing required data for auto-save');
-                    return;
-                  }
-
-                  const saveOperationHeaders: HeadersInit = { 'Content-Type': 'application/json' };
-                  const devUserId = typeof window !== "undefined" ? sessionStorage.getItem("dev_user_id") || "dummy-onyx-user-id-for-testing" : "dummy-onyx-user-id-for-testing";
-                  if (devUserId && process.env.NODE_ENV === 'development') {
-                    saveOperationHeaders['X-Dev-Onyx-User-ID'] = devUserId;
-                  }
-
-                  try {
-                    const payload = { microProductContent: updatedDeck };
-                    console.log('🔍 page.tsx: Sending updated video lesson deck to backend:', JSON.stringify(payload, null, 2));
-
-                    const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/update/${projectId}`, {
-                      method: 'PUT', headers: saveOperationHeaders, body: JSON.stringify(payload),
-                    });
-
-                    if (!response.ok) {
-                      console.error('🔍 page.tsx: Auto-save failed:', response.status);
-                      const errorText = await response.text();
-                      console.error('🔍 page.tsx: Auto-save error details:', errorText);
-                    } else {
-                      console.log('🔍 page.tsx: Auto-save successful with updated data');
-                      const responseData = await response.json();
-                      console.log('🔍 page.tsx: Auto-save response:', JSON.stringify(responseData, null, 2));
-                    }
-                  } catch (err: any) {
-                    console.error('🔍 page.tsx: Auto-save error:', err.message);
-                  }
-                };
-
-              tempAutoSave();
-            }}
             theme="dark-purple"
             projectId={projectId}
+            mode="view"
           />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
@@ -2197,6 +2109,7 @@ export default function ProjectInstanceViewPage() {
         setIsAuthorized={setIsAuthorized}
         hideCloudAndArrowIndicators
         enableLinkViewButtons
+        hideAspectRatioBadge
         createdAt={projectCreatedAt}
       />
       

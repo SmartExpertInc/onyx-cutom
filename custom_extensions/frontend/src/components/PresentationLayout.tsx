@@ -15,6 +15,7 @@ interface PresentationLayoutProps {
   onSave?: (updatedDeck: ComponentBasedSlideDeck) => void;
   theme?: string;
   projectId?: string;
+  mode?: 'edit' | 'view';
 }
 
 const PresentationLayout: React.FC<PresentationLayoutProps> = ({
@@ -22,7 +23,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   isEditable = false,
   onSave,
   theme = 'default',
-  projectId
+  projectId,
+  mode = 'edit'
 }) => {
   // Apply a background color on the html/body while this layout is mounted
   useEffect(() => {
@@ -36,6 +38,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const [selectedSlideId, setSelectedSlideId] = useState<string | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const isViewMode = mode === 'view';
+  const editingEnabled = !isViewMode && isEditable;
   
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
@@ -116,7 +121,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   };
 
   const handleSlideUpdate = (updatedSlide: ComponentBasedSlide) => {
-    if (!deck || !onSave) return;
+    if (!deck || !onSave || !editingEnabled) return;
 
     const updatedSlides = deck.slides.map((slide: ComponentBasedSlide) =>
       slide.slideId === updatedSlide.slideId ? updatedSlide : slide
@@ -132,7 +137,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   // Add new slide with template
   const addSlide = (templateId: string = 'content-slide', insertAfterIndex?: number) => {
-    if (!deck || !onSave) return;
+    if (!deck || !onSave || !editingEnabled) return;
 
     const template = getTemplate(templateId);
     if (!template) {
@@ -192,7 +197,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   // Duplicate slide
   const duplicateSlide = (slideId: string) => {
-    if (!deck || !onSave) return;
+    if (!deck || !onSave || !editingEnabled) return;
 
     const slideToDuplicate = deck.slides.find(slide => slide.slideId === slideId);
     if (!slideToDuplicate) return;
@@ -235,7 +240,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   // Delete slide
   const deleteSlide = (slideId: string) => {
-    if (!deck || !onSave) return;
+    if (!deck || !onSave || !editingEnabled) return;
 
     const slideIndex = deck.slides.findIndex(slide => slide.slideId === slideId);
     if (slideIndex === -1) return;
@@ -277,11 +282,11 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       }
     };
 
-    if (showTemplateDropdown || showSlideMenu) {
+    if (!isViewMode && (showTemplateDropdown || showSlideMenu)) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showTemplateDropdown, showSlideMenu]);
+  }, [showTemplateDropdown, showSlideMenu, isViewMode]);
 
 
   if (!deck || !deck.slides || deck.slides.length === 0) {
@@ -294,8 +299,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   return (
     <>
-    <div className="flex min-h-screen bg-[#F2F2F4] presentation-layout">
+    <div className={`flex min-h-screen bg-[#F2F2F4] presentation-layout ${isViewMode ? 'justify-center' : ''}`}>
       {/* Left Sidebar - Slide Thumbnails */}
+      {!isViewMode && (
       <div className="w-90 min-h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
           {/* Add New Slide Button */}
           <div className="pt-4 px-4">
@@ -436,32 +442,33 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           })}
         </div>
       </div>
+      )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col bg-[#F2F2F4]">
+      <div className={`flex-1 flex flex-col bg-[#F2F2F4] ${isViewMode ? 'items-center' : ''}`}>
         {/* Scrollable Slides Container - Vertical scroll for big slides */}
         <div 
-          className="flex-1 bg-[#F2F2F4]"
+          className={`flex-1 bg-[#F2F2F4] ${isViewMode ? 'w-full flex justify-center' : ''}`}
           ref={scrollContainerRef}
         >
-          <div className="space-y-8 px-6">
+          <div className={`space-y-8 ${isViewMode ? 'px-0 w-full flex flex-col items-center' : 'px-6'}`}>
             {deck.slides.map((slide, index) => {
               const isActive = slide.slideId === selectedSlideId;
-              const isHovered = hoveredSlideId === slide.slideId;
-              const showMenu = showSlideMenu === slide.slideId;
+              const isHovered = editingEnabled && hoveredSlideId === slide.slideId;
+              const showMenu = editingEnabled && showSlideMenu === slide.slideId;
               
               return (
                 <div key={slide.slideId}>
                   <div
-                    className="flex items-center justify-center relative"
+                    className={`flex items-center justify-center relative ${isViewMode ? 'w-full max-w-6xl' : ''}`}
                     data-slide-index={index}
-                    onMouseEnter={() => setHoveredSlideId(slide.slideId)}
-                    onMouseLeave={() => setHoveredSlideId(null)}
+                    onMouseEnter={editingEnabled ? () => setHoveredSlideId(slide.slideId) : undefined}
+                    onMouseLeave={editingEnabled ? () => setHoveredSlideId(null) : undefined}
                   >
                     <div className="w-full max-w-6xl">
                       <div className="border border-[#CCCCCC] rounded-md relative">
                         {/* Three dots menu button - appears on hover at top left */}
-                        {isHovered && (
+                        {editingEnabled && isHovered && (
                           <div className="absolute top-2 left-2 z-40">
                             <button
                               onClick={(e) => {
@@ -476,7 +483,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         )}
 
                         {/* Slide menu dropdown */}
-                        {showMenu && (
+                        {editingEnabled && showMenu && (
                           <div
                             ref={slideMenuRef}
                             className="flex flex-row absolute top-10 left-2 z-50 bg-white border border-gray-200 rounded-sm shadow-xl min-w-[60px]"
@@ -513,7 +520,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         )}
                           <ComponentBasedSlideRenderer
                             slide={slide}
-                            isEditable={isEditable}
+                            isEditable={editingEnabled}
                             onSlideUpdate={handleSlideUpdate}
                             theme={theme}
                           />
@@ -522,6 +529,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
               </div>
               
                   {/* Between-slides action bar */}
+                  {!isViewMode && (
                   <div className="flex justify-center mt-4">
                     <div className="flex items-center bg-white rounded-md shadow-sm">
                       <button
@@ -607,6 +615,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                       </Popover>
                     </div>
                   </div>
+                  )}
                 </div>
               );
             })}
@@ -614,6 +623,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
         </div>
       </div>
     </div>
+    {!isViewMode && (
     <AIImageGenerationModal
       isOpen={showAIModal}
       onClose={() => setShowAIModal(false)}
@@ -621,6 +631,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       onGenerationStarted={() => {}}
       title="Generate with AI"
     />
+    )}
     </>
   );
 };
