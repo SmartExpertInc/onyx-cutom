@@ -195,6 +195,130 @@ def get_chunk_info(
     )
 
 
+def _get_connector_content_by_source_types(
+    request: FileContentRequest,
+    user: User | None,
+    db_session: Session,
+) -> FileContentResponse:
+    """
+    Get document chunks from connectors by source_type with optional semantic ranking.
+    
+    Uses semantic search with source_type filtering to retrieve chunks from
+    connector sources like Slack, Notion, Google Drive, etc.
+    """
+    from onyx.configs.constants import DocumentSource
+    
+    logger.info(f"[GET_CONNECTOR_CONTENT] Starting connector retrieval for sources: {request.source_types}")
+    
+    # Convert string source_types to DocumentSource enums
+    try:
+        source_enums = [DocumentSource(st) for st in request.source_types]
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid source type: {e}"
+        )
+    
+    # Get search settings and document index
+    search_settings = get_current_search_settings(db_session)
+    document_index = get_default_document_index(search_settings, None)
+    user_acl_filters = build_access_filters_for_user(user, db_session)
+    
+    # Build filters with source_type
+    filters = IndexFilters(
+        source_type=source_enums,
+        access_control_list=user_acl_filters
+    )
+    
+    logger.info(f"[GET_CONNECTOR_CONTENT] Filters: source_types={[s.value for s in source_enums]}, ACL={user_acl_filters}")
+    
+    # Perform semantic search with source_type filter
+    # Use the query if provided, otherwise use empty string to get all chunks
+    query_text = request.query if request.query else ""
+    num_hits = request.max_chunks_per_file * len(source_enums)
+    
+    logger.info(f"[GET_CONNECTOR_CONTENT] Performing search with query='{query_text[:50]}...', num_hits={num_hits}")
+    
+    # Use semantic_retrieval which supports filters
+    try:
+        chunks = document_index.semantic_retrieval(
+            query=query_text,
+            filters=filters,
+            num_to_retrieve=num_hits,
+        )
+        logger.info(f"[GET_CONNECTOR_CONTENT] Retrieved {len(chunks)} chunks from Vespa")
+    except Exception as e:
+        logger.error(f"[GET_CONNECTOR_CONTENT] Search failed: {e}")
+        return FileContentResponse(
+            connector_chunks=[],
+            total_chunks=0,
+            total_tokens=0
+        )
+    
+    if not chunks:
+        logger.warning(f"[GET_CONNECTOR_CONTENT] No chunks found for source_types: {request.source_types}")
+        return FileContentResponse(
+            connector_chunks=[],
+            total_chunks=0,
+            total_tokens=0
+        )
+    
+    # Get embedding model for semantic ranking (if query provided and chunks need reranking)
+    embedding_model = None
+    if request.query:
+        try:
+            from onyx.db.search_settings import get_current_db_embedding_provider
+            
+            db_embedding_provider = get_current_db_embedding_provider(db_session)
+            if db_embedding_provider:
+                embedding_model = EmbeddingModel(
+                    server_host=MODEL_SERVER_HOST,
+                    server_port=MODEL_SERVER_PORT,
+                    model_name=search_settings.model_name,
+                    normalize=search_settings.normalize,
+                    query_prefix=search_settings.query_prefix,
+                    passage_prefix=search_settings.passage_prefix,
+                    api_key=db_embedding_provider.api_key,
+                    api_url=db_embedding_provider.api_url,
+                    provider_type=search_settings.provider_type,
+                    api_version=db_embedding_provider.api_version,
+                    deployment_name=db_embedding_provider.deployment_name,
+                    reduced_dimension=None,
+                )
+                logger.info(f"[GET_CONNECTOR_CONTENT] Embedding model loaded for reranking")
+                
+                # Rerank chunks by query
+                chunks = _rank_chunks_by_query(chunks, request.query, embedding_model, db_session)
+        except Exception as e:
+            logger.warning(f"[GET_CONNECTOR_CONTENT] Could not load embedding model for reranking: {e}")
+    
+    # Limit total chunks
+    chunks = chunks[:num_hits]
+    
+    # Convert to FileChunk format
+    file_chunks = []
+    for idx, chunk in enumerate(chunks):
+        # If ranked, higher index = lower relevance
+        relevance_score = (len(chunks) - idx) / len(chunks) if request.query else None
+        
+        file_chunks.append(FileChunk(
+            chunk_id=chunk.chunk_id,
+            content=chunk.content,
+            document_id=chunk.document_id,
+            semantic_identifier=chunk.semantic_identifier,
+            source_type=chunk.source_type.value,
+            relevance_score=relevance_score
+        ))
+    
+    logger.info(f"[GET_CONNECTOR_CONTENT] Returning {len(file_chunks)} chunks")
+    
+    return FileContentResponse(
+        connector_chunks=file_chunks,
+        total_chunks=len(file_chunks),
+        total_tokens=None
+    )
+
+
 @router.post("/get-file-content")
 def get_file_content(
     request: FileContentRequest,
@@ -202,13 +326,20 @@ def get_file_content(
     db_session: Session = Depends(get_session),
 ) -> FileContentResponse:
     """
-    Get document chunks for uploaded files by file_id with optional semantic ranking.
+    Get document chunks for uploaded files OR connector sources with optional semantic ranking.
     
-    This endpoint:
+    For Files (file_ids provided):
     1. Maps file_ids to document_ids via UserFile table
     2. Retrieves chunks from Vespa using id_based_retrieval
     3. If query provided: ranks chunks by semantic similarity to query
     4. Returns top chunks (limited by max_chunks_per_file)
+    5. Respects user ACL permissions
+    
+    For Connectors (source_types provided):
+    1. Queries Vespa with source_type filter (e.g., "slack", "notion")
+    2. Uses semantic search to retrieve relevant chunks
+    3. If query provided: ranks chunks by semantic similarity
+    4. Returns top chunks (limited by max_chunks_per_file * num_sources)
     5. Respects user ACL permissions
     
     Semantic Ranking:
@@ -218,8 +349,15 @@ def get_file_content(
     - Falls back to natural order if ranking fails
     
     This direct vector access eliminates LLM refusal issues for large files
-    and provides semantically relevant content for product generation.
+    and enables agentic RAG for both files and connectors.
     """
+    # Branch based on request type
+    if request.source_types:
+        logger.info(f"[GET_FILE_CONTENT] Dispatching to connector retrieval for source_types={request.source_types}")
+        return _get_connector_content_by_source_types(request, user, db_session)
+    
+    # Otherwise, use file_ids (existing logic)
+    logger.info(f"[GET_FILE_CONTENT] Dispatching to file retrieval for file_ids={request.file_ids}")
     user_id = user.id if user else None
     
     # Get user files from database

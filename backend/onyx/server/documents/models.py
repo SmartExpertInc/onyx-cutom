@@ -491,15 +491,25 @@ class FileChunk(BaseModel):
 
 
 class FileContentRequest(BaseModel):
-    """Request for file content extraction"""
-    file_ids: list[int]  # User file IDs (UserFile.id)
+    """Request for file content extraction - supports both files and connectors"""
+    file_ids: list[int] | None = None  # User file IDs (UserFile.id)
+    source_types: list[str] | None = None  # Connector sources (e.g., ["slack", "notion"])
     query: str | None = None  # Optional query for semantic ranking
-    max_chunks_per_file: int = 50  # Limit chunks per file
+    max_chunks_per_file: int = 50  # Limit chunks per file/connector
     include_metadata: bool = True
+
+    @model_validator(mode='after')
+    def validate_source(self):
+        if not self.file_ids and not self.source_types:
+            raise ValueError("Either file_ids or source_types must be provided")
+        if self.file_ids and self.source_types:
+            raise ValueError("Cannot specify both file_ids and source_types")
+        return self
 
 
 class FileContentResponse(BaseModel):
-    """Response containing file chunks"""
-    files: dict[int, list[FileChunk]]  # file_id -> chunks
+    """Response containing file chunks - supports both files and connectors"""
+    files: dict[int, list[FileChunk]] | None = None  # file_id -> chunks (for files)
+    connector_chunks: list[FileChunk] | None = None  # flat list (for connectors)
     total_chunks: int
     total_tokens: int | None = None
