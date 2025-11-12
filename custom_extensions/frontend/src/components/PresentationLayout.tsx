@@ -16,6 +16,7 @@ interface PresentationLayoutProps {
   theme?: string;
   projectId?: string;
   mode?: 'edit' | 'view';
+  rightSidebar?: React.ReactNode;
 }
 
 const PresentationLayout: React.FC<PresentationLayoutProps> = ({
@@ -24,7 +25,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   onSave,
   theme = 'default',
   projectId,
-  mode = 'edit'
+  mode = 'edit',
+  rightSidebar
 }) => {
   // Apply a background color on the html/body while this layout is mounted
   useEffect(() => {
@@ -41,6 +43,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   const isViewMode = mode === 'view';
   const editingEnabled = !isViewMode && isEditable;
+  const shouldCenterView = isViewMode && !rightSidebar;
   
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
@@ -299,7 +302,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   return (
     <>
-    <div className={`flex min-h-screen bg-[#F2F2F4] presentation-layout ${isViewMode ? 'justify-center' : ''}`}>
+    <div
+      className={[
+        'flex min-h-screen bg-[#F2F2F4] presentation-layout',
+        shouldCenterView ? 'justify-center' : '',
+        isViewMode ? 'items-start' : '',
+        rightSidebar ? 'flex-col lg:flex-row gap-6 lg:gap-10 px-4 lg:px-10' : ''
+      ].filter(Boolean).join(' ')}
+    >
       {/* Left Sidebar - Slide Thumbnails */}
       {!isViewMode && (
       <div className="w-90 min-h-full bg-[#F9F9F9] border border-[#CCCCCC] flex flex-col relative rounded-md">
@@ -445,10 +455,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       )}
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col bg-[#F2F2F4] ${isViewMode ? 'items-center' : ''}`}>
+      <div className={`flex-1 flex flex-col bg-[#F2F2F4] ${shouldCenterView ? 'items-center' : ''}`}>
         {/* Scrollable Slides Container - Vertical scroll for big slides */}
         <div 
-          className={`flex-1 bg-[#F2F2F4] ${isViewMode ? 'w-full flex justify-center' : ''}`}
+          className={`flex-1 bg-[#F2F2F4] ${shouldCenterView ? 'w-full flex justify-center' : ''}`}
           ref={scrollContainerRef}
         >
           <div className={`space-y-8 ${isViewMode ? 'px-0 w-full flex flex-col items-center' : 'px-6'}`}>
@@ -622,6 +632,11 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           </div>
         </div>
       </div>
+      {rightSidebar && (
+        <div className="w-full lg:w-[360px] flex-shrink-0">
+          {rightSidebar}
+        </div>
+      )}
     </div>
     {!isViewMode && (
     <AIImageGenerationModal

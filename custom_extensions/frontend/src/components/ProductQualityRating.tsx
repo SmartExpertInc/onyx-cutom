@@ -5,13 +5,15 @@ interface ProductQualityRatingProps {
   questionText?: string;
   fullWidth?: boolean;
   className?: string;
+  isAuthorized?: boolean;
 }
 
 const ProductQualityRating = ({
   questionText,
   fullWidth = false,
   className,
-}: ProductQualityRatingProps): React.JSX.Element => {
+  isAuthorized = true,
+}: ProductQualityRatingProps): React.ReactElement | null => {
   const { t } = useLanguage();
   const [_hoveredStar, setHoveredStar] = useState<number | null>(null);
 
@@ -33,6 +35,10 @@ const ProductQualityRating = ({
   ]
     .filter(Boolean)
     .join(' ');
+
+  if (!isAuthorized) {
+    return null;
+  }
 
   return (
     <div className={containerClasses}>

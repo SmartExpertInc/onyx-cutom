@@ -36,6 +36,8 @@ import workspaceService, {
 import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, Trash2, XCircle } from 'lucide-react';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import PresentationLayout from '@/components/PresentationLayout';
+import CommentsForGeneratedProduct from '@/components/CommentsForGeneratedProduct';
+import ProductQualityRating from '@/components/ProductQualityRating';
 import { useTheme } from '@/hooks/useTheme';
 import { createPortal } from 'react-dom';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -1976,6 +1978,12 @@ export default function ProjectInstanceViewPage() {
             theme={currentTheme}
             projectId={projectId}
             mode="view"
+            rightSidebar={
+              <div className="space-y-6">
+                <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+                <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
+              </div>
+            }
           />
         );
       case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
@@ -1990,6 +1998,12 @@ export default function ProjectInstanceViewPage() {
             theme="dark-purple"
             projectId={projectId}
             mode="view"
+            rightSidebar={
+              <div className="space-y-6">
+                <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+                <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
+              </div>
+            }
           />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
