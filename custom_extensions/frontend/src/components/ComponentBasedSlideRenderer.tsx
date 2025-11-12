@@ -154,22 +154,12 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
           onUpdate={handlePropsUpdate}
           onSlideUpdate={onSlideUpdate}
           isVideoMode={isVideoMode}
+          forceAspectRatio={forceHybridView && !isEditable}
         >
           <TemplateComponent {...templateProps} />
         </HybridTemplateBase>
       </div>
     );
-
-    if (forceHybridView && !isEditable) {
-      return (
-        <div className="presentation-viewer-aspect">
-          <div className="presentation-viewer-spacer" aria-hidden="true" />
-          <div className="presentation-viewer-aspect-inner">
-            {hybridContent}
-          </div>
-        </div>
-      );
-    }
 
     return hybridContent;
   }

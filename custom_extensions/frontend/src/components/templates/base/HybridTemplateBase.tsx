@@ -30,6 +30,7 @@ interface HybridTemplateProps extends BaseTemplateProps {
   onSlideUpdate?: (updatedSlide: ComponentBasedSlide) => void;
   children?: React.ReactNode;
   isVideoMode?: boolean; // Flag for video editor mode
+  forceAspectRatio?: boolean;
 }
 
 export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
@@ -43,7 +44,8 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   onUpdate,
   onSlideUpdate,
   children,
-  isVideoMode = false
+  isVideoMode = false,
+  forceAspectRatio = false
 }) => {
   const [currentItems, setCurrentItems] = useState<PositionableItem[]>(items);
   const [currentCanvasConfig, setCurrentCanvasConfig] = useState<CanvasConfig>(
@@ -261,7 +263,7 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
 
   // For editable slides: render template with drag-and-drop enabled
   // FIXED: Use more flexible positioning that doesn't interfere with slide flow
-  return (
+  const coreContent = (
     <div 
       className={`relative positioning-enabled-slide ${isInitializing ? 'initializing' : ''} ${isVideoMode ? 'video-mode' : ''}`}
       style={{
@@ -288,6 +290,19 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       />
     </div>
   );
+
+  if (forceAspectRatio && !isEditable) {
+    return (
+      <div className="presentation-viewer-aspect">
+        <div className="presentation-viewer-spacer" aria-hidden="true" />
+        <div className="presentation-viewer-aspect-inner">
+          {coreContent}
+        </div>
+      </div>
+    );
+  }
+
+  return coreContent;
 };
 
 export default HybridTemplateBase;
