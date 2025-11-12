@@ -44,8 +44,7 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
   onUpdate,
   onSlideUpdate,
   children,
-  isVideoMode = false,
-  forceAspectRatio = false
+  isVideoMode = false
 }) => {
   const [currentItems, setCurrentItems] = useState<PositionableItem[]>(items);
   const [currentCanvasConfig, setCurrentCanvasConfig] = useState<CanvasConfig>(
@@ -290,17 +289,6 @@ export const HybridTemplateBase: React.FC<HybridTemplateProps> = ({
       />
     </div>
   );
-
-  if (forceAspectRatio && !isEditable) {
-    return (
-      <div className="presentation-viewer-aspect">
-        <div className="presentation-viewer-spacer" aria-hidden="true" />
-        <div className="presentation-viewer-aspect-inner">
-          {coreContent}
-        </div>
-      </div>
-    );
-  }
 
   return coreContent;
 };

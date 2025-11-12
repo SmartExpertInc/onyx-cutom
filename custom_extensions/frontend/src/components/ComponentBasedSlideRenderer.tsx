@@ -138,7 +138,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
 
   // Use HybridTemplateBase for all editable slides (positioning enabled by default)
   if (shouldUsePositioning) {
-    const hybridContent = (
+    return (
       <div 
         className={`slide-${slide.slideId} template-${slide.templateId} theme-${theme || DEFAULT_SLIDE_THEME} positioning-enabled`}
         data-theme={theme || DEFAULT_SLIDE_THEME}
@@ -154,14 +154,11 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
           onUpdate={handlePropsUpdate}
           onSlideUpdate={onSlideUpdate}
           isVideoMode={isVideoMode}
-          forceAspectRatio={forceHybridView && !isEditable}
         >
           <TemplateComponent {...templateProps} />
         </HybridTemplateBase>
       </div>
     );
-
-    return hybridContent;
   }
 
   // Default template rendering
