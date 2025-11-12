@@ -13516,6 +13516,12 @@ async def collect_agentic_context_from_connectors_streaming(
         # STAGE 2: Focused Context Collection
         yield ("progress", f"📚 Collecting focused content for {len(skeleton_items)} items...")
         
+        # Relevance filtering configuration
+        ABSOLUTE_MIN_RELEVANCE = 0.3      # Never accept chunks below this (0.0-1.0)
+        RELATIVE_THRESHOLD = 0.4          # Keep chunks >= 40% as good as best chunk
+        MIN_CHUNKS_PER_QUERY = 1          # Always keep at least this many (if available)
+        MAX_CHUNKS_PER_QUERY = 12         # Never exceed this limit
+        
         collected_chunks = {}
         chunk_index = 0
         unique_chunk_hashes = set()
@@ -13548,7 +13554,7 @@ async def collect_agentic_context_from_connectors_streaming(
                         json={
                             "source_types": connector_sources,
                             "query": focused_query,
-                            "max_chunks_per_file": 12,  # 12 chunks per connector
+                            "max_chunks_per_file": MAX_CHUNKS_PER_QUERY,
                             "include_metadata": True
                         },
                         cookies=cookies
@@ -13556,14 +13562,47 @@ async def collect_agentic_context_from_connectors_streaming(
                     focused_response.raise_for_status()
                     focused_data = focused_response.json()
                 
-                # Extract and deduplicate chunks
+                # Extract chunks
                 focused_chunks = focused_data.get("connector_chunks", [])
                 logger.info(f"[AGENTIC_CONNECTOR_STAGE2] Retrieved {len(focused_chunks)} chunks")
                 
+                if not focused_chunks:
+                    logger.warning(f"[AGENTIC_CONNECTOR_STAGE2] No chunks retrieved for item {idx}")
+                    continue
+                
+                # Calculate dynamic threshold based on best chunk
+                best_score = max(chunk.get("relevance_score", 0.0) for chunk in focused_chunks)
+                dynamic_threshold = best_score * RELATIVE_THRESHOLD
+                
+                # Use the more lenient threshold (allows some content even if quality is low overall)
+                effective_threshold = max(dynamic_threshold, ABSOLUTE_MIN_RELEVANCE)
+                
+                logger.info(
+                    f"[AGENTIC_CONNECTOR_STAGE2_FILTER] best_score={best_score:.3f} "
+                    f"dynamic_threshold={dynamic_threshold:.3f} "
+                    f"absolute_min={ABSOLUTE_MIN_RELEVANCE:.3f} "
+                    f"effective_threshold={effective_threshold:.3f}"
+                )
+                
+                # Filter and deduplicate chunks
                 unique_added = 0
+                filtered_count = 0
+                kept_count = 0
+                
                 for chunk in focused_chunks:
                     chunk_content = chunk.get("content", "")
                     if not chunk_content:
+                        continue
+                    
+                    relevance_score = chunk.get("relevance_score", 0.0)
+                    
+                    # Apply relevance filtering (but always keep at least MIN_CHUNKS_PER_QUERY)
+                    if relevance_score < effective_threshold and kept_count >= MIN_CHUNKS_PER_QUERY:
+                        filtered_count += 1
+                        logger.debug(
+                            f"[AGENTIC_CONNECTOR_STAGE2_FILTER] Filtered chunk with score {relevance_score:.3f} "
+                            f"(below {effective_threshold:.3f}, already have {kept_count} chunks)"
+                        )
                         continue
                     
                     # Deduplicate using hash
@@ -13572,6 +13611,7 @@ async def collect_agentic_context_from_connectors_streaming(
                         continue
                     
                     unique_chunk_hashes.add(chunk_hash)
+                    kept_count += 1
                     
                     # Add metadata header to chunk
                     header_lines = [f"## Section: {item_title}"]
@@ -13579,8 +13619,8 @@ async def collect_agentic_context_from_connectors_streaming(
                         header_lines.append(f"Source: {chunk.get('semantic_identifier')}")
                     if chunk.get("source_type"):
                         header_lines.append(f"Connector: {chunk.get('source_type')}")
-                    if chunk.get("relevance_score"):
-                        header_lines.append(f"Relevance Score: {chunk.get('relevance_score'):.3f}")
+                    if relevance_score:
+                        header_lines.append(f"Relevance Score: {relevance_score:.3f}")
                     header_lines.append(f"Focus Query: {focused_query}")
                     
                     chunk_with_header = "\n".join(header_lines) + "\n\n" + chunk_content
@@ -13589,7 +13629,11 @@ async def collect_agentic_context_from_connectors_streaming(
                     chunk_index += 1
                     unique_added += 1
                 
-                logger.info(f"[AGENTIC_CONNECTOR_STAGE2] chunks_retrieved={len(focused_chunks)} unique_added={unique_added} time={(time.time() - item_start):.2f}s")
+                logger.info(
+                    f"[AGENTIC_CONNECTOR_STAGE2] chunks_retrieved={len(focused_chunks)} "
+                    f"kept={kept_count} filtered={filtered_count} unique_added={unique_added} "
+                    f"time={(time.time() - item_start):.2f}s"
+                )
                 
             except Exception as e:
                 logger.error(f"[AGENTIC_CONNECTOR_STAGE2] Error for item {idx}: {e}")

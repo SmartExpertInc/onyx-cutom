@@ -164,6 +164,70 @@ query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.Q
 
 ---
 
+### 7. Feature: Hybrid Relevance Filtering ✅
+
+**Problem:** Irrelevant chunks (pricing tables, unrelated Notion pages) were being included in product generation, degrading quality
+
+**File:** `custom_extensions/backend/main.py` (lines 13516-13640)
+
+**Solution:** Implemented two-level relevance filtering:
+
+1. **Dynamic Threshold** (adapts to content quality):
+   ```python
+   dynamic_threshold = best_score * 0.4  # Keep chunks ≥40% as good as best
+   ```
+
+2. **Absolute Minimum** (safety net):
+   ```python
+   ABSOLUTE_MIN_RELEVANCE = 0.3  # Never accept chunks below this
+   ```
+
+3. **Effective Threshold** (lenient):
+   ```python
+   effective_threshold = max(dynamic_threshold, ABSOLUTE_MIN_RELEVANCE)
+   ```
+
+4. **Minimum Chunks Guarantee**:
+   ```python
+   MIN_CHUNKS_PER_QUERY = 1  # Always keep at least 1 chunk
+   ```
+
+**How it works:**
+- Calculates best chunk score for each query
+- Sets threshold relative to best (40%) or absolute (0.3), whichever is more lenient
+- Filters chunks below threshold UNLESS it would drop below minimum
+- Ensures products always have some content, even when quality is uniformly low
+
+**Example:**
+```
+Before: Retrieved 5 chunks (3 relevant, 2 irrelevant) → Kept all 5
+After:  Retrieved 5 chunks (3 relevant, 2 irrelevant) → Kept 3, filtered 2
+
+Filtered:
+- "Colossian Ideas" (score: 0.35) - About slide animations, not AWS ❌
+- "Pricing Table" (score: 0.25) - Ukrainian pricing info, not AWS ❌
+```
+
+**Benefits:**
+- ✅ Improves product quality by removing irrelevant content
+- ✅ Adapts to available content (strict when quality is high, lenient when low)
+- ✅ Never completely starves the product (MIN_CHUNKS guarantee)
+- ✅ Transparent logging for debugging
+
+**Configuration:**
+```python
+ABSOLUTE_MIN_RELEVANCE = 0.3      # Adjustable per use case
+RELATIVE_THRESHOLD = 0.4          # Adjustable per use case
+MIN_CHUNKS_PER_QUERY = 1          # Safety net
+MAX_CHUNKS_PER_QUERY = 12         # Upper limit
+```
+
+**Status:** ✅ Implemented
+
+See [`RELEVANCE_FILTERING.md`](RELEVANCE_FILTERING.md) for full documentation.
+
+---
+
 ## Implementation Timeline
 
 1. **Initial Implementation** - Created connector agentic RAG function and updated all 4 product endpoints
@@ -173,7 +237,8 @@ query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.Q
 5. **Bug Fix #4** - Fixed import path for `MODEL_SERVER_HOST`
 6. **Bug Fix #5** - Fixed missing `text_type` parameter in `encode()`
 7. **Bug Fix #6** - Fixed incorrect data structure format for `file_contents`
-8. **Diagnostic Logging** - Added debug logging to diagnose ACL and indexing issues
+8. **Feature Add** - Implemented hybrid relevance filtering to prevent irrelevant chunks
+9. **Diagnostic Logging** - Added debug logging to diagnose ACL and indexing issues
 
 ## Current Status
 
