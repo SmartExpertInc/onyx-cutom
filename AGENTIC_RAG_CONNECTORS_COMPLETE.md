@@ -294,9 +294,37 @@ If agentic RAG fails for any reason:
    - Updated Quiz endpoint (lines 34620-34650)
    - Updated Text Presentation endpoint (lines 36557-36598)
 
+## Troubleshooting
+
+### Issue: 0 Chunks Retrieved from Connectors
+
+If you see `Retrieved 0 chunks for skeleton generation`, this means:
+
+1. **No content indexed yet** - The connector hasn't indexed any documents (MOST LIKELY)
+2. **ACL blocking** - User doesn't have permission to access the documents
+3. **Query not matching** - Search query isn't finding relevant documents
+
+**Diagnostic logging added** to `backend/onyx/server/documents/document.py` (lines 261-278) will help identify which issue:
+- Shows if content exists but ACL blocks access
+- Shows if no content is indexed at all
+
+**To fix:**
+1. Restart api_server: `docker compose restart api_server`
+2. Check connector status in Onyx UI (Settings → Connectors)
+3. Verify connector has completed indexing
+4. Try manual re-index if needed
+5. Check logs for diagnostic messages
+
+See [`CONNECTOR_TROUBLESHOOTING.md`](CONNECTOR_TROUBLESHOOTING.md) for detailed troubleshooting guide.
+
 ## Next Steps
 
-1. **Testing** ⚠️
+1. **Verify Connector Setup** ✅
+   - Ensure Notion connector is configured and indexed
+   - Check connector status shows "Success"
+   - Verify documents appear in search
+
+2. **Testing** ⚠️
    - Test all scenarios listed above
    - Validate progress updates display correctly
    - Compare output quality with old method

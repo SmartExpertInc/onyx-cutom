@@ -257,6 +257,26 @@ def _get_connector_content_by_source_types(
     
     if not chunks:
         logger.warning(f"[GET_CONNECTOR_CONTENT] No chunks found for source_types: {request.source_types}")
+        
+        # DEBUG: Try without ACL filters to diagnose the issue
+        try:
+            logger.info(f"[GET_CONNECTOR_CONTENT] Retrying without ACL filters for debugging...")
+            test_filters = IndexFilters(source_type=source_enums)
+            test_chunks = document_index.semantic_retrieval(
+                query=query_text,
+                filters=test_filters,
+                num_to_retrieve=num_hits,
+            )
+            logger.info(f"[GET_CONNECTOR_CONTENT] Without ACL: {len(test_chunks)} chunks found")
+            if test_chunks:
+                logger.warning(f"[GET_CONNECTOR_CONTENT] ⚠️ ACL BLOCKING: Content exists but ACL filters block access")
+                logger.warning(f"[GET_CONNECTOR_CONTENT] User ACL filters: {user_acl_filters}")
+                logger.warning(f"[GET_CONNECTOR_CONTENT] Sample chunk access: {test_chunks[0].access if hasattr(test_chunks[0], 'access') else 'N/A'}")
+            else:
+                logger.warning(f"[GET_CONNECTOR_CONTENT] ⚠️ NO CONTENT: No documents indexed for source_types={request.source_types}")
+        except Exception as debug_e:
+            logger.error(f"[GET_CONNECTOR_CONTENT] Debug query failed: {debug_e}")
+        
         return FileContentResponse(
             connector_chunks=[],
             total_chunks=0,
