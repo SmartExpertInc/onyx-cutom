@@ -12975,6 +12975,65 @@ Return the corrected JSON without any markdown formatting or explanations."""
         raise ValueError(f"Failed to generate skeleton: {e}")
 
 
+async def collect_agentic_context_with_streaming(
+    file_ids: List[int],
+    original_prompt: str,
+    product_type: str,
+    cookies: Dict[str, str],
+    model: str = "gpt-4o-mini"
+):
+    """
+    Generator version of collect_agentic_context that yields progress updates.
+    Yields progress messages, then yields the final context as ('complete', context).
+    """
+    import json
+    
+    progress_messages = []
+    
+    async def capture_progress(message: str):
+        progress_messages.append(message)
+        yield ("progress", message)
+    
+    # Use a queue to handle progress messages
+    from asyncio import Queue
+    progress_queue = Queue()
+    
+    async def progress_callback(message: str):
+        await progress_queue.put(message)
+    
+    # Start the agentic collection in background
+    import asyncio
+    task = asyncio.create_task(collect_agentic_context(
+        file_ids=file_ids,
+        original_prompt=original_prompt,
+        product_type=product_type,
+        cookies=cookies,
+        model=model,
+        progress_callback=progress_callback
+    ))
+    
+    # Yield progress messages as they arrive
+    while not task.done():
+        try:
+            message = await asyncio.wait_for(progress_queue.get(), timeout=0.1)
+            yield ("progress", message)
+        except asyncio.TimeoutError:
+            continue
+    
+    # Drain remaining messages
+    while not progress_queue.empty():
+        message = await progress_queue.get()
+        yield ("progress", message)
+    
+    # Get the result
+    try:
+        context = await task
+        yield ("complete", context)
+    except Exception as e:
+        yield ("error", str(e))
+        raise
+
+
 async def collect_agentic_context(
     file_ids: List[int],
     original_prompt: str,
@@ -13015,15 +13074,21 @@ async def collect_agentic_context(
     logger.info(f"[AGENTIC_STAGE1_START] file_count={len(file_ids)}")
     
     if progress_callback:
-        await progress_callback("Analyzing document structure...")
+        await progress_callback(f"📄 Analyzing document structure from {len(file_ids)} file(s)...")
     
     # Extract broad context (existing function)
+    if progress_callback:
+        await progress_callback("🔍 Performing initial content scan...")
+    
     broad_context = await extract_file_content_direct(
         file_ids=file_ids,
         prompt=original_prompt,
         cookies=cookies,
         max_chunks_per_file=50  # Current default
     )
+    
+    if progress_callback:
+        await progress_callback("🧠 Generating content outline...")
     
     # Generate skeleton using product-specific prompt
     skeleton_prompt = build_skeleton_prompt(
@@ -13047,7 +13112,7 @@ async def collect_agentic_context(
     logger.info(f"[AGENTIC_STAGE1_COMPLETE] time={stage1_time:.2f}s")
     
     if progress_callback:
-        await progress_callback(f"Generated outline with {len(skeleton_items)} sections")
+        await progress_callback(f"✅ Generated outline with {len(skeleton_items)} sections")
     
     # STAGE 2: Collect focused chunks for each skeleton item
     logger.info(f"[AGENTIC_STAGE2_START] collecting chunks for {len(skeleton_items)} items")
@@ -13067,7 +13132,10 @@ async def collect_agentic_context(
         if progress_callback:
             progress = int((i / len(skeleton_items)) * 100)
             title = item.get('title') or item.get('module_name') or item.get('topic_name', f'Item {i+1}')
-            await progress_callback(f"Collecting context for: {title} ({progress}%)")
+            await progress_callback(f"📑 Finding content for section {i+1}/{len(skeleton_items)}: {title}")
+        
+        if progress_callback:
+            await progress_callback(f"🔎 Assessing relevance and ranking chunks...")
         
         # Extract focused chunks
         try:
@@ -13166,7 +13234,8 @@ async def collect_agentic_context(
     logger.info(f"[AGENTIC_STAGE2_COMPLETE] time={stage2_time:.2f}s")
     
     if progress_callback:
-        await progress_callback("Context collection complete")
+        await progress_callback(f"✅ Context collection complete! Collected {total_chunks} unique chunks")
+        await progress_callback(f"🚀 Generating final content...")
     
     # Final summary
     total_time = time.time() - stage1_start
@@ -20663,14 +20732,25 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         product_type_name = wiz_payload.get("product", "")
                         
                         try:
-                            file_context = await collect_agentic_context(
+                            file_context = None
+                            async for update_type, update_data in collect_agentic_context_with_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
-                                cookies=cookies,
-                                progress_callback=None  # Progress logged internally
-                            )
-                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if file_context is None:
+                                raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -28623,14 +28703,25 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         product_type_name = wiz_payload.get("product", "")
                         
                         try:
-                            file_context = await collect_agentic_context(
+                            file_context = None
+                            async for update_type, update_data in collect_agentic_context_with_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
-                                cookies=cookies,
-                                progress_callback=None  # Progress logged internally
-                            )
-                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if file_context is None:
+                                raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -34172,14 +34263,25 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         product_type_name = wiz_payload.get("product", "")
                         
                         try:
-                            file_context = await collect_agentic_context(
+                            file_context = None
+                            async for update_type, update_data in collect_agentic_context_with_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
-                                cookies=cookies,
-                                progress_callback=None  # Progress logged internally
-                            )
-                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if file_context is None:
+                                raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -36069,14 +36171,25 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         product_type_name = wiz_payload.get("product", "")
                         
                         try:
-                            file_context = await collect_agentic_context(
+                            file_context = None
+                            async for update_type, update_data in collect_agentic_context_with_streaming(
                                 file_ids=file_ids,
                                 original_prompt=payload.prompt,
                                 product_type=product_type_name,
-                                cookies=cookies,
-                                progress_callback=None  # Progress logged internally
-                            )
-                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if file_context is None:
+                                raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
@@ -36156,14 +36269,25 @@ FULL FILE CONTENT:
                         logger.info(f"[TEXT_PRESENTATION] Using AGENTIC extraction for {len(file_ids_list)} files")
                         
                         try:
-                            file_context = await collect_agentic_context(
+                            file_context = None
+                            async for update_type, update_data in collect_agentic_context_with_streaming(
                                 file_ids=file_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Text Presentation",
-                                cookies=cookies,
-                                progress_callback=None  # Progress logged internally
-                            )
-                            logger.info(f"[TEXT_PRESENTATION] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[TEXT_PRESENTATION] Agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if file_context is None:
+                                raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[TEXT_PRESENTATION] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
