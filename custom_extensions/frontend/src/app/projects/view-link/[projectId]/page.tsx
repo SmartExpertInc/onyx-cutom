@@ -16,7 +16,6 @@ import { VideoLessonData } from '@/types/videoLessonTypes';
 import { ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { ProjectListItem } from '@/types/products';
 import PdfLessonDisplayComponent from '@/components/PdfLessonDisplay';
-import EditorPage from '@/components/EditorPage';
 import VideoLessonDisplay from '@/components/VideoLessonDisplay';
 import VideoProductDisplay from '@/components/VideoProductDisplay';
 import QuizDisplay from '@/components/QuizDisplay';
@@ -32,7 +31,7 @@ import workspaceService, {
   ProductAccessCreate 
 } from '../../../../services/workspaceService';
 
-import { Save, Edit, ArrowDownToLine, Info, AlertTriangle, Trash2, XCircle } from 'lucide-react';
+import { Info, AlertTriangle } from 'lucide-react';
 import { SmartSlideDeckViewer } from '@/components/SmartSlideDeckViewer';
 import PresentationLayout from '@/components/PresentationLayout';
 import CommentsForGeneratedProduct from '@/components/CommentsForGeneratedProduct';
@@ -272,9 +271,6 @@ export default function ProjectInstanceViewPage() {
   const [isSaving, setIsSaving] = useState(false);
   const lastSavedDataRef = useRef<MicroProductContentData | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showColumnModal, setShowColumnModal] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState({
     knowledgeCheck: true,
     contentAvailability: true,
@@ -2092,37 +2088,47 @@ export default function ProjectInstanceViewPage() {
   };
 
   const handleVideoExportClick = async () => {
-    try {
-      const videoUrl = videoProductData?.videoUrl;
-      if (!videoUrl) {
-        throw new Error('Video URL is not available');
-      }
+     // intentionally no-op
+   };
 
-      const fullVideoUrl = videoUrl.startsWith('http') ? videoUrl : `${CUSTOM_BACKEND_URL}${videoUrl}`;
-      const response = await fetch(fullVideoUrl, {
-        method: 'GET',
-        headers: { Accept: 'video/mp4' },
-        credentials: 'same-origin'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Download failed: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `video_product_${projectId || 'download'}.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Video export failed:', error);
-      alert(t('videoProductDisplay.downloadFailed', 'Download failed. Please try again.'));
-    }
+  const handleVideoScormExportClick = async () => {
+    // intentionally no-op
   };
+
+  const exportOptions = useMemo(() => {
+    if (!isVideoProductComponent) {
+      return undefined;
+    }
+    return [
+      {
+        key: 'video',
+        label: 'Video (.mp4)',
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clipPath="url(#clip0_video_export)">
+              <path d="M4.66634 1.33203V14.6654M11.333 1.33203V14.6654M1.33301 7.9987H14.6663M1.33301 4.66536H4.66634M1.33301 11.332H4.66634M11.333 11.332H14.6663M11.333 4.66536H14.6663M2.78634 1.33203H13.213C14.0157 1.33203 14.6663 1.98271 14.6663 2.78536V13.212C14.6663 14.0147 14.0157 14.6654 13.213 14.6654H2.78634C1.98369 14.6654 1.33301 14.0147 1.33301 13.212V2.78536C1.33301 1.98271 1.98369 1.33203 2.78634 1.33203Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+            </g>
+            <defs>
+              <clipPath id="clip0_video_export">
+                <rect width="16" height="16" fill="white"/>
+              </clipPath>
+            </defs>
+          </svg>
+        ),
+        onSelect: handleVideoExportClick
+      },
+      {
+        key: 'scorm',
+        label: 'eLearning (.SCORM)',
+        icon: (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.1455 2.63574C10.1625 2.64265 10.1709 2.66168 10.1641 2.67871L5.89746 13.3457C5.89059 13.3624 5.87135 13.3707 5.85449 13.3643H5.85352C5.83669 13.3574 5.82911 13.3374 5.83594 13.3203L10.1025 2.6543C10.1094 2.63721 10.1284 2.62889 10.1455 2.63574ZM3.75684 5.84277C3.76967 5.85573 3.76962 5.87666 3.75684 5.88965L1.64648 8L2 8.35352L3.75684 10.1094C3.76969 10.1223 3.7696 10.1432 3.75684 10.1562C3.74385 10.1692 3.72299 10.1692 3.70996 10.1562L1.57617 8.02344C1.56976 8.01703 1.5665 8.0084 1.56641 8L1.57617 7.97559L3.70996 5.84277C3.72299 5.82996 3.74389 5.82983 3.75684 5.84277ZM12.29 5.84277L14.4229 7.97559C14.4295 7.9822 14.4327 7.99132 14.4326 8L14.4229 8.02344L12.29 10.1562C12.277 10.1693 12.2562 10.1692 12.2432 10.1562C12.2366 10.1497 12.2334 10.1414 12.2334 10.1328L12.2432 10.1094L14.3525 8L13.999 7.64648L12.2432 5.88965C12.2301 5.87662 12.2301 5.8558 12.2432 5.84277C12.2497 5.83633 12.2581 5.83296 12.2666 5.83301L12.29 5.84277Z" fill="#171718" stroke="#171718"/>
+          </svg>
+        ),
+        onSelect: handleVideoScormExportClick
+      }
+    ];
+  }, [isVideoProductComponent, handleVideoExportClick, handleVideoScormExportClick]);
 
   return (
     <>
@@ -2143,7 +2149,6 @@ export default function ProjectInstanceViewPage() {
         t={t}
         onPdfExport={handlePdfDownload}
         onDraftClick={isVideoProductComponent ? handleVideoDraftClick : undefined}
-        onExportClick={isVideoProductComponent ? handleVideoExportClick : undefined}
         isEditing={isEditing}
         onEditOrSave={handleToggleEdit}
         isAuthorized={isAuthorized}
@@ -2152,6 +2157,7 @@ export default function ProjectInstanceViewPage() {
         enableLinkViewButtons
         hideAspectRatioBadge
         createdAt={projectCreatedAt}
+        exportOptions={exportOptions}
       />
       
       <main 

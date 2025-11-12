@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProductViewHeader.tsx
 "use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
@@ -29,6 +29,7 @@ interface ProductViewHeaderProps {
   enableLinkViewButtons?: boolean;
   hideAspectRatioBadge?: boolean;
   createdAt?: string | Date | null;
+  exportOptions?: Array<{ key: string; label: string; icon: React.ReactNode; onSelect?: () => void }>;
 }
 
 export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
@@ -52,7 +53,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   hideCloudAndArrowIndicators = false,
   enableLinkViewButtons = false,
   hideAspectRatioBadge = false,
-  createdAt = null
+  createdAt = null,
+  exportOptions
 }) => {
 
   const [localIsAuthorized, setLocalIsAuthorized] = useState(isAuthorized);
@@ -133,12 +135,16 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   };
 
   const handleExport = () => {
-    if (onExportClick) {
-      onExportClick();
+    if (exportOptions && exportOptions.length > 0) {
+      setShowExportMenu(prev => !prev);
       return;
     }
-    if (onPdfExport) {
+    if (onExportClick) {
+      onExportClick();
+    } else if (onPdfExport) {
       onPdfExport();
+    } else {
+      console.warn('Export action not provided');
     }
   };
 
@@ -157,6 +163,31 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         console.warn('Clipboard API not available');
       }
     }
+  };
+
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+  const exportButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showExportMenu) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node) &&
+          exportButtonRef.current && !exportButtonRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showExportMenu]);
+
+  const handleExportOptionSelect = (onSelect?: () => void) => {
+    if (onSelect) {
+      onSelect();
+    }
+    setShowExportMenu(false);
   };
 
   return (
@@ -305,25 +336,23 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   Draft
                 </button>
               )}
-              {currentIsAuthorized && (
-                <button
-                  onClick={handleExport}
-                  className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    color: '#0F58F9',
-                    border: '1px solid #0F58F9',
-                    fontSize: '14px',
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Export
-                </button>
-              )}
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  color: '#0F58F9',
+                  border: '1px solid #0F58F9',
+                  fontSize: '14px',
+                  lineHeight: '140%',
+                  letterSpacing: '0.05em'
+                }}
+              >
+                <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Export
+              </button>
               <button
                 onClick={handleCopyLink}
                 className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
