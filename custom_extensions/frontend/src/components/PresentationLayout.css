@@ -95,6 +95,22 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
+.view-mode-slide-wrapper {
+  width: min(100%, calc(100vw - 400px - 32px));
+  max-width: 1152px;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.view-mode-slide-wrapper .positioning-enabled-slide {
+  width: 100%;
+  height: 100%;
+}
+
 
 .slide-dots-container {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
