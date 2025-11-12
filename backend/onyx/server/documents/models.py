@@ -478,3 +478,28 @@ class GmailCallback(BaseModel):
 class GDriveCallback(BaseModel):
     state: str
     code: str
+
+
+class FileChunk(BaseModel):
+    """Individual chunk from a document"""
+    chunk_id: int
+    content: str
+    document_id: str
+    semantic_identifier: str  # Document title/name
+    source_type: str
+    relevance_score: float | None = None  # For semantic ranking
+
+
+class FileContentRequest(BaseModel):
+    """Request for file content extraction"""
+    file_ids: list[int]  # User file IDs (UserFile.id)
+    query: str | None = None  # Optional query for semantic ranking
+    max_chunks_per_file: int = 50  # Limit chunks per file
+    include_metadata: bool = True
+
+
+class FileContentResponse(BaseModel):
+    """Response containing file chunks"""
+    files: dict[int, list[FileChunk]]  # file_id -> chunks
+    total_chunks: int
+    total_tokens: int | None = None

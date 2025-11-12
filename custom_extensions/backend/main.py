@@ -12625,6 +12625,121 @@ async def extract_file_context_from_onyx(file_ids: List[int], folder_ids: List[i
         "metadata": {"error": "No context extracted"}
     }
 
+
+async def extract_file_content_direct(
+    file_ids: List[int],
+    prompt: str,
+    cookies: Dict[str, str],
+    max_chunks_per_file: int = 50,
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None
+) -> Dict[str, Any]:
+    """
+    Direct chunk extraction via Onyx API (no chat sessions).
+    Uses the new /document/get-file-content endpoint for reliable extraction.
+    
+    Args:
+        file_ids: List of file IDs to extract
+        prompt: User prompt for semantic ranking
+        cookies: Authentication cookies
+        max_chunks_per_file: Maximum chunks per file
+        progress_callback: Optional callback for progress updates
+        
+    Returns:
+        Dict with extracted file context in same format as chat-based extraction
+    """
+    try:
+        logger.info(f"[DIRECT_EXTRACT] Starting direct extraction for {len(file_ids)} files")
+        
+        if progress_callback:
+            await progress_callback(f"Extracting content from {len(file_ids)} files...")
+        
+        # Call the new Onyx API endpoint
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            response = await client.post(
+                f"{ONYX_API_SERVER_URL}/document/get-file-content",
+                json={
+                    "file_ids": file_ids,
+                    "query": prompt,  # For semantic ranking
+                    "max_chunks_per_file": max_chunks_per_file,
+                    "include_metadata": True
+                },
+                cookies=cookies
+            )
+            response.raise_for_status()
+            result = response.json()
+        
+        logger.info(f"[DIRECT_EXTRACT] Received {result['total_chunks']} chunks from API")
+        
+        # Convert API response to expected format
+        extracted_context = {
+            "file_summaries": [],
+            "file_contents": [],
+            "folder_contexts": [],
+            "key_topics": [],
+            "metadata": {
+                "total_files": len(file_ids),
+                "total_chunks": result["total_chunks"],
+                "extraction_method": "direct_api",
+                "extraction_time": time.time()
+            }
+        }
+        
+        # Process each file's chunks
+        for file_id, chunks in result["files"].items():
+            if not chunks:
+                continue
+            
+            # Get document name from first chunk
+            doc_name = chunks[0]["semantic_identifier"] if chunks else f"File {file_id}"
+            
+            # Combine all chunk contents for this file
+            combined_content = "\n\n".join([
+                chunk["content"] for chunk in chunks
+            ])
+            
+            # Create summary from first chunk or beginning of content
+            if len(combined_content) > 500:
+                summary = f"{doc_name}: {combined_content[:500]}..."
+            else:
+                summary = f"{doc_name}: {combined_content}"
+            
+            extracted_context["file_summaries"].append(summary)
+            # Store as string for compatibility with existing code that expects file_contents as list of strings
+            extracted_context["file_contents"].append(combined_content)
+            
+            logger.info(f"[DIRECT_EXTRACT] Processed file {file_id}: {len(chunks)} chunks, {len(combined_content)} chars")
+        
+        # Extract topics from content (simple keyword extraction)
+        all_text = " ".join(extracted_context["file_summaries"])
+        # Simple topic extraction - you could make this more sophisticated
+        words = all_text.lower().split()
+        # Get unique meaningful words (longer than 4 chars) as topics
+        topics = list(set([w for w in words if len(w) > 4 and w.isalpha()]))[:20]
+        extracted_context["key_topics"] = topics
+        
+        logger.info(f"[DIRECT_EXTRACT] Successfully extracted content from {len(result['files'])} files")
+        
+        return extracted_context
+        
+    except httpx.HTTPStatusError as e:
+        logger.error(f"[DIRECT_EXTRACT] HTTP error: {e.response.status_code} - {e.response.text}")
+        return {
+            "file_summaries": [],
+            "file_contents": [],
+            "folder_contexts": [],
+            "key_topics": [],
+            "metadata": {"error": f"HTTP error: {e.response.status_code}"}
+        }
+    except Exception as e:
+        logger.error(f"[DIRECT_EXTRACT] Error extracting file content: {e}", exc_info=True)
+        return {
+            "file_summaries": [],
+            "file_contents": [],
+            "folder_contexts": [],
+            "key_topics": [],
+            "metadata": {"error": str(e)}
+        }
+
 async def extract_connector_context_from_onyx(connector_sources: str, prompt: str, cookies: Dict[str, str]) -> Dict[str, Any]:
     """
     Extract context from specific connectors using the Search persona with connector filtering.
@@ -20120,26 +20235,53 @@ FULL FILE CONTENT:
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx WITH PROGRESS UPDATES
+                    # Extract context from Onyx
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # Stream progress updates during file extraction
-                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                        if update["type"] == "progress":
-                            # Send keep-alive with progress message
-                            progress_packet = {"type": "info", "message": update["message"]}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                            
-                            # Update last_send time to prevent additional keep-alive
-                            last_send = asyncio.get_event_loop().time()
-                        elif update["type"] == "complete":
-                            file_context = update["context"]
-                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                            break
-                        elif update["type"] == "error":
-                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    if file_ids_list and not folder_ids_list:
+                        # Use direct API extraction for files (faster, more reliable)
+                        logger.info(f"[COURSE_OUTLINE] Using DIRECT extraction for {len(file_ids_list)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids_list, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[COURSE_OUTLINE] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[COURSE_OUTLINE] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    else:
+                        # Use chat-based extraction for folders or mixed cases
+                        logger.info(f"[COURSE_OUTLINE] Using chat-based extraction (folders included)")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -28021,26 +28163,53 @@ FULL FILE CONTENT:
                         file_ids_list.append(wizard_dict["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wizard_dict['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx WITH PROGRESS UPDATES
+                    # Extract context from Onyx
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # Stream progress updates during file extraction
-                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                        if update["type"] == "progress":
-                            # Send keep-alive with progress message
-                            progress_packet = {"type": "info", "message": update["message"]}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                            
-                            # Update last_send time to prevent additional keep-alive
-                            last_send = asyncio.get_event_loop().time()
-                        elif update["type"] == "complete":
-                            file_context = update["context"]
-                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                            break
-                        elif update["type"] == "error":
-                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    if file_ids_list and not folder_ids_list:
+                        # Use direct API extraction for files (faster, more reliable)
+                        logger.info(f"[LESSON_PRESENTATION] Using DIRECT extraction for {len(file_ids_list)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids_list, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[LESSON_PRESENTATION] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[LESSON_PRESENTATION] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    else:
+                        # Use chat-based extraction for folders or mixed cases
+                        logger.info(f"[LESSON_PRESENTATION] Using chat-based extraction (folders included)")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -33528,26 +33697,53 @@ FULL FILE CONTENT:
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx WITH PROGRESS UPDATES
+                    # Extract context from Onyx
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # Stream progress updates during file extraction
-                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                        if update["type"] == "progress":
-                            # Send keep-alive with progress message
-                            progress_packet = {"type": "info", "message": update["message"]}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                            
-                            # Update last_send time to prevent additional keep-alive
-                            last_send = asyncio.get_event_loop().time()
-                        elif update["type"] == "complete":
-                            file_context = update["context"]
-                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                            break
-                        elif update["type"] == "error":
-                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    if file_ids_list and not folder_ids_list:
+                        # Use direct API extraction for files (faster, more reliable)
+                        logger.info(f"[QUIZ] Using DIRECT extraction for {len(file_ids_list)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids_list, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[QUIZ] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[QUIZ] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    else:
+                        # Use chat-based extraction for folders or mixed cases
+                        logger.info(f"[QUIZ] Using chat-based extraction (folders included)")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -35383,26 +35579,53 @@ FULL FILE CONTENT:
                         file_ids_list.append(wiz_payload["virtualFileId"])
                         logger.info(f"[HYBRID_CONTEXT] Added virtual file ID {wiz_payload['virtualFileId']} to file_ids_list")
                     
-                    # Extract context from Onyx WITH PROGRESS UPDATES
+                    # Extract context from Onyx
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from {len(file_ids_list)} files and {len(folder_ids_list)} folders")
                     file_context = None
                     
-                    # Stream progress updates during file extraction
-                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                        if update["type"] == "progress":
-                            # Send keep-alive with progress message
-                            progress_packet = {"type": "info", "message": update["message"]}
-                            yield (json.dumps(progress_packet) + "\n").encode()
-                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                            
-                            # Update last_send time to prevent additional keep-alive
-                            last_send = asyncio.get_event_loop().time()
-                        elif update["type"] == "complete":
-                            file_context = update["context"]
-                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                            break
-                        elif update["type"] == "error":
-                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    # USE NEW DIRECT EXTRACTION METHOD (no chat sessions, no LLM refusal)
+                    if file_ids_list and not folder_ids_list:
+                        # Use direct API extraction for files (faster, more reliable)
+                        logger.info(f"[TEXT_PRESENTATION] Using DIRECT extraction for {len(file_ids_list)} files")
+                        progress_packet = {"type": "info", "message": f"Extracting content from {len(file_ids_list)} files..."}
+                        yield (json.dumps(progress_packet) + "\n").encode()
+                        
+                        try:
+                            file_context = await extract_file_content_direct(
+                                file_ids_list, 
+                                payload.prompt,
+                                cookies,
+                                max_chunks_per_file=50
+                            )
+                            logger.info(f"[TEXT_PRESENTATION] Direct extraction success: {len(file_context.get('file_contents', []))} files")
+                        except Exception as e:
+                            logger.error(f"[TEXT_PRESENTATION] Direct extraction failed, using fallback: {e}")
+                            # Fall back to old method
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                    else:
+                        # Use chat-based extraction for folders or mixed cases
+                        logger.info(f"[TEXT_PRESENTATION] Using chat-based extraction (folders included)")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
