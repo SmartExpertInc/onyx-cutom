@@ -239,16 +239,48 @@ def _get_connector_content_by_source_types(
     
     logger.info(f"[GET_CONNECTOR_CONTENT] Performing search with query='{query_text[:50]}...', num_hits={num_hits}")
     
-    # Use semantic_retrieval which supports filters
+    # Use hybrid_retrieval which supports filters
     try:
-        chunks = document_index.semantic_retrieval(
+        # Get embedding model to generate query embedding
+        from onyx.db.search_settings import get_current_db_embedding_provider
+        from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
+        from onyx.shared_configs.configs import MODEL_SERVER_HOST, MODEL_SERVER_PORT
+        from onyx.agents.agent_search.shared_graph_utils.models import QueryExpansionType
+        
+        db_embedding_provider = get_current_db_embedding_provider(db_session)
+        embedding_model = EmbeddingModel(
+            server_host=MODEL_SERVER_HOST,
+            server_port=MODEL_SERVER_PORT,
+            model_name=search_settings.model_name,
+            normalize=search_settings.normalize,
+            query_prefix=search_settings.query_prefix,
+            passage_prefix=search_settings.passage_prefix,
+            api_key=db_embedding_provider.api_key if db_embedding_provider else None,
+            api_url=db_embedding_provider.api_url if db_embedding_provider else None,
+            provider_type=search_settings.provider_type,
+            api_version=db_embedding_provider.api_version if db_embedding_provider else None,
+            deployment_name=db_embedding_provider.deployment_name if db_embedding_provider else None,
+            reduced_dimension=None,
+        )
+        
+        # Generate query embedding
+        query_embedding = embedding_model.encode([query_text])[0]
+        
+        # Perform hybrid retrieval with filters
+        chunks = document_index.hybrid_retrieval(
             query=query_text,
+            query_embedding=query_embedding,
+            final_keywords=None,
             filters=filters,
+            hybrid_alpha=0.5,  # Balance between keyword and semantic
+            time_decay_multiplier=1.0,
             num_to_retrieve=num_hits,
+            ranking_profile_type=QueryExpansionType.SEMANTIC,  # Use semantic ranking
+            offset=0,
         )
         logger.info(f"[GET_CONNECTOR_CONTENT] Retrieved {len(chunks)} chunks from Vespa")
     except Exception as e:
-        logger.error(f"[GET_CONNECTOR_CONTENT] Search failed: {e}")
+        logger.error(f"[GET_CONNECTOR_CONTENT] Search failed: {e}", exc_info=True)
         return FileContentResponse(
             connector_chunks=[],
             total_chunks=0,
@@ -262,10 +294,16 @@ def _get_connector_content_by_source_types(
         try:
             logger.info(f"[GET_CONNECTOR_CONTENT] Retrying without ACL filters for debugging...")
             test_filters = IndexFilters(source_type=source_enums)
-            test_chunks = document_index.semantic_retrieval(
+            test_chunks = document_index.hybrid_retrieval(
                 query=query_text,
+                query_embedding=query_embedding,
+                final_keywords=None,
                 filters=test_filters,
+                hybrid_alpha=0.5,
+                time_decay_multiplier=1.0,
                 num_to_retrieve=num_hits,
+                ranking_profile_type=QueryExpansionType.SEMANTIC,
+                offset=0,
             )
             logger.info(f"[GET_CONNECTOR_CONTENT] Without ACL: {len(test_chunks)} chunks found")
             if test_chunks:
@@ -283,34 +321,8 @@ def _get_connector_content_by_source_types(
             total_tokens=0
         )
     
-    # Get embedding model for semantic ranking (if query provided and chunks need reranking)
-    embedding_model = None
-    if request.query:
-        try:
-            from onyx.db.search_settings import get_current_db_embedding_provider
-            
-            db_embedding_provider = get_current_db_embedding_provider(db_session)
-            if db_embedding_provider:
-                embedding_model = EmbeddingModel(
-                    server_host=MODEL_SERVER_HOST,
-                    server_port=MODEL_SERVER_PORT,
-                    model_name=search_settings.model_name,
-                    normalize=search_settings.normalize,
-                    query_prefix=search_settings.query_prefix,
-                    passage_prefix=search_settings.passage_prefix,
-                    api_key=db_embedding_provider.api_key,
-                    api_url=db_embedding_provider.api_url,
-                    provider_type=search_settings.provider_type,
-                    api_version=db_embedding_provider.api_version,
-                    deployment_name=db_embedding_provider.deployment_name,
-                    reduced_dimension=None,
-                )
-                logger.info(f"[GET_CONNECTOR_CONTENT] Embedding model loaded for reranking")
-                
-                # Rerank chunks by query
-                chunks = _rank_chunks_by_query(chunks, request.query, embedding_model, db_session)
-        except Exception as e:
-            logger.warning(f"[GET_CONNECTOR_CONTENT] Could not load embedding model for reranking: {e}")
+    # Note: Semantic ranking is already done by hybrid_retrieval above
+    # No additional reranking needed since hybrid_retrieval uses embeddings
     
     # Limit total chunks
     chunks = chunks[:num_hits]

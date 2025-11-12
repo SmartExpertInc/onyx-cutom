@@ -90,6 +90,18 @@ docker compose exec postgres psql -U postgres -d postgres -c "SELECT COUNT(*) FR
 docker compose exec postgres psql -U postgres -d postgres -c "SELECT cc.id, c.name, c.source, cc.status FROM connector_credential_pair cc JOIN connector c ON cc.connector_id = c.id WHERE c.source = 'notion';"
 ```
 
+### Recent Fix: Changed to hybrid_retrieval
+
+**Issue:** The initial implementation tried to use `semantic_retrieval()` which doesn't exist in VespaIndex.
+
+**Fix Applied:** Changed to use `hybrid_retrieval()` which is the correct method in Onyx. This method:
+- Generates query embeddings automatically
+- Performs hybrid search (semantic + keyword)
+- Supports source_type filtering
+- Returns properly ranked results
+
+This is now fixed and should work correctly after restarting the API server.
+
 ### Expected Behavior with Diagnostic Logging
 
 After restarting `api_server`, when you try to create a product from Notion, you should see:

@@ -285,7 +285,10 @@ If agentic RAG fails for any reason:
 2. **`backend/onyx/server/documents/document.py`**
    - Added `_get_connector_content_by_source_types()` function
    - Modified `get_file_content()` to dispatch based on request type
-   - Integrated semantic search with source_type filtering
+   - **Fixed:** Changed from non-existent `semantic_retrieval()` to `hybrid_retrieval()`
+   - Implemented proper query embedding generation using EmbeddingModel
+   - Integrated hybrid search (semantic + keyword) with source_type filtering
+   - Added diagnostic logging for debugging ACL and indexing issues
 
 3. **`custom_extensions/backend/main.py`**
    - Added `collect_agentic_context_from_connectors_streaming()` (lines 13432-13615)
