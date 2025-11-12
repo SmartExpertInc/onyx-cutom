@@ -2129,7 +2129,7 @@ export default function ProjectInstanceViewPage() {
 
   const isVideoProductComponent = projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
   const videoProductData = isVideoProductComponent ? (editableData as any) : null;
-  const sourceVideoLessonProjectId = useMemo(() => getSourceVideoLessonProjectId(videoProductData), [videoProductData]);
+  const sourceVideoLessonProjectId = getSourceVideoLessonProjectId(videoProductData);
 
   const handleVideoDraftClick = () => {
     const targetProjectId = sourceVideoLessonProjectId ?? projectId;
