@@ -61,7 +61,7 @@ export const PhishingRiseSlideTemplate: React.FC<PhishingRiseSlideProps & {
     overflow: 'hidden',
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    fontFamily: currentTheme.fonts.titleFont
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   };
 
   // Left content area

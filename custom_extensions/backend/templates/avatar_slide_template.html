@@ -3134,6 +3134,7 @@
         }
         
         /* Phishing Rise Slide Template */
+        /* Phishing Rise Slide Template - EXACT React Copy */
         .phishing-rise-slide {
             width: 100%;
             height: 100%;
@@ -3143,6 +3144,7 @@
             overflow: hidden;
             display: grid;
             grid-template-columns: 1fr 1fr;
+            font-family: 'Inter', sans-serif;
         }
         
         .phishing-rise-slide .left-area {
@@ -3153,7 +3155,7 @@
         }
         
         .phishing-rise-slide .title {
-            font-size: 75px;
+            font-size: 47px;
             font-weight: 700;
             letter-spacing: -0.5px;
             color: #09090B;
@@ -3162,29 +3164,32 @@
         
         .phishing-rise-slide .description {
             margin-top: 10px;
-            max-width: 620px;
+            max-width: 410px;
             line-height: 1.7;
             color: #09090B;
-            font-size: 27px;
+            font-size: 18px;
             min-height: 104px;
             font-family: 'Inter', sans-serif;
         }
         
         .phishing-rise-slide .avatar-holder {
             position: absolute;
-            left: 100px;
-            bottom: 100px;
-            width: 220px;
-            height: 220px;
+            left: 72px;
+            bottom: 70px;
+            width: 140px;
+            height: 140px;
             background-color: #0F58F9;
             border-radius: 50%;
             overflow: hidden;
         }
         
         .phishing-rise-slide .avatar-img {
-            height: 126%;
+            width: 88%;
+            height: 135%;
             border-radius: 50%;
             object-fit: cover;
+            position: relative;
+            bottom: 0px;
         }
         
         .phishing-rise-slide .right-area {
@@ -3208,7 +3213,14 @@
             color: #000000;
             min-width: 40px;
             text-align: center;
+        }
+        
+        .phishing-rise-slide .y-labels > div {
             margin-bottom: 103px;
+        }
+        
+        .phishing-rise-slide .y-labels > div:last-child {
+            margin-bottom: 0;
         }
         
         .phishing-rise-slide .chart {
@@ -3219,11 +3231,18 @@
             top: 72px;
             display: flex;
             align-items: flex-end;
-            gap: 44px;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+        
+        .phishing-rise-slide .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
         }
         
         .phishing-rise-slide .bar {
-            width: 96px;
             background: linear-gradient(to bottom, #1158C3 0%, #2979DD 30%, rgba(56, 141, 237, 0.95) 48%, rgba(73, 164, 255, 0.71) 77%, rgba(73, 164, 255, 0) 117%);
             border-radius: 2px;
         }
@@ -3242,6 +3261,23 @@
             font-size: 14px;
             min-height: 20px;
             font-family: 'Inter', sans-serif;
+        }
+        
+        .phishing-rise-slide .grid-lines {
+            position: absolute;
+            right: 48px;
+            left: 96px;
+            bottom: 72px;
+            top: 72px;
+            pointer-events: none;
+        }
+        
+        .phishing-rise-slide .grid-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: rgba(0, 0, 0, 0.1);
         }
         
         .phishing-rise-slide .page-number-container {
@@ -3275,6 +3311,49 @@
             align-items: center;
             gap: 10px;
             z-index: 10;
+        }
+        
+        .phishing-rise-slide .logo-container img {
+            height: 30px;
+            max-width: 120px;
+            object-fit: contain;
+        }
+        
+        .phishing-rise-slide .logo-placeholder {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #000000;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .phishing-rise-slide .logo-placeholder::before {
+            content: '';
+            width: 12px;
+            height: 2px;
+            background-color: #000000;
+            position: absolute;
+        }
+        
+        .phishing-rise-slide .logo-placeholder::after {
+            content: '';
+            width: 2px;
+            height: 12px;
+            background-color: #000000;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .phishing-rise-slide .logo-text {
+            font-size: 14px;
+            font-weight: 400;
+            color: #000000;
+            font-family: 'Inter', sans-serif;
         }
         
         /* Soft Skills Assessment Slide Template */
@@ -7349,65 +7428,103 @@ Create opportunities for growth & advancement.{% endif %}</div>
                 </div>
                 
             {% elif templateId == 'phishing-rise-slide' or templateId == 'phishing-rise' %}
+                <!-- Phishing Rise Slide Template - EXACT React Copy -->
                 <div class="phishing-rise-slide">
+                    <!-- Logo in top-left corner -->
                     <div class="logo-container">
                         {% if companyLogoPath %}
-                            <img src="{{ companyLogoPath }}" alt="Logo" style="height: 30px; max-width: 120px; object-fit: contain;">
+                            <img src="{{ companyLogoPath }}" alt="{{ yourLogoText or 'Your Logo' }}" />
                         {% else %}
-                            <div style="width: 30px; height: 30px; border: 2px solid #000000; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;">
-                                <div style="width: 12px; height: 2px; background-color: #000000; position: absolute;"></div>
-                                <div style="width: 2px; height: 12px; background-color: #000000; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
-                            </div>
-                            <span style="font-size: 14px; font-weight: 400; color: #000000; font-family: 'Inter', sans-serif;">{{ yourLogoText or 'Your Logo' }}</span>
+                            <div class="logo-placeholder"></div>
+                            <span class="logo-text">{{ yourLogoText or 'Your Logo' }}</span>
                         {% endif %}
                     </div>
                     
+                    <!-- Left area -->
                     <div class="left-area">
                         <div class="title">{{ title or 'Phishing rise' }}</div>
-                        <div class="description">{{ description or 'This has become a growing threat in the world of today...' }}</div>
+                        <div class="description">{{ description or 'This has become a growing threat in the world of today, and in 2016 they hit a 12-year high. Tara Seals\' US North America News Reporter, Infosecurity Magazine noted that they Anti-Phishing Working Group documented a 250% increase in phishing sites between October 2015 and March 2016. There has also been a noted that 93% of phishing emails are now ransomware.' }}</div>
                         
+                        <!-- Avatar -->
                         <div class="avatar-holder">
-                            {% if actorImagePath %}
-                                <img src="{{ actorImagePath }}" alt="{{ actorImageAlt or 'Actor image' }}" class="avatar-img">
+                            {% set avatar_url = actorImagePath or defaultAvatarImage %}
+                            {% if avatar_url %}
+                                <img src="{{ avatar_url }}" alt="{{ actorImageAlt or defaultAvatarAlt or 'Actor image' }}" class="avatar-img" />
                             {% endif %}
                         </div>
                     </div>
                     
+                    <!-- Right area -->
                     <div class="right-area">
+                        <!-- Y labels -->
                         <div class="y-labels">
-                            {% if yLabels %}
-                                {% for label in yLabels %}
-                                    <div {% if not loop.last %}style="margin-bottom: 103px;"{% endif %}><span class="y-label">{{ label }}</span></div>
-                                {% endfor %}
+                            {% set y_labels = yLabels or ['70', '60', '40', '20', '0'] %}
+                            {% for label in y_labels %}
+                                <div><span class="y-label">{{ label }}</span></div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Grid lines -->
+                        <div class="grid-lines">
+                            <div class="grid-line" style="top: -33.5px;"></div>
+                            <div class="grid-line" style="top: 93.5px;"></div>
+                            <div class="grid-line" style="top: 222.5px;"></div>
+                            <div class="grid-line" style="top: 352.5px;"></div>
+                        </div>
+                        
+                        <!-- Chart with bars -->
+                        {% if bars %}
+                            {% set num_bars = bars|length %}
+                            {% set chart_gap = 16 if num_bars == 6 else 20 %}
+                            {% set total_available_space = 442 %}
+                            {% set total_gap_space = (6 - 1) * (16 if num_bars == 6 else 20) %}
+                            {% set available_for_bars = total_available_space - total_gap_space %}
+                            {% if num_bars == 1 %}
+                                {% set bar_width = (available_for_bars / 3)|int %}
+                                {% set justify_content = 'center' %}
                             {% else %}
-                                <div style="margin-bottom: 103px;"><span class="y-label">70</span></div>
-                                <div style="margin-bottom: 103px;"><span class="y-label">60</span></div>
-                                <div style="margin-bottom: 103px;"><span class="y-label">40</span></div>
-                                <div style="margin-bottom: 103px;"><span class="y-label">20</span></div>
-                                <div><span class="y-label">0</span></div>
+                                {% set saved_gaps = (6 - num_bars) * chart_gap %}
+                                {% set bar_width = ((available_for_bars + saved_gaps) / num_bars)|int %}
+                                {% set justify_content = 'flex-start' %}
                             {% endif %}
-                        </div>
-                        
-                        <div style="position: absolute; right: 48px; left: 96px; bottom: 72px; top: 72px; pointer-events: none;">
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: -4%;"></div>
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 21%;"></div>
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 46%;"></div>
-                            <div style="position: absolute; left: 0; right: 0; height: 1px; background-color: rgba(0, 0, 0, 0.1); top: 71%;"></div>
-                        </div>
-                        
-                        <div class="chart">
-                            {% if bars %}
+                            <div class="chart" style="gap: {{ chart_gap }}px; justify-content: {{ justify_content }};">
                                 {% for bar in bars %}
-                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div class="bar-container">
+                                        <div class="bar-label">{{ bar.valueLabel or '' }}</div>
+                                        <div class="bar" style="width: {{ bar_width }}px; height: {{ bar.height or 180 }}px;"></div>
+                                        <div class="bar-year">{{ bar.year or '' }}</div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {% set default_bars = [
+                                {'year': '2019', 'valueLabel': '33M$', 'height': 160},
+                                {'year': '2020', 'valueLabel': '39M$', 'height': 200},
+                                {'year': '2021', 'valueLabel': '55M$', 'height': 330},
+                                {'year': '2022', 'valueLabel': '44M$', 'height': 270},
+                                {'year': '2023', 'valueLabel': '67M$', 'height': 420},
+                                {'year': '2024', 'valueLabel': '35M$', 'height': 210}
+                            ] %}
+                            {% set num_bars = default_bars|length %}
+                            {% set chart_gap = 16 %}
+                            {% set total_available_space = 442 %}
+                            {% set total_gap_space = (6 - 1) * 16 %}
+                            {% set available_for_bars = total_available_space - total_gap_space %}
+                            {% set saved_gaps = (6 - num_bars) * chart_gap %}
+                            {% set bar_width = ((available_for_bars + saved_gaps) / num_bars)|int %}
+                            <div class="chart" style="gap: {{ chart_gap }}px;">
+                                {% for bar in default_bars %}
+                                    <div class="bar-container">
                                         <div class="bar-label">{{ bar.valueLabel }}</div>
-                                        <div class="bar" style="height: {{ bar.height }}px;"></div>
+                                        <div class="bar" style="width: {{ bar_width }}px; height: {{ bar.height }}px;"></div>
                                         <div class="bar-year">{{ bar.year }}</div>
                                     </div>
                                 {% endfor %}
-                            {% endif %}
-                        </div>
+                            </div>
+                        {% endif %}
                     </div>
                     
+                    <!-- Page number with line -->
                     <div class="page-number-container">
                         <div class="page-line"></div>
                         <div class="page-number">{{ pageNumber or '07' }}</div>
