@@ -125,7 +125,7 @@ export const SolutionStepsSlideTemplate: React.FC<SolutionStepsSlideProps & {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
         .solution-steps-slide-template .title-element {
-          font-family: "Lora", serif !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 600 !important;
         }
         .solution-steps-slide-template .step-title {

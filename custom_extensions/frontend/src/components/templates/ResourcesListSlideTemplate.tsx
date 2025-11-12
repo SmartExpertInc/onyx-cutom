@@ -96,7 +96,7 @@ export const ResourcesListSlideTemplate: React.FC<ResourcesListSlideProps & {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
         .resources-list-slide .title-element {
-          font-family: "Lora", serif !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 500 !important;
         }
       `}</style>

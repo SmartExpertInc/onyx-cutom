@@ -173,7 +173,7 @@ export const BenefitsListSlideTemplate: React.FC<BenefitsListSlideProps & {
           font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
         }
         .benefits-list-slide-template .title-element {
-          font-family: "Lora", serif !important;
+          font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
           font-weight: 500 !important;
         }
       `}</style>
