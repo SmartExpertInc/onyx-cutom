@@ -399,11 +399,15 @@ services:
     restart: always
     environment:
       - VESPA_SKIP_UPGRADE_CHECK=true
+      - VESPA_CONFIGSERVERS=index
+      - VESPA_CONFIGSERVER_JVMARGS=-Xms32M -Xmx128M
     ports:
       - "19071:19071"
       - "8081:8081"
     volumes:
       - vespa_volume:/opt/vespa/var
+      # Persist Vespa config and indexes
+      - vespa_config:/opt/vespa/conf
     logging:
       driver: json-file
       options:
@@ -525,7 +529,8 @@ services:
 
 volumes:
   db_volume:
-  vespa_volume: # Created by the container itself
+  vespa_volume: # Vespa data directory (indexes, documents)
+  vespa_config: # Vespa configuration (schemas, deployments)
 
   model_cache_huggingface:
   indexing_huggingface_model_cache:

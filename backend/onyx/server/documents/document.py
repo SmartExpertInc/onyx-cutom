@@ -24,7 +24,6 @@ from onyx.server.documents.models import FileContentResponse
 from onyx.db.models import UserFile
 from onyx.utils.logger import setup_logger
 from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
-from onyx.db.embedding_model import get_current_db_embedding_model
 from onyx.configs.model_configs import EMBEDDING_MODEL_SERVER_HOST
 from onyx.configs.model_configs import MODEL_SERVER_PORT
 import numpy as np
@@ -308,20 +307,26 @@ def get_file_content(
     embedding_model = None
     if request.query:
         try:
-            db_embedding_model = get_current_db_embedding_model(db_session)
-            if db_embedding_model:
+            # Get embedding provider info from search settings
+            from onyx.db.search_settings import get_current_db_embedding_provider
+            
+            db_embedding_provider = get_current_db_embedding_provider(db_session)
+            if db_embedding_provider:
                 embedding_model = EmbeddingModel(
                     server_host=EMBEDDING_MODEL_SERVER_HOST,
                     server_port=MODEL_SERVER_PORT,
-                    model_name=db_embedding_model.model_name,
-                    normalize=db_embedding_model.normalize,
-                    query_prefix=db_embedding_model.query_prefix,
-                    passage_prefix=db_embedding_model.passage_prefix,
-                    api_key=db_embedding_model.api_key,
-                    api_url=db_embedding_model.api_url,
-                    provider_type=db_embedding_model.provider_type,
+                    model_name=search_settings.model_name,
+                    normalize=search_settings.normalize,
+                    query_prefix=search_settings.query_prefix,
+                    passage_prefix=search_settings.passage_prefix,
+                    api_key=db_embedding_provider.api_key,
+                    api_url=db_embedding_provider.api_url,
+                    provider_type=search_settings.provider_type,
+                    api_version=db_embedding_provider.api_version,
+                    deployment_name=db_embedding_provider.deployment_name,
+                    reduced_dimension=None,
                 )
-                logger.info(f"[GET_FILE_CONTENT] Embedding model loaded: {db_embedding_model.model_name}")
+                logger.info(f"[GET_FILE_CONTENT] Embedding model loaded: {search_settings.model_name}")
         except Exception as e:
             logger.warning(f"[GET_FILE_CONTENT] Could not load embedding model: {e}")
     
