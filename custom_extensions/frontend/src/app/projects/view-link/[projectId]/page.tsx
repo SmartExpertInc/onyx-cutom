@@ -2071,11 +2071,11 @@ export default function ProjectInstanceViewPage() {
   const productContent = displayContent();
   const layoutWrapperClasses = [
     containerClassName,
-    'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-6 px-4 lg:px-10'
+    'grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-2 px-4 lg:px-10'
   ].filter(Boolean).join(' ');
   const mainColumnClasses = 'space-y-6 min-w-0';
   const mainCardClasses = [
-    'p-3 rounded-xl',
+    'rounded-xl',
     projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN ||
     projectInstanceData?.component_name === COMPONENT_NAME_QUIZ
       ? 'bg-[#F2F2F4]'
