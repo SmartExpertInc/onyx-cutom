@@ -95,6 +95,44 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
+.presentation-viewer-aspect {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.presentation-viewer-aspect::before {
+  content: "";
+  display: block;
+  padding-top: 56.25%; /* 16:9 ratio */
+}
+
+.presentation-viewer-aspect-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.presentation-viewer-aspect-inner .positioning-enabled-slide {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+}
+
+.presentation-viewer-aspect-inner .positioning-enabled-slide > * {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.presentation-viewer-aspect-inner [class*="-slide-template"] {
+  min-height: 0 !important;
+  height: 100% !important;
+}
+
 .slide-dots-container {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
