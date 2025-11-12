@@ -530,24 +530,13 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                        {isViewMode ? (
-                          <div className="relative aspect-[16/9] w-full overflow-hidden">
-                            <div className="presentation-slide-view-wrapper absolute inset-0">
-                              <ComponentBasedSlideRenderer
-                                slide={slide}
-                                isEditable={false}
-                                theme={theme}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <ComponentBasedSlideRenderer
-                            slide={slide}
-                            isEditable={editingEnabled}
-                            onSlideUpdate={handleSlideUpdate}
-                            theme={theme}
-                          />
-                        )}
+                        <ComponentBasedSlideRenderer
+                          slide={slide}
+                          isEditable={editingEnabled}
+                          onSlideUpdate={handleSlideUpdate}
+                          theme={theme}
+                          forceHybridView={isViewMode}
+                        />
                       </div>
                     </div>
               </div>
