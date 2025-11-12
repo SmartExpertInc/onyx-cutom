@@ -40,7 +40,6 @@ import { HybridWorkBestPracticesSlideTemplate } from './HybridWorkBestPracticesS
 import { BenefitsTagsSlideTemplate } from './BenefitsTagsSlideTemplate';
 import { LearningTopicsSlideTemplate } from './LearningTopicsSlideTemplate';
 import { SoftSkillsAssessmentSlideTemplate } from './SoftSkillsAssessmentSlideTemplate';
-import { TwoColumnSlideTemplate } from './TwoColumnSlideTemplate';
 import { PhishingDefinitionSlideTemplate } from './PhishingDefinitionSlideTemplate';
 import { ImpactStatementsSlideTemplate } from './ImpactStatementsSlideTemplate';
 import { BarChartSlideTemplate } from './BarChartSlideTemplate';
@@ -153,7 +152,6 @@ import ThankYouSlideTemplate_old from './ThankYouSlideTemplate_old';
 import TimelineTemplate_old from './TimelineTemplate_old';
 import TitleSlideTemplate_old from './TitleSlideTemplate_old';
 import TopicsSlideTemplate_old from './TopicsSlideTemplate_old';
-import TwoColumnSlideTemplate_old from './TwoColumnSlideTemplate_old';
 import TwoColumnTemplate_old from './TwoColumnTemplate_old';
 import WorkLifeBalanceSlideTemplate_old from './WorkLifeBalanceSlideTemplate_old';
 
@@ -2003,30 +2001,6 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     }
   },
 
-  'two-column-slide': {
-    id: 'two-column-slide',
-    name: 'Two Column Slide',
-    description: 'Slide with avatar and text on left, image on right',
-    category: 'content',
-    icon: '📄',
-    component: TwoColumnSlideTemplate,
-    defaultProps: {
-      title: 'We expect you to meet or exceed these metrics',
-      content: 'We expect you to meet or exceed these metrics, and we will provide you with regular feedback and performance evaluations to help you track your progress and identify areas for improvement. We believe that by embodying these qualities and achieving your performance metrics, you will contribute to the success of our company and your own personal growth and development.',
-      profileImagePath: '',
-      profileImageAlt: 'Profile image',
-      rightImagePath: '',
-      rightImageAlt: 'Right side image'
-    },
-    propSchema: {
-      title: { type: 'text', label: 'Title', required: true, maxLength: 100 },
-      content: { type: 'text', label: 'Content', required: true },
-      profileImagePath: { type: 'image', label: 'Profile Image' },
-      profileImageAlt: { type: 'text', label: 'Profile Image Alt Text' },
-      rightImagePath: { type: 'image', label: 'Right Side Image' },
-      rightImageAlt: { type: 'text', label: 'Right Side Image Alt Text' }
-    }
-  },
 
   'phishing-definition-slide': {
     id: 'phishing-definition-slide',
@@ -3427,7 +3401,6 @@ const OLD_TEMPLATE_COMPONENTS: Record<string, any> = {
   'timeline': TimelineTemplate_old,
   'title-slide': TitleSlideTemplate_old,
   'topics': TopicsSlideTemplate_old,
-  'two-column-slide': TwoColumnSlideTemplate_old,
   'two-column': TwoColumnTemplate_old,
   'work-life-balance': WorkLifeBalanceSlideTemplate_old,
 };

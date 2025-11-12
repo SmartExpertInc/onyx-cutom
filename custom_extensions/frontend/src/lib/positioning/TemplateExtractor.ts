@@ -29,7 +29,6 @@ import {
   BenefitsTagsSlideProps,
   LearningTopicsSlideProps,
   SoftSkillsAssessmentSlideProps,
-  TwoColumnSlideProps,
   PhishingDefinitionSlideProps,
   ImpactStatementsSlideProps,
   BarChartSlideProps,
@@ -135,7 +134,7 @@ export class TemplateExtractor {
       'benefits-tags-slide': this.extractBenefitsTagsSlide,
       'learning-topics-slide': this.extractLearningTopicsSlide,
       'soft-skills-assessment-slide': this.extractSoftSkillsAssessmentSlide,
-      'two-column-slide': this.extractTwoColumnSlide,
+      'two-column': this.extractTwoColumn,
       'phishing-definition-slide': this.extractPhishingDefinitionSlide,
       'impact-statements-slide': this.extractImpactStatementsSlide,
       'bar-chart-slide': this.extractBarChartSlide,
@@ -2442,61 +2441,6 @@ export class TemplateExtractor {
         props.profileImagePath,
         props.profileImageAlt || 'Profile image',
         { x: 700, y: 180, width: 440, height: 300 }
-      ));
-    }
-
-    return {
-      items,
-      canvasConfig: TemplateExtractor.DEFAULT_CANVAS
-    };
-  }
-
-  /**
-   * Extract items from two column slide template (new version)
-   */
-  private static extractTwoColumnSlide(props: TwoColumnSlideProps): {
-    items: PositionableItem[];
-    canvasConfig: CanvasConfig;
-  } {
-    const items: PositionableItem[] = [];
-
-    // Title
-    if (props.title) {
-      items.push(TemplateExtractor.createTextItem(
-        'title',
-        props.title,
-        { x: 60, y: 80, width: 1080, height: 60 },
-        'heading'
-      ));
-    }
-
-    // Content (left side)
-    if (props.content) {
-      items.push(TemplateExtractor.createTextItem(
-        'content',
-        props.content,
-        { x: 60, y: 160, width: 500, height: 400 },
-        'text'
-      ));
-    }
-
-    // Profile image (left side)
-    if (props.profileImagePath) {
-      items.push(TemplateExtractor.createImageItem(
-        'profile-image',
-        props.profileImagePath,
-        props.profileImageAlt || 'Profile image',
-        { x: 60, y: 400, width: 200, height: 200 }
-      ));
-    }
-
-    // Right image
-    if (props.rightImagePath) {
-      items.push(TemplateExtractor.createImageItem(
-        'right-image',
-        props.rightImagePath,
-        props.rightImageAlt || 'Right image',
-        { x: 600, y: 160, width: 540, height: 400 }
       ));
     }
 

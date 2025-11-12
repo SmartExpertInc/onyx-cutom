@@ -65,7 +65,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'thank-you-slide': 'Thank You + Contact Info',
     'interest-growth-slide': 'Interest Growth + Photo Panel',
     'leftbar-avatar-image': 'Left Bar + Avatar + Image',
-    'two-column-slide': 'Two Column + Avatar + Image'
+    'two-column': 'Two Column Template'
   };
 
   const hasAvatarImageField = (template: TemplateComponentInfo) => {
@@ -159,7 +159,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'thank-you-slide',
     'interest-growth-slide',
     'leftbar-avatar-image',
-    'two-column-slide'
+    'two-column'
   ]);
 
   // Source ONLY templates that are in avatar_slide_template.html
@@ -255,7 +255,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
     'thank-you-slide': <UserRound className="text-gray-700" />,
     'interest-growth-slide': <BarChart3 className="text-gray-700" />,
     'leftbar-avatar-image': <Image className="text-gray-700" />,
-    'two-column-slide': <LayoutGrid className="text-gray-700" />
+    'two-column': <LayoutGrid className="text-gray-700" />
   };
 
   const renderIcon = (templateId: string) => {
