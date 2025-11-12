@@ -13517,7 +13517,7 @@ async def collect_agentic_context_from_connectors_streaming(
         yield ("progress", f"📚 Collecting focused content for {len(skeleton_items)} items...")
         
         # Relevance filtering configuration
-        ABSOLUTE_MIN_RELEVANCE = 0.3      # Never accept chunks below this (0.0-1.0)
+        ABSOLUTE_MIN_RELEVANCE = 0.45      # Never accept chunks below this (0.0-1.0)
         RELATIVE_THRESHOLD = 0.4          # Keep chunks >= 40% as good as best chunk
         MIN_CHUNKS_PER_QUERY = 1          # Always keep at least this many (if available)
         MAX_CHUNKS_PER_QUERY = 12         # Never exceed this limit
