@@ -24,8 +24,8 @@ from onyx.server.documents.models import FileContentResponse
 from onyx.db.models import UserFile
 from onyx.utils.logger import setup_logger
 from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
-from onyx.configs.model_configs import EMBEDDING_MODEL_SERVER_HOST
-from onyx.configs.model_configs import MODEL_SERVER_PORT
+from shared_configs.configs import MODEL_SERVER_HOST
+from shared_configs.configs import MODEL_SERVER_PORT
 import numpy as np
 
 
@@ -313,7 +313,7 @@ def get_file_content(
             db_embedding_provider = get_current_db_embedding_provider(db_session)
             if db_embedding_provider:
                 embedding_model = EmbeddingModel(
-                    server_host=EMBEDDING_MODEL_SERVER_HOST,
+                    server_host=MODEL_SERVER_HOST,
                     server_port=MODEL_SERVER_PORT,
                     model_name=search_settings.model_name,
                     normalize=search_settings.normalize,
