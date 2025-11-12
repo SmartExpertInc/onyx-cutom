@@ -12877,31 +12877,26 @@ async def generate_skeleton(
     import json
     import re
     
+    response_text = None
+    
     try:
         logger.info(f"[SKELETON_GEN] Calling OpenAI for {product_type} skeleton...")
         
+        # Get OpenAI client (uses LLM_API_KEY from environment)
+        client = get_openai_client()
+        
         # Call OpenAI with low temperature for structured output
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {OPENAI_API_KEY}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": model,
-                    "messages": [
-                        {"role": "system", "content": "You are a JSON structure generator. Return only valid JSON, no markdown or explanations."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "temperature": 0.3,  # Low temperature for structured output
-                    "max_tokens": 2000
-                }
-            )
-            response.raise_for_status()
-            result = response.json()
-            
-        response_text = result['choices'][0]['message']['content'].strip()
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a JSON structure generator. Return only valid JSON, no markdown or explanations."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,  # Low temperature for structured output
+            max_tokens=2000
+        )
+        
+        response_text = response.choices[0].message.content.strip()
         logger.info(f"[SKELETON_GEN] Received response ({len(response_text)} chars)")
         
         # Try to extract JSON if wrapped in markdown code fences
@@ -12923,7 +12918,7 @@ async def generate_skeleton(
     except (json.JSONDecodeError, ValueError) as e:
         logger.warning(f"[SKELETON_GEN] Skeleton generation error: {e}")
         
-        if max_retries > 0:
+        if max_retries > 0 and response_text:
             # Try to fix JSON
             fix_prompt = f"""The following text should be valid JSON but has errors. Fix it and return ONLY valid JSON:
 
@@ -12935,6 +12930,9 @@ Return the corrected JSON without any markdown formatting or explanations."""
             return await generate_skeleton(fix_prompt, product_type, model, max_retries - 1)
         
         raise ValueError(f"Failed to generate valid skeleton after retries: {e}")
+    except Exception as e:
+        logger.error(f"[SKELETON_GEN] Unexpected error: {e}", exc_info=True)
+        raise ValueError(f"Failed to generate skeleton: {e}")
 
 
 async def collect_agentic_context(
