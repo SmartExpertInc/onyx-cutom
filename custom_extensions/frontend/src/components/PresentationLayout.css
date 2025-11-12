@@ -102,9 +102,8 @@
   margin: 0 auto;
 }
 
-.presentation-viewer-aspect::before {
-  content: "";
-  display: block;
+.presentation-viewer-spacer {
+  width: 100%;
   padding-top: 56.25%; /* 16:9 ratio */
 }
 

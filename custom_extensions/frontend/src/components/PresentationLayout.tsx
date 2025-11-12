@@ -636,7 +636,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
         </div>
       </div>
       {rightSidebar && (
-        <div className="w-full lg:w-[400px] flex-shrink-0">
+        <div className="w-full lg:w-[400px] h-[550px] flex-shrink-0">
           {rightSidebar}
         </div>
       )}

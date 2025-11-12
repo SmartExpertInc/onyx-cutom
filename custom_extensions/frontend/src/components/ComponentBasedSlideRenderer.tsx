@@ -163,6 +163,7 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     if (forceHybridView && !isEditable) {
       return (
         <div className="presentation-viewer-aspect">
+          <div className="presentation-viewer-spacer" aria-hidden="true" />
           <div className="presentation-viewer-aspect-inner">
             {hybridContent}
           </div>
