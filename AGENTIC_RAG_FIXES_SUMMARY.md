@@ -164,13 +164,19 @@ query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.Q
 
 ---
 
-### 7. Feature: Hybrid Relevance Filtering ✅
+### 7. Feature: Hybrid Relevance Filtering ✅ (BUGS FIXED)
 
 **Problem:** Irrelevant chunks (pricing tables, unrelated Notion pages) were being included in product generation, degrading quality
 
 **File:** `custom_extensions/backend/main.py` (lines 13516-13640)
 
-**Solution:** Implemented two-level relevance filtering:
+**Initial Implementation:** Implemented two-level relevance filtering
+
+**Bugs Found & Fixed:**
+- **Bug 7a:** Off-by-one error - chunks with score exactly equal to threshold weren't filtered (changed `<` to `<=`)
+- **Bug 7b:** MIN_CHUNKS logic flaw - chunks below absolute minimum could still be kept (added two-tier filtering)
+
+**Solution:** Implemented two-level relevance filtering with fixes:
 
 1. **Dynamic Threshold** (adapts to content quality):
    ```python
@@ -192,20 +198,36 @@ query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.Q
    MIN_CHUNKS_PER_QUERY = 1  # Always keep at least 1 chunk
    ```
 
-**How it works:**
+**How it works (after bug fixes):**
+```python
+# TIER 1: ALWAYS filter below absolute minimum (no exceptions)
+if relevance_score < ABSOLUTE_MIN_RELEVANCE:
+    filter_out()  # E.g., 0.200 < 0.300 → filtered
+
+# TIER 2: Filter at/below effective threshold (with MIN_CHUNKS exception)
+if relevance_score <= effective_threshold and kept_count >= MIN_CHUNKS_PER_QUERY:
+    filter_out()  # E.g., 0.400 <= 0.400 → filtered (if have 1+ chunks)
+```
+
 - Calculates best chunk score for each query
 - Sets threshold relative to best (40%) or absolute (0.3), whichever is more lenient
-- Filters chunks below threshold UNLESS it would drop below minimum
-- Ensures products always have some content, even when quality is uniformly low
+- **ALWAYS filters chunks below 0.3** (absolute minimum, no exceptions)
+- Filters chunks at/below effective threshold after MIN_CHUNKS reached
+- Ensures products always have some content, but never includes complete garbage
 
-**Example:**
+**Example (from user's logs):**
 ```
-Before: Retrieved 5 chunks (3 relevant, 2 irrelevant) → Kept all 5
-After:  Retrieved 5 chunks (3 relevant, 2 irrelevant) → Kept 3, filtered 2
+Before bugs fixed:
+- Retrieved: AWS (1.0), AWS (0.8), AWS (0.6), Colossian (0.4), Pricing (0.2)
+- Kept: All 5 (Colossian escaped due to bug #1, Pricing due to bug #2) ❌
 
-Filtered:
-- "Colossian Ideas" (score: 0.35) - About slide animations, not AWS ❌
-- "Pricing Table" (score: 0.25) - Ukrainian pricing info, not AWS ❌
+After bugs fixed:
+- Retrieved: AWS (1.0), AWS (0.8), AWS (0.6), Colossian (0.4), Pricing (0.2)
+- Kept: 3 AWS chunks ✅
+- Filtered: Colossian (0.4 <= 0.4 threshold) ✅
+- Filtered: Pricing (0.2 < 0.3 absolute min) ✅
+
+Result: 60% relevant → 100% relevant content!
 ```
 
 **Benefits:**

@@ -13596,12 +13596,22 @@ async def collect_agentic_context_from_connectors_streaming(
                     
                     relevance_score = chunk.get("relevance_score", 0.0)
                     
-                    # Apply relevance filtering (but always keep at least MIN_CHUNKS_PER_QUERY)
-                    if relevance_score < effective_threshold and kept_count >= MIN_CHUNKS_PER_QUERY:
+                    # ALWAYS filter chunks below absolute minimum (safety net, regardless of kept_count)
+                    if relevance_score < ABSOLUTE_MIN_RELEVANCE:
                         filtered_count += 1
                         logger.debug(
                             f"[AGENTIC_CONNECTOR_STAGE2_FILTER] Filtered chunk with score {relevance_score:.3f} "
-                            f"(below {effective_threshold:.3f}, already have {kept_count} chunks)"
+                            f"(below absolute minimum {ABSOLUTE_MIN_RELEVANCE})"
+                        )
+                        continue
+                    
+                    # Apply effective threshold filtering (but keep at least MIN_CHUNKS_PER_QUERY)
+                    # Changed from < to <= to filter chunks that exactly match threshold
+                    if relevance_score <= effective_threshold and kept_count >= MIN_CHUNKS_PER_QUERY:
+                        filtered_count += 1
+                        logger.debug(
+                            f"[AGENTIC_CONNECTOR_STAGE2_FILTER] Filtered chunk with score {relevance_score:.3f} "
+                            f"(at/below threshold {effective_threshold:.3f}, already have {kept_count} chunks)"
                         )
                         continue
                     

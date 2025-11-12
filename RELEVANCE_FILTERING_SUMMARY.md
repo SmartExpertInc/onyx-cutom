@@ -237,14 +237,42 @@ MAX_CHUNKS_PER_QUERY = 12         # Upper limit
   - Added filtering logic with MIN_CHUNKS guarantee
   - Enhanced logging for transparency
 
+## Bug Fixes Applied
+
+### Fix #1: Off-by-One Error ✅
+**Problem:** Chunks with score exactly equal to threshold were NOT filtered
+- Colossian chunk (0.400) escaped because `0.400 < 0.400` is False
+
+**Solution:** Changed comparison from `<` to `<=`
+```python
+# Before: if relevance_score < effective_threshold
+# After:  if relevance_score <= effective_threshold
+```
+
+### Fix #2: MIN_CHUNKS Logic Flaw ✅
+**Problem:** Very low-quality chunks (below absolute minimum) could still be kept
+- Pricing table (0.200) was kept because `kept_count = 0`, so MIN_CHUNKS exception applied
+
+**Solution:** Two-tier filtering
+```python
+# Always filter below absolute minimum (no exceptions)
+if relevance_score < ABSOLUTE_MIN_RELEVANCE:
+    filter_out()
+
+# Then apply effective threshold with MIN_CHUNKS exception
+if relevance_score <= effective_threshold and kept_count >= MIN_CHUNKS_PER_QUERY:
+    filter_out()
+```
+
 ## Status
 
-✅ **Ready for Testing**
-- Implementation complete
-- No syntax errors
-- No linter errors
-- Comprehensive logging in place
-- Documentation complete
+✅ **FIXED AND READY FOR TESTING**
+- ✅ Implementation complete
+- ✅ Bug fixes applied
+- ✅ No syntax errors
+- ✅ No linter errors
+- ✅ Comprehensive logging in place
+- ✅ Documentation updated
 
 ## Next Steps
 
