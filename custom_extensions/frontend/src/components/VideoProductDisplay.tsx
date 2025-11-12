@@ -5,8 +5,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { VideoLessonData } from '@/types/videoLessonTypes';
 import { useLanguage } from '@/contexts/LanguageContext';
-import CommentsForGeneratedProduct from './CommentsForGeneratedProduct';
-import ProductQualityRating from './ProductQualityRating';
 
 interface VideoProductDisplayProps {
   dataToDisplay: VideoLessonData | null;
@@ -164,6 +162,8 @@ const VideoProductDisplay = ({
     }
   };
 
+  const hasValidVideoUrl = (dataToDisplay as any)?.videoUrl && (dataToDisplay as any)?.videoUrl.startsWith('http');
+
   return (
     <div 
       className="py-5 flex gap-4 bg-[#F2F2F4]" 
@@ -172,122 +172,135 @@ const VideoProductDisplay = ({
       }}
     >
       <div className="w-full flex flex-col gap-4">
-        {/* Top row: Video and Comments section with same height */}
+        {/* Top row: Video Player + Details */}
         <div className="grid grid-cols-12 gap-4">
-          {/* Video lesson section - 8 columns */}
-          <div 
-            className="col-span-8 rounded-lg overflow-hidden relative"
-            style={{ 
-              aspectRatio: '16 / 9'
-            }}
-          >
-            {(dataToDisplay as any)?.videoUrl ? (
-              <video
-                key={`${(dataToDisplay as any)?.videoUrl}-${retryCount}`}
-                className="w-full h-full object-contain bg-black"
-                controls
-                preload="metadata"
-                playsInline
-                crossOrigin="anonymous"
-                poster={(dataToDisplay as any)?.thumbnailUrl ? 
-                  ((dataToDisplay as any)?.thumbnailUrl.startsWith('http') 
-                    ? (dataToDisplay as any)?.thumbnailUrl 
-                    : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.thumbnailUrl}`) 
-                  : undefined}
-                onPlay={() => setIsVideoPlaying(true)}
-                onPause={() => setIsVideoPlaying(false)}
-                onLoadedData={() => console.log('🎬 [VIDEO_PLAYER] Video data loaded successfully')}
-                onCanPlay={() => console.log('🎬 [VIDEO_PLAYER] Video can start playing')}
-                onError={(e) => {
-                  console.error('🎬 [VIDEO_PLAYER] Video error:', e);
-                  console.error('🎬 [VIDEO_PLAYER] Video error details:', {
-                    error: e.nativeEvent,
-                    target: e.target,
-                    videoUrl: (dataToDisplay as any)?.videoUrl,
-                    fullUrl: (dataToDisplay as any)?.videoUrl.startsWith('http') 
-                      ? (dataToDisplay as any)?.videoUrl 
-                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
-                  });
-                  setVideoError('Failed to load video. Please check the video file.');
-                }}
-                onAbort={() => {
-                  console.log('🎬 [VIDEO_PLAYER] Video loading aborted');
-                  setVideoError('Video loading was interrupted');
-                }}
-                onStalled={() => {
-                  console.log('🎬 [VIDEO_PLAYER] Video loading stalled');
-                  setVideoError('Video loading stalled. Please try again.');
-                }}
-                onLoadStart={() => console.log('🎬 [VIDEO_PLAYER] Video loading started')}
-                onLoadedMetadata={() => console.log('🎬 [VIDEO_PLAYER] Video metadata loaded')}
-              >
-                <source 
-                  src={
-                    (dataToDisplay as any)?.videoUrl.startsWith('http') 
-                      ? (dataToDisplay as any)?.videoUrl 
-                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
-                  } 
-                  type="video/mp4" 
-                  onError={(e) => {
-                    console.error('🎬 [VIDEO_PLAYER] MP4 source error:', e);
-                    setVideoError('MP4 video source failed to load');
-                  }}
-                />
-                <source 
-                  src={
-                    (dataToDisplay as any)?.videoUrl.startsWith('http') 
-                      ? (dataToDisplay as any)?.videoUrl 
-                      : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
-                  } 
-                  type="video/webm" 
-                  onError={(e) => {
-                    console.error('🎬 [VIDEO_PLAYER] WebM source error:', e);
-                  }}
-                />
-                Your browser does not support the video tag.
-              </video>
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gray-900 border border-gray-700 shadow-lg">
-                <span className="text-gray-400 text-lg">No video available</span>
-              </div>
-            )}
-            
-            {/* Error Display */}
-            {videoError && (
-              <div className="absolute inset-0 bg-red-900 bg-opacity-75 flex items-center justify-center">
-                <div className="text-white text-center">
-                  <p className="text-lg font-semibold">Video Error</p>
-                  <p className="text-sm">{videoError}</p>
-                  <div className="mt-4 space-x-2">
-                    {retryCount < 3 && (
-                      <button 
-                        onClick={retryVideoLoad}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
-                      >
-                        Retry ({retryCount}/3)
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => setVideoError(null)}
-                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
+          {/* Video Section - occupies 8 columns */}
+          <div className="col-span-12 lg:col-span-8 flex flex-col">
+            <div className="relative bg-black rounded-xl overflow-hidden shadow-2xl border border-gray-800">
+              {/* Video Availability Badge */}
+              <div className="absolute top-4 left-4 z-10">
+                <div className="px-3 py-1 rounded-full bg-[#CCDBFC] text-[#0F58F9] text-xs font-semibold uppercase tracking-widest">
+                  {t('videoProductDisplay.generatedVideo', 'Generated Video')}
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Comments section - 4 columns */}
-          <div className="col-span-4 flex flex-col">
-            <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+              {/* Video Overlay Controls */}
+              <div className="absolute top-4 right-4 z-10 flex gap-2">
+                <button
+                  onClick={handleDownload}
+                  className="px-3 py-1 rounded-md bg-[#0F58F9] text-white text-xs font-semibold uppercase tracking-wider hover:bg-blue-700 transition-colors cursor-pointer"
+                >
+                  {t('videoProductDisplay.export', 'Export')}
+                </button>
+                <button
+                  onClick={() => setIsVideoPlaying((prev) => !prev)}
+                  className="px-3 py-1 rounded-md bg-white text-[#0F58F9] text-xs font-semibold uppercase tracking-wider border border-[#0F58F9] hover:bg-[#F0F4FF] transition-colors cursor-pointer"
+                >
+                  {isVideoPlaying ? t('videoProductDisplay.pause', 'Pause') : t('videoProductDisplay.play', 'Play')}
+                </button>
+              </div>
+
+              {/* Video Player */}
+              {hasValidVideoUrl ? (
+                <video
+                  className="w-full h-full max-h-[480px] object-contain bg-black"
+                  controls
+                  controlsList="nodownload"
+                  poster={(dataToDisplay as any)?.thumbnailUrl}
+                  onPlay={() => {
+                    console.log('🎬 [VIDEO_PLAYER] User started playback');
+                    setIsVideoPlaying(true);
+                  }}
+                  onPause={() => {
+                    console.log('🎬 [VIDEO_PLAYER] User paused playback');
+                    setIsVideoPlaying(false);
+                  }}
+                  onError={(e) => {
+                    console.error('🎬 [VIDEO_PLAYER] Video error:', e);
+                    console.error('🎬 [VIDEO_PLAYER] Video error details:', {
+                      error: e.nativeEvent,
+                      target: e.target,
+                      videoUrl: (dataToDisplay as any)?.videoUrl,
+                      fullUrl: (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                        ? (dataToDisplay as any)?.videoUrl 
+                        : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
+                    });
+                    setVideoError('Failed to load video. Please check the video file.');
+                  }}
+                  onAbort={() => {
+                    console.log('🎬 [VIDEO_PLAYER] Video loading aborted');
+                    setVideoError('Video loading was interrupted');
+                  }}
+                  onStalled={() => {
+                    console.log('🎬 [VIDEO_PLAYER] Video loading stalled');
+                    setVideoError('Video loading stalled. Please try again.');
+                  }}
+                  onLoadStart={() => console.log('🎬 [VIDEO_PLAYER] Video loading started')}
+                  onLoadedMetadata={() => console.log('🎬 [VIDEO_PLAYER] Video metadata loaded')}
+                >
+                  <source 
+                    src={
+                      (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                        ? (dataToDisplay as any)?.videoUrl 
+                        : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
+                    } 
+                    type="video/mp4" 
+                    onError={(e) => {
+                      console.error('🎬 [VIDEO_PLAYER] MP4 source error:', e);
+                      setVideoError('MP4 video source failed to load');
+                    }}
+                  />
+                  <source 
+                    src={
+                      (dataToDisplay as any)?.videoUrl.startsWith('http') 
+                        ? (dataToDisplay as any)?.videoUrl 
+                        : `${CUSTOM_BACKEND_URL}${(dataToDisplay as any)?.videoUrl}`
+                    } 
+                    type="video/webm" 
+                    onError={(e) => {
+                      console.error('🎬 [VIDEO_PLAYER] WebM source error:', e);
+                    }}
+                  />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-900 border border-gray-700 shadow-lg">
+                  <span className="text-gray-400 text-lg">No video available</span>
+                </div>
+              )}
+              
+              {/* Error Display */}
+              {videoError && (
+                <div className="absolute inset-0 bg-red-900 bg-opacity-75 flex items-center justify-center">
+                  <div className="text-white text-center">
+                    <p className="text-lg font-semibold">Video Error</p>
+                    <p className="text-sm">{videoError}</p>
+                    <div className="mt-4 space-x-2">
+                      {retryCount < 3 && (
+                        <button 
+                          onClick={retryVideoLoad}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
+                        >
+                          Retry ({retryCount}/3)
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => setVideoError(null)}
+                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Bottom row: Title + Action Buttons + Rating - 8 columns to match video width */}
+        {/* Title + Action Buttons */}
         <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-8 flex flex-col gap-6">
+          <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
             {/* Title and Action Buttons */}
             <div className="flex items-center justify-between flex-shrink-0">
               {/* Left: Video Title */}
@@ -351,9 +364,6 @@ const VideoProductDisplay = ({
             </div>
 
             {/* Rating section */}
-            <ProductQualityRating
-              questionText={t('modals.play.rateQuality', "How's the video and voice quality?")}
-            />
           </div>
         </div>
       </div>

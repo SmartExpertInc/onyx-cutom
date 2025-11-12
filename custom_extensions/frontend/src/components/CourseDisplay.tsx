@@ -4,8 +4,6 @@ import React, { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
 import CustomViewCard, { defaultContentTypes as defaultCardContentTypes } from '@/components/ui/custom-view-card';
-import CommentsForGeneratedProduct from '@/components/CommentsForGeneratedProduct';
-import ProductQualityRating from '@/components/ProductQualityRating';
 import { TrainingPlanData } from '@/types/projectSpecificTypes';
 
 export type LessonContentStatusMap = {
@@ -251,9 +249,12 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
     }
   };
 
+  const gridClasses = showMetricsCard ? 'grid grid-cols-1 lg:grid-cols-3 gap-[6px]' : 'grid grid-cols-1 gap-[6px]';
+  const mainColumnClasses = showMetricsCard ? 'lg:col-span-2 space-y-4' : 'space-y-4';
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-[6px]">
-      <div className="lg:col-span-2 space-y-4">
+    <div className={gridClasses}>
+      <div className={mainColumnClasses}>
         {(() => {
           if (!trainingPlanData?.sections) {
             return (
@@ -375,23 +376,16 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
         })()}
       </div>
 
-      <div className="lg:col-span-1 flex flex-col gap-4">
-        <div className="flex flex-col h-[550px] flex-none">
-          <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
+      {showMetricsCard && (
+        <div className="lg:col-span-1 flex flex-col gap-4">
+          <CustomViewCard
+            projectId={productId}
+            sources={derivedSources}
+            contentTypes={contentTypes}
+            metrics={metricsWithFallback}
+          />
         </div>
-        <ProductQualityRating
-          questionText="How satisfied are you with this course overall?"
-          fullWidth
-        />
-        {showMetricsCard && (
-        <CustomViewCard
-          projectId={productId}
-          sources={derivedSources}
-          contentTypes={contentTypes}
-          metrics={metricsWithFallback}
-        />
-        )}
-      </div>
+      )}
     </div>
   );
 };

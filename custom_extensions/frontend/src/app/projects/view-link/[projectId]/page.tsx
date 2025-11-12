@@ -1978,15 +1978,7 @@ export default function ProjectInstanceViewPage() {
             theme={currentTheme}
             projectId={projectId}
             mode="view"
-            rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
-            rightSidebar={
-              <div className="space-y-6 w-full">
-                <div className="w-full h-[550px] flex">
-                  <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
-                </div>
-                <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
-              </div>
-            }
+            viewModeSidebarWidth={400}
           />
         );
       case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
@@ -2001,15 +1993,7 @@ export default function ProjectInstanceViewPage() {
             theme="dark-purple"
             projectId={projectId}
             mode="view"
-            rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
-            rightSidebar={
-              <div className="space-y-6 w-full">
-                <div className="w-full h-[550px] flex">
-                  <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
-                </div>
-                <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
-              </div>
-            }
+            viewModeSidebarWidth={400}
           />
         );
       case COMPONENT_NAME_TEXT_PRESENTATION:
@@ -2105,6 +2089,17 @@ export default function ProjectInstanceViewPage() {
   ]
     .filter(Boolean)
     .join(' ');
+
+  const productContent = displayContent();
+  const layoutContainerClasses = 'flex flex-col lg:flex-row gap-6 px-4 lg:px-10';
+  const mainColumnClasses = 'flex-1 min-w-0 space-y-6';
+  const mainCardClasses = [
+    'p-3 rounded-xl',
+    projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN ||
+    projectInstanceData?.component_name === COMPONENT_NAME_QUIZ
+      ? 'bg-[#F2F2F4]'
+      : 'bg-transparent'
+  ].filter(Boolean).join(' ');
 
   return (
     <>
@@ -2475,7 +2470,7 @@ export default function ProjectInstanceViewPage() {
         projectName={projectInstanceData?.name || 'Presentation'} 
         pdfDownloadReady={pdfDownloadReady}
         pdfProgress={pdfProgress}
-        onDownload={handleDownloadPdf}
+        onDownload={handlePdfDownload}
         onClose={handleClosePdfModal}
       />
 

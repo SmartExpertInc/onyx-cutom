@@ -23,6 +23,7 @@ interface PresentationLayoutProps {
   mode?: 'edit' | 'view';
   rightSidebar?: React.ReactNode;
   rightSidebarContainerClassName?: string;
+  viewModeSidebarWidth?: number;
 }
 
 const PresentationLayout: React.FC<PresentationLayoutProps> = ({
@@ -33,7 +34,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   projectId,
   mode = 'edit',
   rightSidebar,
-  rightSidebarContainerClassName
+  rightSidebarContainerClassName,
+  viewModeSidebarWidth = 0
 }) => {
   // Apply a background color on the html/body while this layout is mounted
   useEffect(() => {
@@ -51,7 +53,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   const isViewMode = mode === 'view';
   const editingEnabled = !isViewMode && isEditable;
-  const shouldCenterView = isViewMode && !rightSidebar;
+  const shouldCenterView = isViewMode && !rightSidebar && viewModeSidebarWidth <= 0;
   
   // Template dropdown state
   const [showTemplateDropdown, setShowTemplateDropdown] = useState(false);
@@ -82,9 +84,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
     const computeWidth = () => {
       const viewportWidth = window.innerWidth;
-      const sidebarAllowance =
-        viewportWidth >= 1024 && rightSidebar ? VIEW_MODE_SIDEBAR_WIDTH + VIEW_MODE_HORIZONTAL_GAP : 32;
-      const availableWidth = Math.max(VIEW_MODE_MIN_WIDTH, viewportWidth - sidebarAllowance);
+      const baseAllowance = VIEW_MODE_HORIZONTAL_GAP;
+      const sidebarSpace =
+        viewportWidth >= 1024
+          ? (viewModeSidebarWidth > 0
+              ? viewModeSidebarWidth
+              : rightSidebar
+                ? VIEW_MODE_SIDEBAR_WIDTH
+                : 0)
+          : 0;
+      const availableWidth = Math.max(VIEW_MODE_MIN_WIDTH, viewportWidth - baseAllowance - sidebarSpace);
       const nextWidth = Math.min(VIEW_MODE_MAX_WIDTH, availableWidth);
       setViewModeSlideWidth(nextWidth);
     };
@@ -92,7 +101,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     computeWidth();
     window.addEventListener('resize', computeWidth);
     return () => window.removeEventListener('resize', computeWidth);
-  }, [isViewMode, rightSidebar]);
+  }, [isViewMode, rightSidebar, viewModeSidebarWidth]);
 
   // Initialize with first slide
   useEffect(() => {
@@ -335,7 +344,11 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
         'flex min-h-screen bg-[#F2F2F4] presentation-layout',
         shouldCenterView ? 'justify-center' : '',
         isViewMode ? 'presentation-view items-start' : '',
-        rightSidebar ? (rightSidebarContainerClassName ?? 'flex-col lg:flex-row gap-6 lg:gap-10 px-4 lg:px-10') : ''
+        rightSidebar
+          ? (rightSidebarContainerClassName ?? 'flex-col lg:flex-row gap-6 lg:gap-10 px-4 lg:px-10')
+          : isViewMode
+            ? 'flex-col gap-6 px-4 lg:px-10'
+            : ''
       ].filter(Boolean).join(' ')}
       style={
         isViewMode

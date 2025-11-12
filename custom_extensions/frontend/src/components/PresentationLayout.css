@@ -116,10 +116,6 @@
   height: 100%;
 }
 
-.presentation-view.stats {
-  --available-width: calc(100vw - 400px - 32px);
-}
-
 .presentation-view .presentation-viewer-slide {
   width: min(100%, var(--slide-width, 1152px));
   max-width: min(1152px, var(--available-width, 1152px));
