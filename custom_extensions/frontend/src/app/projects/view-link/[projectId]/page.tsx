@@ -1978,6 +1978,7 @@ export default function ProjectInstanceViewPage() {
             theme={currentTheme}
             projectId={projectId}
             mode="view"
+            rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
             rightSidebar={
               <div className="space-y-6">
                 <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
@@ -1998,6 +1999,7 @@ export default function ProjectInstanceViewPage() {
             theme="dark-purple"
             projectId={projectId}
             mode="view"
+            rightSidebarContainerClassName="flex-col lg:flex-row gap-2 px-4"
             rightSidebar={
               <div className="space-y-6">
                 <CommentsForGeneratedProduct isAuthorized={isAuthorized} />

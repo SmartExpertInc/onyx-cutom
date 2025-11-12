@@ -17,6 +17,7 @@ interface PresentationLayoutProps {
   projectId?: string;
   mode?: 'edit' | 'view';
   rightSidebar?: React.ReactNode;
+  rightSidebarContainerClassName?: string;
 }
 
 const PresentationLayout: React.FC<PresentationLayoutProps> = ({
@@ -26,7 +27,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   theme = 'default',
   projectId,
   mode = 'edit',
-  rightSidebar
+  rightSidebar,
+  rightSidebarContainerClassName
 }) => {
   // Apply a background color on the html/body while this layout is mounted
   useEffect(() => {
@@ -307,7 +309,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
         'flex min-h-screen bg-[#F2F2F4] presentation-layout',
         shouldCenterView ? 'justify-center' : '',
         isViewMode ? 'items-start' : '',
-        rightSidebar ? 'flex-col lg:flex-row gap-6 lg:gap-10 px-4 lg:px-10' : ''
+        rightSidebar ? (rightSidebarContainerClassName ?? 'flex-col lg:flex-row gap-6 lg:gap-10 px-4 lg:px-10') : ''
       ].filter(Boolean).join(' ')}
     >
       {/* Left Sidebar - Slide Thumbnails */}
