@@ -54,6 +54,7 @@ function Projects2ViewPageContent() {
   const projectId = params?.projectId as string;
   const { t } = useLanguage();
   const { avatarData } = useAvatarData();
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(false);
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
@@ -329,6 +330,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
 
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
+    setIsTemplateModalOpen(true);
     setActiveSettingsPanel('templates');
     // Close other panels
     setShowTextRightPanel(false);
@@ -338,6 +340,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
     setShowVideoRightPanel(false);
     setShowMusicRightPanel(false);
   };
+  const handleCloseTemplateModal = () => setIsTemplateModalOpen(false);
 
   // NEW: Function to handle text changes (for Script component)
   const handleTextChange = (path: (string | number)[], newValue: string | number | boolean) => {
@@ -1617,6 +1620,22 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
             </svg>
             {isVideoLessonMode ? t('videoEditor.menu.deleteSlide', 'Delete Slide') : t('videoEditor.menu.deleteScene', 'Delete Scene')}
           </button>
+        </div>,
+        document.body
+      )}
+
+      {/* Template Modal */}
+      {isTemplateModalOpen && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <TemplateSelector
+            variant="modal"
+            currentSlideCount={isComponentBasedVideoLesson ? (componentBasedSlideDeck?.slides?.length || 0) : (videoLessonData?.slides?.length || 0)}
+            onAddSlide={(newSlide) => {
+              handleAddSlide(newSlide);
+              setIsTemplateModalOpen(false);
+            }}
+            onClose={handleCloseTemplateModal}
+          />
         </div>,
         document.body
       )}

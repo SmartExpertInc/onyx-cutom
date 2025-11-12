@@ -39,6 +39,7 @@ const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/c
 
 export default function Projects2ViewPage() {
   const [activeComponent, setActiveComponent] = useState<string>('script');
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState<boolean>(false);
   const [isMediaPopupOpen, setIsMediaPopupOpen] = useState<boolean>(false);
   const [isTextPopupOpen, setIsTextPopupOpen] = useState<boolean>(false);
   const [isShapesPopupOpen, setIsShapesPopupOpen] = useState<boolean>(false);
@@ -146,8 +147,9 @@ export default function Projects2ViewPage() {
 
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
-    setActiveComponent('templates');
+    setIsTemplateModalOpen(true);
   };
+  const handleCloseTemplateModal = () => setIsTemplateModalOpen(false);
 
 
 
@@ -436,6 +438,22 @@ export default function Projects2ViewPage() {
         isOpen={isLanguageVariantModalOpen}
         onClose={handleLanguageVariantModalClose}
       />
+
+      {/* Template Modal */}
+      {isTemplateModalOpen && typeof window !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <TemplateSelector
+            variant="modal"
+            currentSlideCount={videoLessonData?.slides?.length || 0}
+            onAddSlide={(newSlide) => {
+              handleAddSlide(newSlide);
+              setIsTemplateModalOpen(false);
+            }}
+            onClose={handleCloseTemplateModal}
+          />
+        </div>,
+        document.body
+      )}
 
       {/* Portal Popup Menu */}
       {openMenuSceneId && menuPosition && typeof window !== 'undefined' && createPortal(

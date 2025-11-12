@@ -351,8 +351,8 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               {/* Duration row */}
               <div className="flex flex-row items-center gap-2">
                 <span className="text-[#171718] text-xs">Duration</span>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1 border border-[#E5E7EB] rounded-md shadow-sm bg-white">
+                <div className="flex items-center gap-3 w-full max-w-[220px]">
+                  <div className="flex items-center gap-2 px-3 py-1 border border-[#E5E7EB] rounded-md shadow-sm bg-white flex-1">
                     <span role="img" aria-label="timer" className="text-gray-600"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M6.39941 0.5H9.59961C9.61793 0.500049 9.63274 0.514885 9.63281 0.533203C9.63281 0.551581 9.61797 0.566356 9.59961 0.566406H8.0332V2.72363L8.49414 2.75879C9.57974 2.84267 10.5883 3.20079 11.4512 3.76367L11.8506 4.02441L12.1299 3.63672L12.1484 3.61523L13.2148 2.54883C13.28 2.48372 13.3861 2.48372 13.4512 2.54883C13.5159 2.6138 13.5158 2.71914 13.4512 2.78418H13.4502L12.4111 3.82422L12.0527 4.18262L12.415 4.53613C13.5944 5.68578 14.3261 7.29016 14.3262 9.06641C14.3262 12.5604 11.4939 15.3933 8 15.3936C4.50587 15.3936 1.67285 12.5605 1.67285 9.06641C1.67297 5.73895 4.24235 3.0109 7.50488 2.75879L7.96582 2.72363V0.566406H6.39941C6.38105 0.56635 6.36621 0.551582 6.36621 0.533203C6.36628 0.514883 6.38109 0.500056 6.39941 0.5ZM8 2.80664C4.54277 2.80664 1.73939 5.60921 1.73926 9.06641C1.73926 12.5237 4.54269 15.3271 8 15.3271C11.4571 15.3269 14.2598 12.5235 14.2598 9.06641C14.2596 5.60937 11.457 2.8069 8 2.80664ZM7.5 9.27344L7.64551 9.41992L10.5889 12.3633C9.87568 12.9244 8.97769 13.2597 8 13.2598C5.68408 13.2598 3.80664 11.3823 3.80664 9.06641C3.80676 6.91964 5.41966 5.15028 7.5 4.90332V9.27344Z" fill="#4D4D4D" stroke="#4D4D4D"/>
                       </svg>
@@ -400,12 +400,12 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               </div>
 
               {/* Variant row */}
-              <div className="flex flex-row items-center gap-4">
+              <div className="flex flex-row items-center gap-2">
                 <span className="text-[#171718] text-xs">Variant</span>
                 <DropdownMenu open={isVariantMenuOpen} onOpenChange={setIsVariantMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors"
+                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors w-full max-w-[220px]"
                       type="button"
                     >
                       <span className="flex items-center gap-2">

@@ -3,6 +3,13 @@ import ReactDOM from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { LayoutGrid, Gem } from 'lucide-react';
 
 interface Scene {
   id: string;
@@ -56,6 +63,7 @@ export default function SceneTimeline({
   const [currentTime, setCurrentTime] = useState(0); // in seconds
   const timelineContainerRef = useRef<HTMLDivElement | null>(null);
   const [playheadPosition, setPlayheadPosition] = useState(0); // x position in pixels
+  const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
 
   // Convert Video Lesson slides to scenes if provided
   const displayScenes = (() => {
@@ -335,26 +343,63 @@ export default function SceneTimeline({
             {/* Chevron Up Button - Non-functional for now */}
             <div className="flex flex-col items-center gap-2 flex-shrink-0">
               <div className="h-20 flex items-center justify-center">
-                  <button
-                    onClick={() => {}}
-                    className="w-8 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
-                    style={{ backgroundColor: '#CCDBFC' }}
-                    title="Chevron up"
+                <DropdownMenu open={isAddDropdownOpen} onOpenChange={setIsAddDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="w-8 h-20 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                      style={{ backgroundColor: '#CCDBFC' }}
+                      title="Add slide options"
+                      type="button"
+                    >
+                      <svg 
+                        className="w-6 h-6" 
+                        fill="none" 
+                        stroke="#0F58F9" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M5 15l7-7 7 7" 
+                        />
+                      </svg>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    side="top"
+                    sideOffset={12}
+                    className="w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl p-2 space-y-1"
                   >
-                  <svg 
-                    className="w-6 h-6" 
-                    fill="none" 
-                    stroke="#0F58F9" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M5 15l7-7 7 7" 
-                    />
-                  </svg>
-                </button>
+                    <DropdownMenuItem
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#EEF4FF] transition-colors text-sm font-medium text-[#171718]"
+                      onSelect={(event) => {
+                        event.preventDefault();
+                        setIsAddDropdownOpen(false);
+                        onOpenTemplateSelector?.();
+                      }}
+                    >
+                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#EEF4FF] text-[#0F58F9]">
+                        <LayoutGrid size={16} strokeWidth={2} />
+                      </span>
+                      Add from template
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#FEF3FF] transition-colors text-sm font-medium text-[#171718]"
+                      onSelect={(event) => {
+                        event.preventDefault();
+                        setIsAddDropdownOpen(false);
+                        console.log('Premium slides clicked');
+                      }}
+                    >
+                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-[#FEF3FF] text-[#A855F7]">
+                        <Gem size={16} strokeWidth={2} />
+                      </span>
+                      Premium Slides
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>

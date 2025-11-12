@@ -1,28 +1,18 @@
 "use client";
 
-import React from 'react';
-import {
-  LayoutGrid,
-  Type,
-  UserRound,
-  BarChart3,
-  ListChecks,
-  Tags,
-  BookOpenText,
-  PanelsTopLeft,
-  Grid3X3,
-  FileText,
-  ClipboardList
-} from 'lucide-react';
+import React, { useMemo, useCallback } from 'react';
+import { LayoutGrid } from 'lucide-react';
 import { ComponentBasedSlide } from '@/types/slideTemplates';
 import { getAllTemplates, getTemplate } from '@/components/templates/registry';
 
 interface TemplateSelectorProps {
   currentSlideCount: number;
   onAddSlide: (newSlide: ComponentBasedSlide) => void;
+  variant?: 'panel' | 'modal';
+  onClose?: () => void;
 }
 
-export default function TemplateSelector({ currentSlideCount, onAddSlide }: TemplateSelectorProps) {
+export default function TemplateSelector({ currentSlideCount, onAddSlide, variant = 'panel', onClose }: TemplateSelectorProps) {
   // Whitelist of template IDs allowed for Video Lessons only
   const allowedVideoTemplateIds = [
     'course-overview-slide',
@@ -471,77 +461,215 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
      // Tips list
   };
 
-  const renderIcon = (templateId: string, fallback?: React.ReactNode) => {
-    const icon = iconOverrides[templateId];
+  const narrativeKeys = useMemo(
+    () =>
+      new Set([
+        'title',
+        'subtitle',
+        'description',
+        'content',
+        'text',
+        'body',
+        'paragraph',
+        'paragraphs',
+        'message',
+      ]),
+    []
+  );
+
+  const chartLabelSkipKeys = useMemo(() => new Set(['year', 'valueLabel']), []);
+
+  const sanitizeTemplateProps = useCallback(
+    (templateId: string, usePlaceholders: boolean) => {
+      const template = getTemplate(templateId);
+      if (!template) {
+        return {};
+      }
+
+      const deepClone = (value: any): any => {
+        if (Array.isArray(value)) {
+          return value.map((item) => deepClone(item));
+        }
+        if (value && typeof value === 'object') {
+          const cloned: Record<string, any> = {};
+          Object.entries(value).forEach(([key, val]) => {
+            cloned[key] = deepClone(val);
+          });
+          return cloned;
+        }
+        return value;
+      };
+
+      const clonedProps = deepClone(template.defaultProps || {});
+
+      if (usePlaceholders) {
+        const placeholder = 'Add your text here';
+        const tagPlaceholder = templateId === 'benefits-tags-slide' ? 'Add' : placeholder;
+
+        const sanitizeNode = (node: any) => {
+          if (!node || typeof node !== 'object') {
+            return;
+          }
+
+          if (Array.isArray(node)) {
+            node.forEach(sanitizeNode);
+            return;
+          }
+
+          Object.keys(node).forEach((key) => {
+            const value = node[key];
+
+            if (typeof value === 'string') {
+              if (chartLabelSkipKeys.has(key)) {
+                return;
+              }
+
+              if (narrativeKeys.has(key)) {
+                node[key] = templateId === 'benefits-tags-slide' && key === 'text' ? tagPlaceholder : placeholder;
+              }
+            } else if (Array.isArray(value) || (value && typeof value === 'object')) {
+              sanitizeNode(value);
+            }
+          });
+        };
+
+        sanitizeNode(clonedProps);
+      }
+
+      return clonedProps;
+    },
+    [chartLabelSkipKeys, narrativeKeys]
+  );
+
+  const previewPropsMap = useMemo(() => {
+    const map: Record<string, any> = {};
+    availableTemplates.forEach((template) => {
+      const previewProps = sanitizeTemplateProps(template.id, false);
+      map[template.id] = {
+        ...previewProps,
+        slideId: `preview-${template.id}`,
+        isEditable: false,
+      };
+    });
+    return map;
+  }, [availableTemplates, sanitizeTemplateProps]);
+
+  const renderTemplatePreview = (templateId: string) => {
+    const template = availableTemplates.find((item) => item.id === templateId);
+    const TemplateComponent = template?.component as React.ComponentType<any> | undefined;
+    const previewProps = previewPropsMap[templateId];
+    const fallbackIcon = iconOverrides[templateId];
+
+    if (!TemplateComponent || !previewProps) {
+      return (
+        <div className="flex h-full w-full items-center justify-center text-gray-400">
+          {fallbackIcon ?? <LayoutGrid className="w-10 h-10" />}
+        </div>
+      );
+    }
+
+    const baseWidth = 1280;
+    const baseHeight = 720;
+    const scale = variant === 'modal' ? 0.25 : 0.2;
+    const scaledWidth = baseWidth * scale;
+    const scaledHeight = baseHeight * scale;
+
     return (
-      <div className="w-6 h-6 flex items-center justify-center">
-        {icon ?? fallback ?? <LayoutGrid className="text-gray-700" />}
+      <div className="relative w-full aspect-[16/9] rounded-[24px] overflow-hidden bg-[#F3F4F8] flex items-center justify-center">
+        <div style={{ width: scaledWidth, height: scaledHeight }} className="flex items-center justify-center">
+          <div
+            className="pointer-events-none origin-top-left"
+            style={{
+              width: baseWidth,
+              height: baseHeight,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <TemplateComponent {...previewProps} />
+          </div>
+        </div>
       </div>
     );
   };
 
   const handleAddSlide = (templateId: string) => {
-    const template = getTemplate(templateId);
-    if (!template) {
+    if (!getTemplate(templateId)) {
       console.error(`Template ${templateId} not found`);
       return;
     }
 
-    const placeholder = 'Add your text here';
-
-    // Build props with placeholders for all text fields in the schema
-    const initialProps: Record<string, any> = { ...template.defaultProps };
-    const schema = (template as any).propSchema || {};
-    Object.entries(schema).forEach(([key, def]: [string, any]) => {
-      if (def?.type === 'text') {
-        initialProps[key] = placeholder;
-      }
-    });
-
-    // Recursively sanitize common narrative text fields across nested structures
-    const narrativeKeys = new Set([
-      'title', 'subtitle', 'description', 'content', 'text', 'body', 'paragraph', 'paragraphs', 'message'
-    ]);
-    const chartLabelSkipKeys = new Set(['year', 'valueLabel']);
-
-    // Special placeholder for tags in benefits-tags-slide
-    const tagPlaceholder = templateId === 'benefits-tags-slide' ? 'Add' : placeholder;
-
-    const sanitize = (node: any) => {
-      if (node && typeof node === 'object') {
-        if (Array.isArray(node)) {
-          node.forEach(sanitize);
-        } else {
-          Object.keys(node).forEach((k) => {
-            const v = node[k];
-            if (typeof v === 'string' && narrativeKeys.has(k)) {
-              // Use "Add" for tag text fields in benefits-tags-slide
-              node[k] = (templateId === 'benefits-tags-slide' && k === 'text') ? tagPlaceholder : placeholder;
-            } else if (typeof v === 'string' && chartLabelSkipKeys.has(k)) {
-              // leave chart-specific labels as-is
-            } else if (Array.isArray(v) || (v && typeof v === 'object')) {
-              sanitize(v);
-            }
-          });
-        }
-      }
+    const slideId = `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const props = sanitizeTemplateProps(templateId, true);
+    const slideProps = {
+      ...props,
+      slideId,
     };
 
-    sanitize(initialProps);
-
     const newSlide: ComponentBasedSlide = {
-      slideId: `slide-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      slideId,
       slideNumber: currentSlideCount + 1,
-      templateId: templateId,
-      props: initialProps,
+      templateId,
+      props: slideProps,
       metadata: {
         createdAt: new Date().toISOString(),
-        version: '1.0'
-      }
+        version: '1.0',
+      },
     };
 
     onAddSlide(newSlide);
+
+    if (variant === 'modal') {
+      onClose?.();
+    }
   };
+
+  if (variant === 'modal') {
+    return (
+      <div className="w-full max-w-[960px] max-h-[640px] bg-white rounded-[30px] shadow-[0_40px_80px_rgba(15,24,52,0.12)] p-8 flex flex-col">
+        <div className="flex items-center justify-between">
+          <div className="bg-[#EEF0F7] rounded-full p-1 flex gap-2">
+            <button className="px-5 py-1.5 text-sm font-semibold text-[#171718] rounded-full bg-white shadow-sm">Templates</button>
+            <button className="px-5 py-1.5 text-sm text-[#A0A3AD] rounded-full" disabled>Saved scenes</button>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-9 h-9 rounded-full bg-[#F3F4F8] flex items-center justify-center hover:bg-[#E7E9F1] transition-colors"
+          >
+            <span className="sr-only">Close</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 1L13 13M13 1L1 13" stroke="#171718" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div className="mt-6 flex-1 overflow-y-auto pr-2">
+          <div className="grid grid-cols-3 gap-5">
+            {availableTemplates.map((template) => (
+              <button
+                key={template.id}
+                onClick={() => handleAddSlide(template.id)}
+                className="group rounded-[24px] bg-white border border-transparent hover:border-[#0F58F9] hover:shadow-[0_18px_40px_rgba(15,88,249,0.18)] transition-all flex flex-col"
+              >
+                <div className="rounded-t-[24px] overflow-hidden">
+                  {renderTemplatePreview(template.id)}
+                </div>
+                <div className="px-5 py-4 text-left">
+                  <div className="text-sm font-semibold text-[#171718] group-hover:text-[#0F58F9] truncate">
+                    {template.name}
+                  </div>
+                  {template.description && (
+                    <div className="text-xs text-[#6C7280] mt-1 line-clamp-2">{template.description}</div>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full bg-white relative w-full border-0 overflow-y-auto">
@@ -557,8 +685,8 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
               onClick={() => handleAddSlide(template.id)}
               className="w-full p-4 border border-gray-200 rounded-lg bg-white cursor-pointer flex flex-col items-start gap-3 text-left transition-all hover:border-blue-500 hover:bg-blue-50 group"
             >
-              <div className="flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
-                {renderIcon(template.id, template.icon as any)}
+              <div className="flex-shrink-0 w-full rounded-2xl overflow-hidden">
+                {renderTemplatePreview(template.id)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-blue-700">
@@ -568,29 +696,11 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide }: Temp
                   {template.description}
                 </div>
               </div>
-              <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <svg 
-                  width="20" 
-                  height="20" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  className="text-blue-500"
-                >
-                  <polyline points="9,18 15,12 9,6"></polyline>
-                </svg>
-              </div>
             </button>
           ))}
         </div>
         {availableTemplates.length === 0 && (
           <div className="w-full text-center py-12">
-            <div className="text-gray-400 flex items-center justify-center mb-2">
-              <ClipboardList className="w-10 h-10" />
-            </div>
             <p className="text-gray-600">No templates available</p>
           </div>
         )}
