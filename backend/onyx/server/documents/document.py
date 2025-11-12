@@ -244,8 +244,8 @@ def _get_connector_content_by_source_types(
         # Get embedding model to generate query embedding
         from onyx.db.search_settings import get_current_db_embedding_provider
         from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
-        from onyx.shared_configs.configs import MODEL_SERVER_HOST, MODEL_SERVER_PORT
         from onyx.agents.agent_search.shared_graph_utils.models import QueryExpansionType
+        # MODEL_SERVER_HOST and MODEL_SERVER_PORT are already imported at top of file
         
         db_embedding_provider = get_current_db_embedding_provider(db_session)
         embedding_model = EmbeddingModel(
