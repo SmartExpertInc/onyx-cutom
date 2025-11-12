@@ -419,15 +419,17 @@ export default function Projects2ViewPage() {
       transitions.push({ type: 'none', duration: 1.0, variant: 'circle', applyToAll: false });
     }
     
+    const { applyToAll, ...transitionWithoutApplyFlag } = transitionData;
+
     // Check if "Apply to all" is enabled
-    if (transitionData.applyToAll) {
+    if (applyToAll) {
       // Apply the same transition to ALL transition slots
       for (let i = 0; i < transitions.length; i++) {
-        transitions[i] = { ...transitionData };
+        transitions[i] = { ...transitionWithoutApplyFlag, applyToAll: false };
       }
     } else {
       // Update only the specific transition
-      transitions[activeTransitionIndex] = { ...transitionData };
+      transitions[activeTransitionIndex] = { ...transitionWithoutApplyFlag, applyToAll: false };
     }
     
     // Update the deck with new transitions
