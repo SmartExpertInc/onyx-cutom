@@ -105,6 +105,34 @@ from shared_configs.configs import MODEL_SERVER_PORT
 
 ---
 
+### 5. Missing Required Parameter ✅
+
+**Error:** `TypeError: EmbeddingModel.encode() missing 1 required positional argument: 'text_type'`
+
+**File:** `backend/onyx/server/documents/document.py`
+
+**Root Cause:** The `encode()` method requires a `text_type` parameter to distinguish between query and passage embeddings
+
+**Fix:** Added `text_type=EmbedTextType.QUERY` parameter:
+
+```python
+# Before (WRONG):
+query_embedding = embedding_model.encode([query_text])[0]
+
+# After (CORRECT):
+from shared_configs.enums import EmbedTextType
+query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.QUERY)[0]
+```
+
+**Why EmbedTextType.QUERY?**
+- `EmbedTextType.QUERY` - For search queries (what we're doing)
+- `EmbedTextType.PASSAGE` - For indexing document passages
+- Different text types may use different embedding strategies
+
+**Status:** ✅ Fixed
+
+---
+
 ## Implementation Timeline
 
 1. **Initial Implementation** - Created connector agentic RAG function and updated all 4 product endpoints
@@ -112,7 +140,8 @@ from shared_configs.configs import MODEL_SERVER_PORT
 3. **Bug Fix #2** - Fixed `ONYX_API_URL` → `ONYX_API_SERVER_URL`
 4. **Bug Fix #3** - Fixed `semantic_retrieval` → `hybrid_retrieval`
 5. **Bug Fix #4** - Fixed import path for `MODEL_SERVER_HOST`
-6. **Diagnostic Logging** - Added debug logging to diagnose ACL and indexing issues
+6. **Bug Fix #5** - Fixed missing `text_type` parameter in `encode()`
+7. **Diagnostic Logging** - Added debug logging to diagnose ACL and indexing issues
 
 ## Current Status
 

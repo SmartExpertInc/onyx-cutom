@@ -245,6 +245,7 @@ def _get_connector_content_by_source_types(
         from onyx.db.search_settings import get_current_db_embedding_provider
         from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
         from onyx.agents.agent_search.shared_graph_utils.models import QueryExpansionType
+        from shared_configs.enums import EmbedTextType
         # MODEL_SERVER_HOST and MODEL_SERVER_PORT are already imported at top of file
         
         db_embedding_provider = get_current_db_embedding_provider(db_session)
@@ -263,8 +264,8 @@ def _get_connector_content_by_source_types(
             reduced_dimension=None,
         )
         
-        # Generate query embedding
-        query_embedding = embedding_model.encode([query_text])[0]
+        # Generate query embedding (text_type=QUERY for search queries)
+        query_embedding = embedding_model.encode([query_text], text_type=EmbedTextType.QUERY)[0]
         
         # Perform hybrid retrieval with filters
         chunks = document_index.hybrid_retrieval(
