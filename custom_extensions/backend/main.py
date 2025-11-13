@@ -13909,6 +13909,25 @@ async def collect_agentic_context_from_connectors_streaming(
             "key_topics": []
         })
         
+        # Auto-delete web connectors after successful extraction (they're temporary)
+        if "web" in connector_sources:
+            logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Cleaning up web connectors: {connector_ids}")
+            try:
+                for conn_id in connector_ids:
+                    try:
+                        async with httpx.AsyncClient(timeout=10.0) as client:
+                            # Delete the connector via Onyx API
+                            delete_url = f"{ONYX_API_SERVER_URL}/manage/admin/connector/{conn_id}"
+                            delete_response = await client.delete(delete_url, cookies=cookies)
+                            if delete_response.status_code in [200, 204]:
+                                logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Deleted web connector {conn_id}")
+                            else:
+                                logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Failed to delete connector {conn_id}: {delete_response.status_code}")
+                    except Exception as delete_error:
+                        logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Error deleting connector {conn_id}: {delete_error}")
+            except Exception as cleanup_error:
+                logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Cleanup error: {cleanup_error}")
+        
     except Exception as e:
         logger.error(f"[AGENTIC_CONNECTOR] Error: {e}", exc_info=True)
         yield ("error", str(e))
@@ -38234,9 +38253,9 @@ async def get_my_entitlements(request: Request, pool: asyncpg.Pool = Depends(get
                         response = await client.get(connector_status_url, cookies=cookies_to_forward)
                         if response.status_code == 200:
                             connectors_data = response.json()
-                            # Count only private connectors (same as frontend logic)
-                            conn_count = len([c for c in connectors_data if c.get('access_type') == 'private'])
-                            logger.info(f"[ENTITLEMENTS] Fetched {conn_count} private connectors from Onyx API for user {onyx_user_id}")
+                            # Count only private connectors, excluding web connectors (they're temporary)
+                            conn_count = len([c for c in connectors_data if c.get('access_type') == 'private' and c.get('connector', {}).get('source') != 'web'])
+                            logger.info(f"[ENTITLEMENTS] Fetched {conn_count} private connectors (excluding web) from Onyx API for user {onyx_user_id}")
                 else:
                             logger.warning(f"[ENTITLEMENTS] Failed to fetch connectors from Onyx API: {response.status_code}")
             except Exception as e:

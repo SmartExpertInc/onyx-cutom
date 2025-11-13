@@ -834,8 +834,9 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
         }
         
         // Filter to show connectors that have private access (Smart Drive connectors)
+        // Exclude web connectors (they're temporary and shouldn't be shown in UI)
         const smartDriveConnectors = allConnectorStatuses.filter((connectorStatus: any) => {
-          return connectorStatus.access_type === 'private';
+          return connectorStatus.access_type === 'private' && connectorStatus.connector.source !== 'web';
         });
         
         const userConnectors = smartDriveConnectors.map((connectorStatus: any) => ({
