@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { getTransitionIcon, TransitionType } from './Transition';
 import { ComponentBasedSlideRenderer } from '@/components/ComponentBasedSlideRenderer';
+import './SceneTimeline.css';
 
 interface Scene {
   id: string;
@@ -261,7 +262,7 @@ export default function SceneTimeline({
   // Function to get scene rectangle dimensions based on aspect ratio (16:9 only)
 const BASE_CANVAS_WIDTH = 1200;
 const BASE_CANVAS_HEIGHT = 675;
-const THUMBNAIL_PADDING = 6;
+const THUMBNAIL_PADDING = 2;
 
 const isComponentSlide = (
   slideData?: ComponentBasedSlide | VideoLessonSlideData
@@ -447,7 +448,7 @@ useEffect(() => {
           {/* Scrollable Slides Container */}
           <div 
             ref={timelineContainerRef}
-            className="flex items-end gap-1 overflow-x-auto overflow-y-visible flex-1"
+            className="flex items-end gap-1 overflow-x-auto overflow-y-visible flex-1 timeline-scroll"
           >
           {/* Dynamic Scene Rectangles */}
           {displayScenes.map((scene, index) => (
@@ -661,13 +662,13 @@ useEffect(() => {
                 className="pointer-events-auto"
                 style={{
                   position: 'absolute',
-                  left: `${position.x}px`,
-                  top: `${position.y}px`,
+                  left: `${position.x + (timelineContainerRef.current?.scrollLeft || 0)}px`,
+                  top: `${position.y + (window.scrollY || 0)}px`,
                   transform: 'translate(-50%, -50%)',
                   zIndex: 2000
                 }}
               >
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <button 
                       className={`w-7 h-7 border rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-lg ${
@@ -713,7 +714,7 @@ useEffect(() => {
                     className="w-[220px] rounded-[6px] border border-[#E5E7EB] bg-white shadow-xl py-2"
                   >
                     <div className="px-2 pb-2">
-                      <div className="text-sm font-semibold text-[#171718] flex items-center gap-2">
+                      <div className="text-xs font-semibold text-[#171718] flex items-center gap-2">
                         <span className="inline-flex h-8 w-8 items-center justify-center text-[#0F58F9]">
                           {transitionIcon}
                         </span>

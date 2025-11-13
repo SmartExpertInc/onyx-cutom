@@ -44,6 +44,7 @@ import TextEditingToolbar from '@/components/TextEditingToolbar';
 import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AnimateButton from '@/components/ui/animate-button';
+import { toast } from 'sonner';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -331,7 +332,10 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
   // Function to open template selector panel
   const handleOpenTemplateSelector = () => {
     setIsTemplateModalOpen(true);
-    setActiveSettingsPanel('templates');
+    // Ensure template panel in sidebar does not open
+    if (activeSettingsPanel === 'templates') {
+      setActiveSettingsPanel(null);
+    }
     // Close other panels
     setShowTextRightPanel(false);
     setShowShapeRightPanel(false);
@@ -730,6 +734,19 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
     
     if (action === 'delete' && isVideoLessonMode) {
       handleDeleteSlide(sceneId);
+    } else if (action === 'Save as Scene Layout') {
+      toast.success(
+        t('videoEditor.toast.sceneLayoutSavedTitle', 'Scene layout saved.'),
+        {
+          description: t(
+            'videoEditor.toast.sceneLayoutSavedDescription',
+            'You can find saved scenes in templates'
+          ),
+          position: 'top-center',
+          duration: 4000,
+          className: 'rounded-lg border border-[#E0E0E0] bg-white shadow-sm text-left',
+        }
+      );
     } else {
       // TODO: Implement other actions for regular scenes
     }
