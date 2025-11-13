@@ -64,8 +64,6 @@ export default function SceneTimeline({
   onTransitionDelete,
   showReady
 }: SceneTimelineProps) {
-  const slideRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const [transitionPositions, setTransitionPositions] = useState<{ [key: string]: { x: number, y: number } }>({});
   const [isMounted, setIsMounted] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0); // in seconds
@@ -177,8 +175,10 @@ export default function SceneTimeline({
     const updatePlayhead = () => {
       if (!timelineContainerRef.current || displayScenes.length === 0) return;
       
-      const firstSlide = slideRefs.current[displayScenes[0].id];
-      const lastSlide = slideRefs.current[displayScenes[displayScenes.length - 1].id];
+      const container = timelineContainerRef.current;
+      if (!container) return;
+      const firstSlide = container.querySelector<HTMLDivElement>(`[data-slide-id="${displayScenes[0].id}"]`);
+      const lastSlide = container.querySelector<HTMLDivElement>(`[data-slide-id="${displayScenes[displayScenes.length - 1].id}"]`);
       
       if (!firstSlide || !lastSlide) return;
       
@@ -226,40 +226,6 @@ export default function SceneTimeline({
   }, [currentTime, displayScenes, totalDuration, isPlaying]);
 
   // Update transition button positions when slides change
-  useEffect(() => {
-    const updatePositions = () => {
-      const newPositions: { [key: string]: { x: number, y: number } } = {};
-      const containerRect = timelineContainerRef.current?.getBoundingClientRect();
-
-      Object.entries(slideRefs.current).forEach(([slideId, element]) => {
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          const position = {
-            x: rect.right,
-            y: rect.top + rect.height / 2
-          };
-
-          // Only store positions that remain in the horizontal bounds of the scroll container
-          if (!containerRect || (position.x >= containerRect.left && position.x <= containerRect.right)) {
-            newPositions[slideId] = position;
-          }
-        }
-      });
-
-      setTransitionPositions(newPositions);
-    };
-
-    updatePositions();
-    window.addEventListener('resize', updatePositions);
-    window.addEventListener('scroll', updatePositions);
-    
-    return () => {
-      window.removeEventListener('resize', updatePositions);
-      window.removeEventListener('scroll', updatePositions);
-    };
-  }, [displayScenes]);
-
-  // Function to get scene rectangle dimensions based on aspect ratio (16:9 only)
 const BASE_CANVAS_WIDTH = 1200;
 const BASE_CANVAS_HEIGHT = 675;
 const THUMBNAIL_PADDING = 2;
@@ -285,20 +251,6 @@ const getSceneRectangleStyles = () => {
     height: `${height}px`,
   };
 };
-
-  const transitionPositionsWithVisibility = useMemo(() => {
-    if (!timelineContainerRef.current) return transitionPositions;
-    const containerRect = timelineContainerRef.current.getBoundingClientRect();
-    const adjusted: { [key: string]: { x: number; y: number } } = {};
-
-    Object.entries(transitionPositions).forEach(([id, position]) => {
-      if (position.x >= containerRect.left && position.x <= containerRect.right) {
-        adjusted[id] = position;
-      }
-    });
-
-    return adjusted;
-  }, [transitionPositions]);
 
   const deckTemplateVersion = componentBasedSlideDeck?.templateVersion || 'v2';
   useEffect(() => {
@@ -416,6 +368,108 @@ useEffect(() => {
     );
   };
 
+  const renderTransitionMenu = (index: number) => {
+    let transitionType = (componentBasedSlideDeck?.transitions?.[index]?.type ?? 'none') as TransitionType;
+    if (pendingApplyEverywhere) {
+      transitionType = pendingApplyEverywhere.type;
+    }
+    if (pendingClearedTransitions.includes(index)) {
+      transitionType = 'none';
+    }
+    const transitionIcon = getTransitionIcon(transitionType, false);
+
+    return (
+      <div className="absolute -right-3 top-1/2 -translate-y-1/2 pointer-events-auto z-20">
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <button 
+              className={`w-7 h-7 border rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-lg ${
+                activeTransitionIndex === index
+                  ? 'bg-blue-500 border-blue-500'
+                  : 'bg-white border-gray-300 hover:bg-gray-50'
+              }`}
+              type="button"
+            >
+              <svg 
+                width="13" 
+                height="9" 
+                viewBox="0 0 13 9" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="w-4 h-3"
+              >
+                <path 
+                  d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" 
+                  fill={activeTransitionIndex === index ? '#ffffff' : '#848485'}
+                />
+                <path 
+                  d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" 
+                  stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
+                  strokeWidth="0.640535" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+                <path 
+                  d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" 
+                  stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
+                  strokeWidth="0.640535" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            side="top"
+            sideOffset={12}
+            className="w-[220px] rounded-[6px] border border-[#E5E7EB] bg-white shadow-xl py-2"
+          >
+            <div className="px-2 pb-2">
+              <div className="text-xs font-semibold text-[#171718] flex items-center gap-2">
+                <span className="inline-flex h-8 w-8 items-center justify-center text-[#0F58F9]">
+                  {transitionIcon}
+                </span>
+                {formatTransitionLabel(transitionType)}
+              </div>
+            </div>
+            <div className="h-px bg-[#F1F5F9] mb-1"></div>
+            <DropdownMenuItem
+              className="flex items-center gap-3 px-4 py-2 text-xs text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
+              onSelect={(event: Event) => {
+                event.preventDefault();
+                onTransitionClick?.(index);
+              }}
+            >
+              <Settings2 size={16} />
+              Modify
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex items-center gap-3 px-4 py-2 text-xs text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
+              onSelect={(event: Event) => {
+                event.preventDefault();
+                handleApplyEverywhereClick(index);
+              }}
+            >
+              <Zap size={16} />
+              Apply everywhere
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex items-center gap-3 px-4 py-2 text-xs text-red-600 bg-red-50 hover:bg-red-100 transition-colors focus:bg-[#FFF2F0] focus:text-[#E11900]"
+              onSelect={(event: Event) => {
+                event.preventDefault();
+                handleTransitionDeleteClick(index);
+              }}
+            >
+              <Trash2 className='text-red-600' size={16} />
+              <span className='text-red-600'>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  };
+
   return (
     <>
     <div className="bg-white border border-[#E0E0E0] rounded-md overflow-visible px-4 py-12" style={{ height: 'auto', minHeight: '120px' }}>
@@ -454,8 +508,8 @@ useEffect(() => {
           {displayScenes.map((scene, index) => (
             <React.Fragment key={scene.id}>
               <div 
-                ref={el => { slideRefs.current[scene.id] = el; }}
                 className="flex flex-col items-center gap-2 flex-shrink-0 relative"
+                data-slide-id={scene.id}
               >
                 <div className="relative group">
                   <div 
@@ -487,6 +541,7 @@ useEffect(() => {
                         </svg>
                       </button>
                     </div>
+                    {index < displayScenes.length - 1 && renderTransitionMenu(index)}
                   </div>
                 </div>
               </div>
@@ -639,127 +694,6 @@ useEffect(() => {
         document.body
       )}
       
-      {/* Portal for transition buttons - rendered outside to avoid overflow clipping */}
-      {isMounted && typeof window !== 'undefined' && ReactDOM.createPortal(
-        <>
-          {displayScenes.map((scene, index) => {
-            if (index >= displayScenes.length - 1) return null;
-            
-            const position = transitionPositionsWithVisibility[scene.id];
-            if (!position) return null;
-            let transitionType = (componentBasedSlideDeck?.transitions?.[index]?.type ?? 'none') as TransitionType;
-            if (pendingApplyEverywhere) {
-              transitionType = pendingApplyEverywhere.type;
-            }
-            if (pendingClearedTransitions.includes(index)) {
-              transitionType = 'none';
-            }
-            const transitionIcon = getTransitionIcon(transitionType, false);
-            
-            return (
-              <div 
-                key={`transition-${scene.id}`}
-                className="pointer-events-auto"
-                style={{
-                  position: 'absolute',
-                  left: `${position.x + window.scrollX}px`,
-                  top: `${position.y + window.scrollY}px`,
-                  transform: 'translate(-50%, -50%)',
-                  zIndex: 2000
-                }}
-              >
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <button 
-                      className={`w-7 h-7 border rounded-full flex items-center justify-center transition-colors cursor-pointer shadow-lg ${
-                        activeTransitionIndex === index
-                          ? 'bg-blue-500 border-blue-500'
-                          : 'bg-white border-gray-300 hover:bg-gray-50'
-                      }`}
-                      type="button"
-                    >
-                      <svg 
-                        width="13" 
-                        height="9" 
-                        viewBox="0 0 13 9" 
-                        fill="none" 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="w-4 h-3"
-                      >
-                        <path 
-                          d="M8.49836 4.13605C8.62336 4.26113 8.6234 4.46393 8.49836 4.58898L4.58877 8.49857C4.46371 8.62354 4.2609 8.62354 4.13584 8.49857L0.226252 4.58898C0.101204 4.46393 0.101253 4.26113 0.226252 4.13605L4.13584 0.226463C4.26091 0.101391 4.4637 0.101391 4.58877 0.226463L8.49836 4.13605ZM0.905642 4.36252L4.3623 7.81918L7.81897 4.36252L4.3623 0.905853L0.905642 4.36252Z" 
-                          fill={activeTransitionIndex === index ? '#ffffff' : '#848485'}
-                        />
-                        <path 
-                          d="M6.21777 0.453125L10.061 4.29634L6.21777 8.13955" 
-                          stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
-                          strokeWidth="0.640535" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round"
-                        />
-                        <path 
-                          d="M8.13867 0.453125L11.9819 4.29634L8.13867 8.13955" 
-                          stroke={activeTransitionIndex === index ? '#ffffff' : '#848485'} 
-                          strokeWidth="0.640535" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="start"
-                    side="top"
-                    sideOffset={12}
-                    className="w-[220px] rounded-[6px] border border-[#E5E7EB] bg-white shadow-xl py-2"
-                  >
-                    <div className="px-2 pb-2">
-                      <div className="text-xs font-semibold text-[#171718] flex items-center gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center text-[#0F58F9]">
-                          {transitionIcon}
-                        </span>
-                        {formatTransitionLabel(transitionType)}
-                      </div>
-                    </div>
-                    <div className="h-px bg-[#F1F5F9] mb-1"></div>
-                    <DropdownMenuItem
-                      className="flex items-center gap-3 px-4 py-2 text-xs text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
-                      onSelect={(event: Event) => {
-                        event.preventDefault();
-                        onTransitionClick?.(index);
-                      }}
-                    >
-                      <Settings2 size={16} />
-                      Modify
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="flex items-center gap-3 px-4 py-2 text-xs text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
-                      onSelect={(event: Event) => {
-                        event.preventDefault();
-                      handleApplyEverywhereClick(index);
-                      }}
-                    >
-                      <Zap size={16} />
-                      Apply everywhere
-                    </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="flex items-center gap-3 px-4 py-2 text-xs text-red-600 bg-red-50 hover:bg-red-100 transition-colors focus:bg-[#FFF2F0] focus:text-[#E11900]"
-                        onSelect={(event: Event) => {
-                          event.preventDefault();
-                          handleTransitionDeleteClick(index);
-                        }}
-                      >
-                      <Trash2 className='text-red-600' size={16} />
-                      <span className='text-red-600'>Delete</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            );
-          })}
-        </>,
-        document.body
-      )}
     </>
     );
 }
