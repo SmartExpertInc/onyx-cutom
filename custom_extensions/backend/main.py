@@ -12949,6 +12949,10 @@ async def generate_skeleton(
         skeleton = json.loads(response_text)
         logger.info(f"[SKELETON_GEN] Successfully parsed JSON")
         
+        # Log the skeleton structure for debugging
+        logger.info(f"[SKELETON_GEN] Skeleton keys: {list(skeleton.keys())}")
+        logger.info(f"[SKELETON_GEN] Full skeleton structure: {json.dumps(skeleton, ensure_ascii=False, indent=2)}")
+        
         # Validate structure
         validate_skeleton_structure(skeleton, product_type)
         logger.info(f"[SKELETON_GEN] Skeleton validation passed")
@@ -13018,15 +13022,18 @@ async def collect_agentic_context_streaming(
         stage1_time = time.time() - stage1_start
         
         # Determine skeleton items
+        logger.info(f"[AGENTIC_STAGE1] Extracting items for product_type='{product_type}'")
         if product_type == "Course Outline":
             skeleton_items = skeleton.get('modules', [])
-        elif product_type in ["Lesson Presentation", "Text Presentation"]:
+        elif product_type in ["Lesson Presentation", "Text Presentation", "Slides Deck", "Video Lesson Slides Deck"]:
             skeleton_items = skeleton.get('slides') or skeleton.get('sections', [])
         elif product_type == "Quiz":
             skeleton_items = skeleton.get('quiz_topics', [])
         else:
+            logger.warning(f"[AGENTIC_STAGE1] Unknown product_type='{product_type}', defaulting to empty skeleton")
             skeleton_items = []
         
+        logger.info(f"[AGENTIC_STAGE1] Extracted {len(skeleton_items)} items from skeleton")
         logger.info(f"[AGENTIC_STAGE1_COMPLETE] skeleton_items={len(skeleton_items)} time={stage1_time:.2f}s")
         yield ("progress", f"✅ Generated outline with {len(skeleton_items)} sections")
         
@@ -13241,15 +13248,18 @@ async def collect_agentic_context(
     stage1_time = time.time() - stage1_start
     
     # Determine skeleton items based on product type
+    logger.info(f"[AGENTIC_STAGE1] Extracting items for product_type='{product_type}'")
     if product_type == "Course Outline":
         skeleton_items = skeleton.get('modules', [])
-    elif product_type in ["Lesson Presentation", "Text Presentation"]:
+    elif product_type in ["Lesson Presentation", "Text Presentation", "Slides Deck", "Video Lesson Slides Deck"]:
         skeleton_items = skeleton.get('slides') or skeleton.get('sections', [])
     elif product_type == "Quiz":
         skeleton_items = skeleton.get('quiz_topics', [])
     else:
+        logger.warning(f"[AGENTIC_STAGE1] Unknown product_type='{product_type}', defaulting to empty skeleton")
         skeleton_items = []
     
+    logger.info(f"[AGENTIC_STAGE1] Extracted {len(skeleton_items)} items from skeleton")
     logger.info(f"[AGENTIC_STAGE1_COMPLETE] skeleton_items={len(skeleton_items)}")
     logger.info(f"[AGENTIC_STAGE1_COMPLETE] time={stage1_time:.2f}s")
     
@@ -13501,15 +13511,18 @@ async def collect_agentic_context_from_connectors_streaming(
         skeleton = await generate_skeleton(skeleton_prompt, product_type, model)
         
         # Extract skeleton items based on product type
+        logger.info(f"[AGENTIC_CONNECTOR_STAGE1] Extracting items for product_type='{product_type}'")
         if product_type == "Course Outline":
             skeleton_items = skeleton.get('modules', [])
-        elif product_type in ["Lesson Presentation", "Text Presentation"]:
+        elif product_type in ["Lesson Presentation", "Text Presentation", "Slides Deck", "Video Lesson Slides Deck"]:
             skeleton_items = skeleton.get('slides') or skeleton.get('sections', [])
         elif product_type == "Quiz":
             skeleton_items = skeleton.get('quiz_topics', [])
         else:
+            logger.warning(f"[AGENTIC_CONNECTOR_STAGE1] Unknown product_type='{product_type}', defaulting to empty skeleton")
             skeleton_items = []
         
+        logger.info(f"[AGENTIC_CONNECTOR_STAGE1] Extracted {len(skeleton_items)} items from skeleton")
         logger.info(f"[AGENTIC_CONNECTOR_STAGE1] Generated skeleton with {len(skeleton_items)} items")
         yield ("progress", f"✅ Generated skeleton with {len(skeleton_items)} items")
         
@@ -20971,7 +20984,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                                 raise Exception("No context returned from agentic connector extraction")
                         except Exception as e:
                             logger.warning(f"[COURSE_OUTLINE] Agentic connector extraction failed, using fallback: {e}")
-                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                         
                         # Map SmartDrive paths to Onyx file IDs with proper normalization
                         raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
@@ -21035,16 +21048,16 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                             except Exception as e:
                                 logger.error(f"[COURSE_OUTLINE] Agentic extraction failed, using fallback: {e}")
                                 # Fall back to old method
-                                async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                    if update["type"] == "progress":
-                                        progress_packet = {"type": "info", "message": update["message"]}
-                                        yield (json.dumps(progress_packet) + "\n").encode()
-                                        last_send = asyncio.get_event_loop().time()
-                                    elif update["type"] == "complete":
-                                        file_context_from_smartdrive = update["context"]
-                                        break
-                                    elif update["type"] == "error":
-                                        logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -21077,9 +21090,9 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                                 raise Exception("No context returned from agentic connector extraction")
                         except Exception as e:
                             logger.warning(f"[COURSE_OUTLINE] Agentic connector extraction failed, using fallback: {e}")
-                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                         
-                        file_context = connector_context
+                    file_context = connector_context
                     if getattr(payload, 'selectedFiles', None):
                         logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
@@ -21110,7 +21123,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                                         raise Exception("No context returned from agentic extraction")
                                 except Exception as e:
                                     logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
-                                    files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
                                 
                                 file_context = merge_source_contexts(connector_context, files_ctx)
                         except Exception as merr:
@@ -21219,16 +21232,16 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                if update["type"] == "progress":
-                                    progress_packet = {"type": "info", "message": update["message"]}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update["type"] == "complete":
-                                    file_context = update["context"]
-                                    break
-                                elif update["type"] == "error":
-                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                         
                         if not file_context:
                             file_context = f"Selected files: {', '.join(raw_paths)}\nNote: File extraction completed but no context was returned."
@@ -21309,8 +21322,8 @@ FULL FILE CONTENT:
                         except Exception as e:
                             logger.error(f"[COURSE_OUTLINE] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                                if update["type"] == "progress":
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
                                     progress_packet = {"type": "info", "message": update["message"]}
                                     yield (json.dumps(progress_packet) + "\n").encode()
                                     last_send = asyncio.get_event_loop().time()
@@ -21324,16 +21337,16 @@ FULL FILE CONTENT:
                         logger.info(f"[COURSE_OUTLINE] Using chat-based extraction (folders included)")
                         async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                             if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -29046,7 +29059,7 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                                 raise Exception("No context returned from agentic connector extraction")
                         except Exception as e:
                             logger.warning(f"[LESSON_PRESENTATION] Agentic connector extraction failed, using fallback: {e}")
-                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                         
                         # Map SmartDrive paths to Onyx file IDs with proper normalization
                         raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
@@ -29110,16 +29123,16 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                             except Exception as e:
                                 logger.error(f"[LESSON_PRESENTATION] Agentic extraction failed, using fallback: {e}")
                                 # Fall back to old method
-                                async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                    if update["type"] == "progress":
-                                        progress_packet = {"type": "info", "message": update["message"]}
-                                        yield (json.dumps(progress_packet) + "\n").encode()
-                                        last_send = asyncio.get_event_loop().time()
-                                    elif update["type"] == "complete":
-                                        file_context_from_smartdrive = update["context"]
-                                        break
-                                    elif update["type"] == "error":
-                                        logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                if update["type"] == "progress":
+                                    progress_packet = {"type": "info", "message": update["message"]}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update["type"] == "complete":
+                                    file_context_from_smartdrive = update["context"]
+                                    break
+                                elif update["type"] == "error":
+                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                             
                             # Combine both contexts
                             file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
@@ -29249,16 +29262,16 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                if update["type"] == "progress":
-                                    progress_packet = {"type": "info", "message": update["message"]}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update["type"] == "complete":
-                                    file_context = update["context"]
-                                    break
-                                elif update["type"] == "error":
-                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -29336,8 +29349,8 @@ FULL FILE CONTENT:
                         except Exception as e:
                             logger.error(f"[LESSON_PRESENTATION] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                                if update["type"] == "progress":
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
                                     progress_packet = {"type": "info", "message": update["message"]}
                                     yield (json.dumps(progress_packet) + "\n").encode()
                                     last_send = asyncio.get_event_loop().time()
@@ -29351,16 +29364,16 @@ FULL FILE CONTENT:
                         logger.info(f"[LESSON_PRESENTATION] Using chat-based extraction (folders included)")
                         async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                             if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -34724,7 +34737,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                             raise Exception("No context returned from agentic connector extraction")
                     except Exception as e:
                         logger.warning(f"[QUIZ] Agentic connector extraction failed, using fallback: {e}")
-                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                     
                     file_context = connector_context
                     # If specific SmartDrive files were also selected, map and extract them too, then merge
@@ -34759,7 +34772,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                                         raise Exception("No context returned from agentic extraction")
                                 except Exception as e:
                                     logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
-                                    files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
                                 
                                 file_context = merge_source_contexts(connector_context, files_ctx)
                         except Exception as merr:
@@ -34858,16 +34871,16 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                if update["type"] == "progress":
-                                    progress_packet = {"type": "info", "message": update["message"]}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update["type"] == "complete":
-                                    file_context = update["context"]
-                                    break
-                                elif update["type"] == "error":
-                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -34945,8 +34958,8 @@ FULL FILE CONTENT:
                         except Exception as e:
                             logger.error(f"[QUIZ] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                                if update["type"] == "progress":
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
                                     progress_packet = {"type": "info", "message": update["message"]}
                                     yield (json.dumps(progress_packet) + "\n").encode()
                                     last_send = asyncio.get_event_loop().time()
@@ -34960,16 +34973,16 @@ FULL FILE CONTENT:
                         logger.info(f"[QUIZ] Using chat-based extraction (folders included)")
                         async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                             if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
@@ -36684,7 +36697,7 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                             raise Exception("No context returned from agentic connector extraction")
                     except Exception as e:
                         logger.warning(f"[TEXT_PRESENTATION] Agentic connector extraction failed, using fallback: {e}")
-                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                    connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
                     
                     file_context = connector_context
                     if getattr(payload, 'selectedFiles', None):
@@ -36717,7 +36730,7 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                                         raise Exception("No context returned from agentic extraction")
                                 except Exception as e:
                                     logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
-                                    files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
+                                files_ctx = await extract_file_context_from_onyx(file_ids, [], cookies)
                                 
                                 file_context = merge_source_contexts(connector_context, files_ctx)
                         except Exception as merr:
@@ -36816,16 +36829,16 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                if update["type"] == "progress":
-                                    progress_packet = {"type": "info", "message": update["message"]}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update["type"] == "complete":
-                                    file_context = update["context"]
-                                    break
-                                elif update["type"] == "error":
-                                    logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                        async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                            if update["type"] == "progress":
+                                progress_packet = {"type": "info", "message": update["message"]}
+                                yield (json.dumps(progress_packet) + "\n").encode()
+                                last_send = asyncio.get_event_loop().time()
+                            elif update["type"] == "complete":
+                                file_context = update["context"]
+                                break
+                            elif update["type"] == "error":
+                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                     else:
                         logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
                         file_context = ""
@@ -36914,8 +36927,8 @@ FULL FILE CONTENT:
                         except Exception as e:
                             logger.error(f"[TEXT_PRESENTATION] Agentic extraction failed, using fallback: {e}")
                             # Fall back to old method
-                            async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
-                                if update["type"] == "progress":
+                    async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
+                        if update["type"] == "progress":
                                     progress_packet = {"type": "info", "message": update["message"]}
                                     yield (json.dumps(progress_packet) + "\n").encode()
                                     last_send = asyncio.get_event_loop().time()
@@ -36929,16 +36942,16 @@ FULL FILE CONTENT:
                         logger.info(f"[TEXT_PRESENTATION] Using chat-based extraction (folders included)")
                         async for update in extract_file_context_from_onyx_with_progress(file_ids_list, folder_ids_list, cookies):
                             if update["type"] == "progress":
-                                progress_packet = {"type": "info", "message": update["message"]}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
-                                last_send = asyncio.get_event_loop().time()
-                            elif update["type"] == "complete":
-                                file_context = update["context"]
-                                logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
-                                break
-                            elif update["type"] == "error":
-                                logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                            progress_packet = {"type": "info", "message": update["message"]}
+                            yield (json.dumps(progress_packet) + "\n").encode()
+                            logger.info(f"[FILE_EXTRACTION_PROGRESS] {update['message']}")
+                            last_send = asyncio.get_event_loop().time()
+                        elif update["type"] == "complete":
+                            file_context = update["context"]
+                            logger.info(f"[FILE_EXTRACTION_COMPLETE] Extracted context from files")
+                            break
+                        elif update["type"] == "error":
+                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
                 
                 # Step 2: Use OpenAI with enhanced context
                 logger.info(f"[HYBRID_STREAM] Starting OpenAI generation with enhanced context")
