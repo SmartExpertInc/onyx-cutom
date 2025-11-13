@@ -197,7 +197,7 @@ export const useLabels = () => {
 };
 
 export const useTimeRange = (initialValue?: DateRangePickerValue) => {
-  return useState<DateRangePickerValue | null>(null);
+  return useState<DateRangePickerValue | null>(initialValue ?? null);
 };
 
 export interface FilterManager {
@@ -590,7 +590,7 @@ export function useLlmManager(
 
   const updateTemperature = (temperature: number) => {
     if (isAnthropic(currentLlm.provider, currentLlm.modelName)) {
-      setTemperature((prevTemp) => Math.min(temperature, 1.0));
+      setTemperature((_prevTemp) => Math.min(temperature, 1.0));
     } else {
       setTemperature(temperature);
     }
