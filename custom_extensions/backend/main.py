@@ -11642,10 +11642,14 @@ async def process_video(
             # Crop to exact dimensions (centered)
             video_filter_parts.append(f'crop={target_width}:{target_height}')
         else:  # contain
-            # Scale to fit, then pad
+            # Scale to fit, then pad with transparent background
+            # First, convert to rgba format to support alpha channel
+            video_filter_parts.append(f'format=rgba')
+            # Scale to fit within target dimensions
             video_filter_parts.append(f'scale={target_width}:{target_height}:force_original_aspect_ratio=decrease')
-            # Pad to exact dimensions (centered, black background)
-            video_filter_parts.append(f'pad={target_width}:{target_height}:(ow-iw)/2:(oh-ih)/2:color=black')
+            # Pad to exact dimensions (centered, TRANSPARENT background)
+            # Using 0x00000000 for transparent black (RGBA format: 0,0,0,0)
+            video_filter_parts.append(f'pad={target_width}:{target_height}:(ow-iw)/2:(oh-ih)/2:color=0x00000000')
         
         # Apply position offset if needed (using crop with offset)
         if crop_config.x != 0 or crop_config.y != 0:
@@ -11658,11 +11662,12 @@ async def process_video(
             ffmpeg_cmd.extend(['-vf', ','.join(video_filter_parts)])
         
         # Add encoding settings
+        # Using yuva420p pixel format to support alpha channel (transparency)
         ffmpeg_cmd.extend([
             '-c:v', 'libx264',
             '-preset', 'medium',
             '-crf', '23',
-            '-pix_fmt', 'yuv420p',
+            '-pix_fmt', 'yuva420p',  # Changed from 'yuv420p' to support alpha channel
             output_path
         ])
         
