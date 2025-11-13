@@ -28,7 +28,7 @@ interface GuideInfo {
 const GRID_CONFIG = {
   // Grid appearance
   color: '#a78bfa', // Light violet
-  opacity: 0.15,
+  opacity: 0.2,
   lineWidth: 1,
   
   // Alignment guide appearance
@@ -38,7 +38,8 @@ const GRID_CONFIG = {
   
   // Snapping behavior
   snapThreshold: 3, // pixels - distance at which snapping activates
-  snapStrength: 0.3, // 0-1, how strongly to snap (0.3 = light magnet, 1.0 = strong constant)
+  snapStrength: 0.5, // 0-1, how strongly to snap (0.3 = light magnet, 1.0 = strong constant)
+  snapDistanceLimit: 15, // pixels - maximum distance an element can be pulled to prevent large jumps
 };
 
 export const DragEnhancer: React.FC<DragEnhancerProps> = ({
@@ -422,16 +423,28 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           // Apply light magnetic snapping - interpolate between current position and snap position
           if (closestVerticalGuide) {
             const vGuide: GuideInfo = closestVerticalGuide;
-            // Calculate interpolation factor based on distance (closer = stronger pull)
-            const pullStrength = (1 - (vGuide.distance / GRID_CONFIG.snapThreshold)) * GRID_CONFIG.snapStrength;
-            currentX = currentX + (vGuide.position - currentX) * pullStrength;
+            // Calculate the distance the element would need to move to snap
+            const snapDistance = Math.abs(vGuide.position - currentX);
+            
+            // Only apply snapping if the distance is within the limit (prevents large jumps)
+            if (snapDistance <= GRID_CONFIG.snapDistanceLimit) {
+              // Calculate interpolation factor based on distance (closer = stronger pull)
+              const pullStrength = (1 - (vGuide.distance / GRID_CONFIG.snapThreshold)) * GRID_CONFIG.snapStrength;
+              currentX = currentX + (vGuide.position - currentX) * pullStrength;
+            }
           }
           
           if (closestHorizontalGuide) {
             const hGuide: GuideInfo = closestHorizontalGuide;
-            // Calculate interpolation factor based on distance (closer = stronger pull)
-            const pullStrength = (1 - (hGuide.distance / GRID_CONFIG.snapThreshold)) * GRID_CONFIG.snapStrength;
-            currentY = currentY + (hGuide.position - currentY) * pullStrength;
+            // Calculate the distance the element would need to move to snap
+            const snapDistance = Math.abs(hGuide.position - currentY);
+            
+            // Only apply snapping if the distance is within the limit (prevents large jumps)
+            if (snapDistance <= GRID_CONFIG.snapDistanceLimit) {
+              // Calculate interpolation factor based on distance (closer = stronger pull)
+              const pullStrength = (1 - (hGuide.distance / GRID_CONFIG.snapThreshold)) * GRID_CONFIG.snapStrength;
+              currentY = currentY + (hGuide.position - currentY) * pullStrength;
+            }
           }
           
           htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
