@@ -507,7 +507,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           className={`flex-1 bg-[#F2F2F4] ${shouldCenterView ? 'w-full flex justify-center' : ''}`}
           ref={scrollContainerRef}
         >
-          <div className={`space-y-8 ${isViewMode ? 'px-0 w-full flex flex-col items-center' : 'px-6'}`}>
+          <div className={`space-y-8 ${isViewMode ? 'px-0 w-full flex flex-col items-center pb-4' : 'px-6 pb-4'}`}>
             {deck.slides.map((slide, index) => {
               const isActive = slide.slideId === selectedSlideId;
               const isHovered = editingEnabled && hoveredSlideId === slide.slideId;
