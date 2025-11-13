@@ -218,13 +218,19 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const canShowScormButton = shouldShowButtons && scormEnabled;
   const canShowDraftButton = shouldShowLinkButtons && currentIsAuthorized && (isPresentation || isVideoProduct);
   const actionButtonFontSize = useMobileLinkViewLayout ? '12px' : '14px';
+  const actionButtonHeight = useMobileLinkViewLayout ? 44 : 36;
+  const homeButtonHeight = useMobileLinkViewLayout ? 44 : 36;
+  const homeButtonPaddingX = useMobileLinkViewLayout ? 16 : 12;
 
   const renderHomeButton = () => (
           <button
             onClick={() => { if (typeof window !== 'undefined') window.location.href = '/projects'; }}
-            className="flex items-center justify-center bg-white rounded-md h-9 px-3 transition-all duration-200 hover:shadow-lg cursor-pointer"
+      className="flex items-center justify-center bg-white rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer"
             style={{
-              border: '1px solid #E4E4E7'
+              border: '1px solid #E4E4E7',
+              height: `${homeButtonHeight}px`,
+              paddingLeft: `${homeButtonPaddingX}px`,
+              paddingRight: `${homeButtonPaddingX}px`
             }}
           >
             <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -266,7 +272,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5133 2.5C11.7784 2.5 11.9933 2.7149 11.9933 2.98V7.24667C11.9933 7.51177 11.7784 7.72667 11.5133 7.72667C11.2483 7.72667 11.0333 7.51177 11.0333 7.24667V4.13883L4.13882 11.0333H7.24667C7.51177 11.0333 7.72667 11.2483 7.72667 11.5133C7.72667 11.7784 7.51177 11.9933 7.24667 11.9933H2.98C2.85269 11.9933 2.7306 11.9428 2.64059 11.8528C2.55057 11.7627 2.5 11.6406 2.5 11.5133V7.24667C2.5 6.98157 2.7149 6.76667 2.98 6.76667C3.2451 6.76667 3.46 6.98157 3.46 7.24667V10.3545L10.3545 3.46H7.24667C6.98157 3.46 6.76667 3.2451 6.76667 2.98C6.76667 2.7149 6.98157 2.5 7.24667 2.5H11.5133Z"/>
                 </mask>
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5133 2.5C11.7784 2.5 11.9933 2.7149 11.9933 2.98V7.24667C11.9933 7.51177 11.7784 7.72667 11.5133 7.72667C11.2483 7.72667 11.0333 7.51177 11.0333 7.24667V4.13883L4.13882 11.0333H7.24667C7.51177 11.0333 7.72667 11.2483 7.72667 11.5133C7.72667 11.7784 7.51177 11.9933 7.24667 11.9933H2.98C2.85269 11.9933 2.7306 11.9428 2.64059 11.8528C2.55057 11.7627 2.5 11.6406 2.5 11.5133V7.24667C2.5 6.98157 2.7149 6.76667 2.98 6.76667C3.2451 6.76667 3.46 6.98157 3.46 7.24667V10.3545L10.3545 3.46H7.24667C6.98157 3.46 6.76667 3.2451 6.76667 2.98C6.76667 2.7149 6.98157 2.5 7.24667 2.5H11.5133Z" fill="#4D4D4D"/>
-                <path d="M11.0333 4.13883H12.0333V1.72462L10.3262 3.43172L11.0333 4.13883ZM4.13882 11.0333L3.43171 10.3262L1.7246 12.0333H4.13882V11.0333ZM3.46 10.3545H2.46V12.7687L4.16711 11.0616L3.46 10.3545ZM10.3545 3.46L11.0616 4.16711L12.7687 2.46H10.3545V3.46ZM11.5133 2.5V3.5C11.2262 3.5 10.9933 3.26723 10.9933 2.98H11.9933H12.9933C12.9933 2.16257 12.3307 1.5 11.5133 1.5V2.5ZM11.9933 2.98H10.9933V7.24667H11.9933H12.9933V2.98H11.9933ZM11.9933 7.24667H10.9933C10.9933 6.95944 11.2262 6.72667 11.5133 6.72667V7.72667V8.72667C12.3307 8.72667 12.9933 8.06409 12.9933 7.24667H11.9933ZM11.5133 7.72667V6.72667C11.8005 6.72667 12.0333 6.95944 12.0333 7.24667H11.0333H10.0333C10.0333 8.06409 10.696 8.72667 11.5133 8.72667V7.72667ZM11.0333 7.24667H12.0333V4.13883H11.0333H10.0333V7.24667H11.0333ZM11.0333 4.13883L10.3262 3.43172L3.43171 10.3262L4.13882 11.0333L4.84592 11.7405L11.7405 4.84593L11.0333 4.13883ZM4.13882 11.0333V12.0333H7.24667V11.0333V10.0333H4.13882V11.0333ZM7.24667 11.0333V12.0333C6.95944 12.0333 6.72667 11.8005 6.72667 11.5133H7.72667H8.72667C8.72667 10.696 8.06409 10.0333 7.24667 10.0333V11.0333ZM7.72667 11.5133H6.72667C6.72667 11.2262 6.95944 10.9933 7.24667 10.9933V11.9933V12.9933C8.06409 12.9933 8.72667 12.3307 8.72667 11.5133H7.72667ZM7.24667 11.9933V10.9933H2.98V11.9933V12.9933H7.24667V11.9933ZM2.98 11.9933V10.9933C3.11785 10.9933 3.25015 11.0481 3.34774 11.1457L2.64059 11.8528L1.93344 12.5598C2.21105 12.8375 2.58754 12.9933 2.98 12.9933V11.9933ZM2.64059 11.8528L3.34774 11.1457C3.44524 11.2432 3.5 11.3754 3.5 11.5133H2.5H1.5C1.5 11.9058 1.6559 12.2823 1.93344 12.5598L2.64059 11.8528ZM2.5 11.5133H3.5V7.24667H2.5H1.5V11.5133H2.5ZM2.5 7.24667H3.5C3.5 7.53385 3.26719 7.76667 2.98 7.76667V6.76667V5.76667C2.16262 5.76667 1.5 6.42928 1.5 7.24667H2.5ZM2.98 6.76667V7.76667C2.69281 7.76667 2.46 7.53385 2.46 7.24667H3.46H4.46C4.46 6.42928 3.79738 5.76667 2.98 5.76667V6.76667ZM3.46 7.24667H2.46V10.3545H3.46H4.46V7.24667H3.46ZM3.46 10.3545L4.16711 11.0616L11.0616 4.16711L10.3545 3.46L9.64741 2.75289L2.75289 9.64741L3.46 10.3545ZM10.3545 3.46V2.46H7.24667V3.46V4.46H10.3545V3.46ZM7.24667 3.46V2.46C7.53385 2.46 7.76667 2.69281 7.76667 2.98H6.76667H5.76667C5.76667 3.79738 6.42928 4.46 7.24667 4.46V3.46ZM6.76667 2.98H7.76667C7.76667 3.26719 7.53385 3.5 7.24667 3.5V2.5V1.5C6.42928 1.5 5.76667 2.16262 5.76667 2.98H6.76667ZM7.24667 2.5V3.5H11.5133V2.5V1.5H7.24667V2.5Z" fill="#4D4D4D" mask="url(#path-2-inside-1_1435_10944)"/>
+                <path d="M11.0333 4.13883H12.0333V1.72462L10.3262 3.43172L11.0333 4.13883ZM4.13882 11.0333L3.43171 10.3262L1.72460 12.0333H4.13882V11.0333ZM3.46 10.3545H2.46V12.7687L4.16711 11.0616L3.46 10.3545ZM10.3545 3.46L11.0616 4.16711L12.7687 2.46H10.3545V3.46ZM11.5133 2.5V3.5C11.2262 3.5 10.9933 3.26723 10.9933 2.98H11.9933H12.9933C12.9933 2.16257 12.3307 1.5 11.5133 1.5V2.5ZM11.9933 2.98H10.9933V7.24667H11.9933H12.9933V2.98H11.9933ZM11.9933 7.24667H10.9933C10.9933 6.95944 11.2262 6.72667 11.5133 6.72667V7.72667V8.72667C12.3307 8.72667 12.9933 8.06409 12.9933 7.24667H11.9933ZM11.5133 7.72667V6.72667C11.8005 6.72667 12.0333 6.95944 12.0333 7.24667H11.0333H10.0333C10.0333 8.06409 10.696 8.72667 11.5133 8.72667V7.72667ZM11.0333 7.24667H12.0333V4.13883H11.0333H10.0333V7.24667H11.0333ZM11.0333 4.13883L10.3262 3.43172L3.43171 10.3262L4.13882 11.0333L4.84592 11.7405L11.7405 4.84593L11.0333 4.13883ZM4.13882 11.0333V12.0333H7.24667V11.0333V10.0333H4.13882V11.0333ZM7.24667 11.0333V12.0333C6.95944 12.0333 6.72667 11.8005 6.72667 11.5133H7.72667H8.72667C8.72667 10.696 8.06409 10.0333 7.24667 10.0333V11.0333ZM7.72667 11.5133H6.72667C6.72667 11.2262 6.95944 10.9933 7.24667 10.9933V11.9933V12.9933C8.06409 12.9933 8.72667 12.3307 8.72667 11.5133H7.72667ZM7.24667 11.9933V10.9933H2.98V11.9933V12.9933H7.24667V11.9933ZM2.98 11.9933V10.9933C3.11785 10.9933 3.25015 11.0481 3.34774 11.1457L2.64059 11.8528L1.93344 12.5598C2.21105 12.8375 2.58754 12.9933 2.98 12.9933V11.9933ZM2.64059 11.8528L3.34774 11.1457C3.44524 11.2432 3.5 11.3754 3.5 11.5133H2.5H1.5C1.5 11.9058 1.6559 12.2823 1.93344 12.5598L2.64059 11.8528ZM2.5 11.5133H3.5V7.24667H2.5H1.5V11.5133H2.5ZM2.5 7.24667H3.5C3.5 7.53385 3.26719 7.76667 2.98 7.76667V6.76667V5.76667C2.16262 5.76667 1.5 6.42928 1.5 7.24667H2.5ZM2.98 6.76667V7.76667C2.69281 7.76667 2.46 7.53385 2.46 7.24667H3.46H4.46C4.46 6.42928 3.79738 5.76667 2.98 5.76667V6.76667ZM3.46 7.24667H2.46V10.3545H3.46H4.46V7.24667H3.46ZM3.46 10.3545L4.16711 11.0616L11.0616 4.16711L10.3545 3.46L9.64741 2.75289L2.75289 9.64741L3.46 10.3545ZM10.3545 3.46V2.46H7.24667V3.46V4.46H10.3545V3.46ZM7.24667 3.46V2.46C7.53385 2.46 7.76667 2.69281 7.76667 2.98H6.76667H5.76667C5.76667 3.79738 6.42928 4.46 7.24667 4.46V3.46ZM6.76667 2.98H7.76667C7.76667 3.26719 7.53385 3.5 7.24667 3.5V2.5V1.5C6.42928 1.5 5.76667 2.16262 5.76667 2.98H6.76667ZM7.24667 2.5V3.5H11.5133V2.5V1.5H7.24667V2.5Z" fill="#4D4D4D" mask="url(#path-2-inside-1_1435_10944)"/>
                 </svg>
                 <span className="text-[#4D4D4D] text-[15px] font-medium">A4</span>
                 </div>
@@ -343,101 +349,113 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   );
 
   const renderDraftButton = () => (
-                <button
-                  onClick={handleDraft}
-                  className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    color: '#171718',
-                    border: '1px solid #171718',
+    <button
+      onClick={handleDraft}
+      className="flex items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+      style={{
+        backgroundColor: '#FFFFFF',
+        color: '#171718',
+        border: '1px solid #171718',
         fontSize: actionButtonFontSize,
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6.5 11.9142H12.5M9.5 0.914214C9.76522 0.648997 10.1249 0.5 10.5 0.5C10.6857 0.5 10.8696 0.53658 11.0412 0.607651C11.2128 0.678721 11.3687 0.782892 11.5 0.914214C11.6313 1.04554 11.7355 1.20144 11.8066 1.37302C11.8776 1.5446 11.9142 1.7285 11.9142 1.91421C11.9142 2.09993 11.8776 2.28383 11.8066 2.45541C11.7355 2.62699 11.6313 2.78289 11.5 2.91421L3.16667 11.2475L0.5 11.9142L1.16667 9.24755L9.5 0.914214Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Draft
-                </button>
+        lineHeight: '140%',
+        letterSpacing: '0.05em',
+        height: `${actionButtonHeight}px`,
+        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+      }}
+    >
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6.5 11.9142H12.5M9.5 0.914214C9.76522 0.648997 10.1249 0.5 10.5 0.5C10.6857 0.5 10.8696 0.53658 11.0412 0.607651C11.2128 0.678721 11.3687 0.782892 11.5 0.914214C11.6313 1.04554 11.7355 1.20144 11.8066 1.37302C11.8776 1.5446 11.9142 1.7285 11.9142 1.91421C11.9142 2.09993 11.8776 2.28383 11.8066 2.45541C11.7355 2.62699 11.6313 2.78289 11.5 2.91421L3.16667 11.2475L0.5 11.9142L1.16667 9.24755L9.5 0.914214Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      Draft
+    </button>
   );
 
   const renderExportControl = () => {
     if (!currentIsAuthorized) return null;
 
     return (
-              <div className="relative">
-                <button
-                  ref={exportButtonRef}
-                  type="button"
-                  onClick={handleExport}
-                  className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                  style={{
-                    backgroundColor: '#FFFFFF',
-                    color: '#0F58F9',
-                    border: '1px solid #0F58F9',
+      <div className="relative">
+        <button
+          ref={exportButtonRef}
+          type="button"
+          onClick={handleExport}
+          className="flex items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+          style={{
+            backgroundColor: '#FFFFFF',
+            color: '#0F58F9',
+            border: '1px solid #0F58F9',
             fontSize: actionButtonFontSize,
-                    lineHeight: '140%',
-                    letterSpacing: '0.05em'
-                  }}
-                >
-                  <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Export
-                </button>
-                {exportOptions && exportOptions.length > 0 && showExportMenu && (
-                  <div
-                    ref={exportMenuRef}
-                    className="absolute left-0 mt-2 w-56 rounded-lg border border-[#0F58F9] bg-white py-1 shadow-xl z-[60]"
-                  >
-                    {exportOptions.map((option) => (
-                      <button
-                        key={option.key}
-                        type="button"
-                        onClick={() => handleExportOptionSelect(option.onSelect)}
-                        className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[#171718] transition-colors hover:bg-[#F2F2F4]"
-                      >
-                        {option.icon && <span className="flex h-4 w-4 items-center justify-center">{option.icon}</span>}
-                        <span>{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+            lineHeight: '140%',
+            letterSpacing: '0.05em',
+            height: `${actionButtonHeight}px`,
+            paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+            paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+          }}
+        >
+          <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Export
+        </button>
+        {exportOptions && exportOptions.length > 0 && showExportMenu && (
+          <div
+            ref={exportMenuRef}
+            className="absolute left-0 mt-2 w-56 rounded-lg border border-[#0F58F9] bg-white py-1 shadow-xl z-[60]"
+          >
+            {exportOptions.map((option) => (
+              <button
+                key={option.key}
+                type="button"
+                onClick={() => handleExportOptionSelect(option.onSelect)}
+                className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[#171718] transition-colors hover:bg-[#F2F2F4]"
+              >
+                {option.icon && <span className="flex h-4 w-4 items-center justify-center">{option.icon}</span>}
+                <span>{option.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     );
   };
 
   const renderCopyLinkButton = () => (
-              <button
-                onClick={handleCopyLink}
-                className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-                style={{
-                  backgroundColor: currentIsAuthorized ? '#0F58F9' : '#FFFFFF',
-                  color: currentIsAuthorized ? '#FFFFFF' : '#0F58F9',
-                  border: '1px solid #0F58F9',
+    <button
+      onClick={handleCopyLink}
+      className="flex items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+      style={{
+        backgroundColor: currentIsAuthorized ? '#0F58F9' : '#FFFFFF',
+        color: currentIsAuthorized ? '#FFFFFF' : '#0F58F9',
+        border: '1px solid #0F58F9',
         fontSize: actionButtonFontSize,
-                  lineHeight: '140%',
-                  letterSpacing: '0.05em'
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke={currentIsAuthorized ? 'white' : '#0F58F9'} strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Copy Link
-              </button>
+        lineHeight: '140%',
+        letterSpacing: '0.05em',
+        height: `${actionButtonHeight}px`,
+        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+      }}
+    >
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke={currentIsAuthorized ? 'white' : '#0F58F9'} strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      Copy Link
+    </button>
   );
 
   const renderSignUpButton = () => (
     <button
-      className="flex items-center justify-center rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+      className="flex items-center justify-center rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
       style={{
         backgroundColor: '#0F58F9',
         color: '#FFFFFF',
         border: '1px solid #0F58F9',
         fontSize: actionButtonFontSize,
         lineHeight: '140%',
-        letterSpacing: '0.05em'
+        letterSpacing: '0.05em',
+        height: `${actionButtonHeight}px`,
+        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
       }}
     >
       Sign up
@@ -447,14 +465,17 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const renderAiImproveButton = () => (
     <button
       onClick={() => setShowAiAgent?.(!showAiAgent)}
-      className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+      className="flex items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
       style={{
         backgroundColor: '#FFFFFF',
         color: '#171718',
         fontSize: actionButtonFontSize,
         lineHeight: '140%',
         letterSpacing: '0.05em',
-        border: '1px solid #171718'
+        border: '1px solid #171718',
+        height: `${actionButtonHeight}px`,
+        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
       }}
       title={t('actions.aiAgent', 'AI Improve')}
     >
@@ -476,14 +497,17 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           console.error('🔍 PDF export function not provided');
         }
       }}
-      className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+      className="flex items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
       style={{
         backgroundColor: '#0F58F9',
         color: '#FFFFFF',
         fontSize: actionButtonFontSize,
         lineHeight: '140%',
         letterSpacing: '0.05em',
-        border: '1px solid #0F58F9'
+        border: '1px solid #0F58F9',
+        height: `${actionButtonHeight}px`,
+        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
       }}
       title="Export to PDF"
     >
@@ -499,8 +523,13 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
       <ScormDownloadButton
         courseOutlineId={Number(productId)}
         label={t('interface.viewNew.exportScorm', 'Export to SCORM 2004')}
-        className="rounded h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
-        style={{ fontSize: actionButtonFontSize }}
+        className="rounded transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none disabled:opacity-60 bg-[#0F58F9] text-white"
+        style={{
+          fontSize: actionButtonFontSize,
+          height: `${actionButtonHeight}px`,
+          paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+          paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+        }}
       />
     </ToastProvider>
   );
@@ -515,7 +544,12 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </div>
             <div className="flex items-center gap-2">
               {currentIsAuthorized ? (
-                <UserDropdown />
+                <div
+                  className="flex items-center"
+                  style={useMobileLinkViewLayout ? { height: `${actionButtonHeight}px` } : undefined}
+                >
+                  <UserDropdown />
+                </div>
               ) : (
                 <>
                   {renderCopyLinkButton()}
@@ -565,14 +599,17 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         {isOnePager && onEditOrSave && (
             <button
               onClick={onEditOrSave}
-              className="flex items-center gap-2 rounded-md h-9 px-[15px] pr-[20px] transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+              className="flex items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
               style={{
                 backgroundColor: isEditing ? '#10B981' : '#FFFFFF',
                 color: isEditing ? '#FFFFFF' : '#171718',
                 fontSize: actionButtonFontSize,
                 lineHeight: '140%',
                 letterSpacing: '0.05em',
-                border: isEditing ? '1px solid #10B981' : '1px solid #171718'
+                border: isEditing ? '1px solid #10B981' : '1px solid #171718',
+                height: `${actionButtonHeight}px`,
+                paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+                paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
               }}
               title={isEditing ? 'Save' : 'Edit'}
             >
@@ -601,10 +638,15 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           {canShowScormButton && renderScormButton()}
 
           {currentIsAuthorized ? (
-            <UserDropdown />
+            <div
+              className="flex items-center"
+              style={useMobileLinkViewLayout ? { height: `${actionButtonHeight}px` } : undefined}
+            >
+              <UserDropdown />
+            </div>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="h-9 w-px bg-gray-300" />
+              <div className="w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
               {renderSignUpButton()}
             </div>
           )}
