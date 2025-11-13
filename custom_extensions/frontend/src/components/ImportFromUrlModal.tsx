@@ -52,226 +52,82 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
     setError(null);
   };
 
-  const createWebConnector = async (url: string): Promise<{ connector: any; connectorId: number } | null> => {
+  const createWebConnectorStreaming = async (url: string): Promise<{ connector_id: number; name: string; docs_indexed: number } | null> => {
     try {
-      // Parse the URL to extract the base URL
-      const urlObj = new URL(url);
-      const baseUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
-      
-      // Create a unique name by including a timestamp and path info
-      const timestamp = Date.now();
-      const pathPart = urlObj.pathname.length > 1 
-        ? urlObj.pathname.substring(0, 30).replace(/[^a-zA-Z0-9-]/g, '-') 
-        : '';
-      const uniqueName = `Web - ${urlObj.hostname}${pathPart} (${timestamp})`;
-      
-      // Step 1: Create the connector using the Onyx connector creation endpoint
-      const connectorResponse = await fetch('/api/manage/admin/connector', {
+      const response = await fetch('/api/custom-projects-backend/connectors/web/create-and-index', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: uniqueName,
-          source: 'web',
-          input_type: 'load_state',
-          access_type: 'private',
-          connector_specific_config: {
-            base_url: baseUrl,
-            web_connector_type: 'single',
-          },
-          refresh_freq: 3600,
-          prune_freq: 86400,
-          indexing_start: null,
-        }),
+        body: JSON.stringify({ url }),
       });
 
-      if (!connectorResponse.ok) {
-        const errorData = await connectorResponse.json().catch(() => ({}));
-        throw new Error(errorData.detail || errorData.message || `Failed to create connector: ${connectorResponse.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Failed to start connector creation: ${response.statusText}`);
       }
 
-      const connectorData = await connectorResponse.json();
-      const connectorId = connectorData.id;
-
-      if (!connectorId) {
-        throw new Error('Failed to get connector ID from response');
+      if (!response.body) {
+        throw new Error('No response body');
       }
 
-      // Step 2: Create a mock credential for the web connector (web connectors don't need real credentials)
-      const credentialResponse = await fetch('/api/manage/credential', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          credential_json: {},
-          admin_public: false,
-          curator_public: false,
-          name: `${uniqueName} - Credential`,
-          source: 'web',
-        }),
-      });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-      if (!credentialResponse.ok) {
-        // If credential creation fails, try to clean up the connector
-        try {
-          await fetch(`/api/manage/admin/connector/${connectorId}`, { method: 'DELETE' });
-        } catch {}
+      while (true) {
+        const { done, value } = await reader.read();
         
-        const errorData = await credentialResponse.json().catch(() => ({}));
-        throw new Error(errorData.detail || errorData.message || `Failed to create credential: ${credentialResponse.statusText}`);
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+
+          try {
+            const packet = JSON.parse(line);
+
+            if (packet.type === 'progress') {
+              setProcessingStatus(packet.message);
+            } else if (packet.type === 'keep_alive') {
+              // Just keep the connection alive, no UI update needed
+              console.log('[CONNECTOR_STREAM] Keep-alive received');
+            } else if (packet.type === 'complete') {
+              setProcessingStatus(
+                t('interface.importFromUrl.indexingComplete', `Indexing complete! ${packet.docs_indexed} documents indexed.`)
+              );
+              return {
+                connector_id: packet.connector_id,
+                name: packet.name,
+                docs_indexed: packet.docs_indexed,
+              };
+            } else if (packet.type === 'partial') {
+              setProcessingStatus(packet.message);
+              return {
+                connector_id: packet.connector_id,
+                name: packet.name,
+                docs_indexed: packet.docs_indexed,
+              };
+            } else if (packet.type === 'error') {
+              throw new Error(packet.message);
+            }
+          } catch (parseError) {
+            console.error('[CONNECTOR_STREAM] Error parsing packet:', line, parseError);
+          }
+        }
       }
 
-      const credentialData = await credentialResponse.json();
-      const credentialId = credentialData.id;
-
-      // Step 3: Link the connector and credential
-      const linkResponse = await fetch(`/api/manage/connector/${connectorId}/credential/${credentialId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: uniqueName,
-          access_type: 'private',
-          groups: [],
-          auto_sync_options: {
-            enabled: true,
-            frequency: 3600,
-          },
-        }),
-      });
-
-      if (!linkResponse.ok) {
-        // If linking fails, try to clean up both connector and credential
-        try {
-          await fetch(`/api/manage/admin/connector/${connectorId}`, { method: 'DELETE' });
-          await fetch(`/api/manage/credential/${credentialId}`, { method: 'DELETE' });
-        } catch {}
-        
-        const errorData = await linkResponse.json().catch(() => ({}));
-        throw new Error(errorData.detail || errorData.message || `Failed to link connector: ${linkResponse.statusText}`);
-      }
-
-      return {
-        connector: connectorData,
-        connectorId: connectorId,
-      };
+      throw new Error('Stream ended without completion');
     } catch (error) {
       console.error('Error creating web connector:', error);
       throw error;
     }
   };
 
-  const checkIndexingStatus = async (connectorId: number): Promise<{
-    isComplete: boolean;
-    status: string | null;
-    docsIndexed: number;
-    inProgress: boolean;
-    errorMsg?: string;
-  }> => {
-    try {
-      const response = await fetch('/api/manage/admin/connector/indexing-status');
-      if (!response.ok) {
-        throw new Error('Failed to check indexing status');
-      }
-
-      const statuses = await response.json();
-      const connectorStatus = statuses.find((status: any) => status.connector.id === connectorId);
-
-      if (!connectorStatus) {
-        // Connector not found in status yet, still initializing
-        return {
-          isComplete: false,
-          status: 'initializing',
-          docsIndexed: 0,
-          inProgress: true,
-        };
-      }
-
-      const lastStatus = connectorStatus.last_status;
-      const inProgress = connectorStatus.in_progress || false;
-      const docsIndexed = connectorStatus.docs_indexed || 0;
-
-      // Check if indexing is complete
-      const isComplete = lastStatus === 'success' && !inProgress && docsIndexed > 0;
-      
-      // Check for errors
-      const hasError = lastStatus === 'failed' || lastStatus === 'error';
-      const errorMsg = hasError ? connectorStatus.error_msg : undefined;
-
-      return {
-        isComplete,
-        status: lastStatus,
-        docsIndexed,
-        inProgress,
-        errorMsg,
-      };
-    } catch (error) {
-      console.error('Error checking indexing status:', error);
-      return {
-        isComplete: false,
-        status: 'unknown',
-        docsIndexed: 0,
-        inProgress: true,
-      };
-    }
-  };
-
-  const waitForIndexing = async (connectorId: number, maxWaitTime = 300000): Promise<void> => {
-    const startTime = Date.now();
-    const pollInterval = 3000; // 3 seconds
-    let lastDocsCount = 0;
-
-    while (Date.now() - startTime < maxWaitTime) {
-      const statusInfo = await checkIndexingStatus(connectorId);
-      
-      // Update status message based on progress
-      if (statusInfo.status === 'initializing' || statusInfo.status === 'not_started') {
-        setProcessingStatus(t('interface.importFromUrl.initializing', 'Initializing indexing...'));
-      } else if (statusInfo.inProgress) {
-        if (statusInfo.docsIndexed > 0) {
-          setProcessingStatus(
-            t('interface.importFromUrl.indexingProgress', `Indexing in progress... ${statusInfo.docsIndexed} documents indexed.`)
-          );
-        } else {
-          setProcessingStatus(t('interface.importFromUrl.indexing', 'Indexing URL... This may take a moment.'));
-        }
-        lastDocsCount = statusInfo.docsIndexed;
-      }
-
-      // Check for completion
-      if (statusInfo.isComplete) {
-        setProcessingStatus(
-          t('interface.importFromUrl.indexingComplete', `Indexing complete! ${statusInfo.docsIndexed} documents indexed.`)
-        );
-        return;
-      }
-
-      // Check for errors
-      if (statusInfo.status === 'failed' || statusInfo.status === 'error') {
-        throw new Error(
-          statusInfo.errorMsg || 'Indexing failed - please check the connector status manually'
-        );
-      }
-
-      await new Promise(resolve => setTimeout(resolve, pollInterval));
-    }
-
-    // Timeout - but check if we indexed anything
-    if (lastDocsCount > 0) {
-      console.warn(`Indexing timeout reached, but ${lastDocsCount} documents were indexed`);
-      setProcessingStatus(
-        t('interface.importFromUrl.partialSuccess', `Indexing still in progress (${lastDocsCount} documents indexed). You can proceed, but more content may be indexed later.`)
-      );
-      // Give user a moment to read the message
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      return;
-    }
-
-    throw new Error('Indexing timeout - please check the connector status manually');
-  };
 
   const handleImport = async () => {
     // Filter out empty URLs
@@ -310,22 +166,16 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           const totalUrls = validUrls.length;
           
           setProcessingStatus(
-            t('interface.importFromUrl.creatingConnector', `Creating connector for URL ${urlNumber} of ${totalUrls}...`)
+            t('interface.importFromUrl.creatingConnector', `Processing URL ${urlNumber} of ${totalUrls}...`)
           );
 
-          const result = await createWebConnector(url);
+          const result = await createWebConnectorStreaming(url);
           if (result) {
             createdConnectors.push({
-              id: result.connectorId,
+              id: result.connector_id,
               source: 'web',
-              name: result.connector.name,
+              name: result.name,
             });
-
-            // Wait for indexing to complete
-            setProcessingStatus(
-              t('interface.importFromUrl.indexingUrl', `Indexing URL ${urlNumber} of ${totalUrls}...`)
-            );
-            await waitForIndexing(result.connectorId);
           }
         }
 

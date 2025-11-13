@@ -11503,6 +11503,234 @@ async def delete_temporary_context(context_id: str, request: Request = None):
     
     return {"success": True, "message": "Context and associated files deleted"}
 
+
+# NEW: Streaming endpoint for web connector creation and indexing
+class CreateWebConnectorRequest(BaseModel):
+    url: str
+
+@app.post("/api/custom/connectors/web/create-and-index")
+async def create_web_connector_with_indexing_stream(
+    payload: CreateWebConnectorRequest,
+    request: Request
+):
+    """
+    Create a web connector and stream indexing progress with keep-alive packets.
+    
+    Yields JSON packets:
+    - {"type": "progress", "message": "...", "stage": "creating|indexing"}
+    - {"type": "keep_alive"} (every 5 seconds during indexing)
+    - {"type": "complete", "connector_id": 123, "docs_indexed": 5}
+    - {"type": "error", "message": "..."}
+    """
+    async def stream_generator():
+        try:
+            cookies = dict(request.cookies)
+            url = payload.url
+            
+            # Parse URL
+            try:
+                from urllib.parse import urlparse
+                parsed_url = urlparse(url)
+                base_url = f"{parsed_url.scheme}://{parsed_url.netloc}{parsed_url.path}"
+            except Exception as e:
+                error_packet = {"type": "error", "message": f"Invalid URL: {str(e)}"}
+                yield (json.dumps(error_packet) + "\n").encode()
+                return
+            
+            # Generate unique connector name
+            timestamp = int(time.time() * 1000)
+            path_part = parsed_url.path[:30].replace('/', '-').strip('-') if parsed_url.path and len(parsed_url.path) > 1 else ''
+            path_part = re.sub(r'[^a-zA-Z0-9-]', '-', path_part)
+            unique_name = f"Web - {parsed_url.netloc}{'-' + path_part if path_part else ''} ({timestamp})"
+            
+            # Step 1: Create connector
+            yield (json.dumps({"type": "progress", "message": "Creating web connector...", "stage": "creating"}) + "\n").encode()
+            logger.info(f"[WEB_CONNECTOR_STREAM] Creating connector for URL: {url}")
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                connector_response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/manage/admin/connector",
+                    json={
+                        "name": unique_name,
+                        "source": "web",
+                        "input_type": "load_state",
+                        "access_type": "private",
+                        "connector_specific_config": {
+                            "base_url": base_url,
+                            "web_connector_type": "single",
+                        },
+                        "refresh_freq": 3600,
+                        "prune_freq": 86400,
+                        "indexing_start": None,
+                    },
+                    cookies=cookies
+                )
+                connector_response.raise_for_status()
+                connector_data = connector_response.json()
+                connector_id = connector_data.get("id")
+                
+                if not connector_id:
+                    raise Exception("Failed to get connector ID from response")
+                
+                logger.info(f"[WEB_CONNECTOR_STREAM] Connector created: {connector_id}")
+            
+            # Step 2: Create credential
+            yield (json.dumps({"type": "progress", "message": "Creating credential...", "stage": "creating"}) + "\n").encode()
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                credential_response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/manage/credential",
+                    json={
+                        "credential_json": {},
+                        "admin_public": False,
+                        "curator_public": False,
+                        "name": f"{unique_name} - Credential",
+                        "source": "web",
+                    },
+                    cookies=cookies
+                )
+                credential_response.raise_for_status()
+                credential_data = credential_response.json()
+                credential_id = credential_data.get("id")
+                
+                logger.info(f"[WEB_CONNECTOR_STREAM] Credential created: {credential_id}")
+            
+            # Step 3: Link connector and credential
+            yield (json.dumps({"type": "progress", "message": "Linking connector and credential...", "stage": "creating"}) + "\n").encode()
+            
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                link_response = await client.put(
+                    f"{ONYX_API_SERVER_URL}/manage/connector/{connector_id}/credential/{credential_id}",
+                    json={
+                        "name": unique_name,
+                        "access_type": "private",
+                        "groups": [],
+                        "auto_sync_options": {
+                            "enabled": True,
+                            "frequency": 3600,
+                        },
+                    },
+                    cookies=cookies
+                )
+                link_response.raise_for_status()
+                
+                logger.info(f"[WEB_CONNECTOR_STREAM] Connector linked to credential")
+            
+            # Step 4: Monitor indexing with keep-alive packets
+            yield (json.dumps({"type": "progress", "message": "Indexing URL...", "stage": "indexing"}) + "\n").encode()
+            
+            max_wait_time = 300  # 5 minutes
+            poll_interval = 3  # 3 seconds
+            keep_alive_interval = 5  # Send keep-alive every 5 seconds
+            start_time = time.time()
+            last_keep_alive = start_time
+            last_docs_count = 0
+            
+            while time.time() - start_time < max_wait_time:
+                # Send keep-alive if needed
+                if time.time() - last_keep_alive >= keep_alive_interval:
+                    yield (json.dumps({"type": "keep_alive"}) + "\n").encode()
+                    last_keep_alive = time.time()
+                
+                # Check indexing status
+                try:
+                    async with httpx.AsyncClient(timeout=10.0) as client:
+                        status_response = await client.get(
+                            f"{ONYX_API_SERVER_URL}/manage/admin/connector/indexing-status",
+                            cookies=cookies
+                        )
+                        status_response.raise_for_status()
+                        statuses = status_response.json()
+                        
+                        # Find our connector's status
+                        connector_status = next(
+                            (s for s in statuses if s.get("connector", {}).get("id") == connector_id),
+                            None
+                        )
+                        
+                        if not connector_status:
+                            # Connector not yet in status list, still initializing
+                            await asyncio.sleep(poll_interval)
+                            continue
+                        
+                        last_status = connector_status.get("last_status")
+                        in_progress = connector_status.get("in_progress", False)
+                        docs_indexed = connector_status.get("docs_indexed", 0)
+                        
+                        # Update progress if docs count changed
+                        if docs_indexed > last_docs_count:
+                            progress_message = f"Indexing... {docs_indexed} document(s) indexed"
+                            yield (json.dumps({"type": "progress", "message": progress_message, "stage": "indexing", "docs_indexed": docs_indexed}) + "\n").encode()
+                            last_docs_count = docs_indexed
+                        
+                        # Check for completion
+                        if last_status == "success" and not in_progress and docs_indexed > 0:
+                            complete_packet = {
+                                "type": "complete",
+                                "connector_id": connector_id,
+                                "docs_indexed": docs_indexed,
+                                "name": unique_name
+                            }
+                            yield (json.dumps(complete_packet) + "\n").encode()
+                            logger.info(f"[WEB_CONNECTOR_STREAM] Indexing complete: {docs_indexed} docs")
+                            return
+                        
+                        # Check for errors
+                        if last_status in ["failed", "error"]:
+                            error_msg = connector_status.get("error_msg", "Indexing failed")
+                            error_packet = {"type": "error", "message": error_msg}
+                            yield (json.dumps(error_packet) + "\n").encode()
+                            logger.error(f"[WEB_CONNECTOR_STREAM] Indexing failed: {error_msg}")
+                            return
+                        
+                except Exception as status_error:
+                    logger.warning(f"[WEB_CONNECTOR_STREAM] Error checking status: {status_error}")
+                
+                await asyncio.sleep(poll_interval)
+            
+            # Timeout reached - check if we got any docs
+            if last_docs_count > 0:
+                # Partial success
+                complete_packet = {
+                    "type": "partial",
+                    "connector_id": connector_id,
+                    "docs_indexed": last_docs_count,
+                    "name": unique_name,
+                    "message": f"Indexing still in progress ({last_docs_count} documents indexed). You can proceed."
+                }
+                yield (json.dumps(complete_packet) + "\n").encode()
+                logger.warning(f"[WEB_CONNECTOR_STREAM] Timeout but partial success: {last_docs_count} docs")
+            else:
+                # Timeout with no progress
+                error_packet = {"type": "error", "message": "Indexing timeout - please check connector status manually"}
+                yield (json.dumps(error_packet) + "\n").encode()
+                logger.error(f"[WEB_CONNECTOR_STREAM] Indexing timeout with no docs")
+                
+        except httpx.HTTPStatusError as he:
+            error_detail = f"HTTP {he.response.status_code}"
+            try:
+                error_data = he.response.json()
+                error_detail = error_data.get("detail", error_data.get("message", error_detail))
+            except:
+                pass
+            error_packet = {"type": "error", "message": f"Failed to create connector: {error_detail}"}
+            yield (json.dumps(error_packet) + "\n").encode()
+            logger.error(f"[WEB_CONNECTOR_STREAM] HTTP error: {error_detail}")
+        except Exception as e:
+            error_packet = {"type": "error", "message": str(e)}
+            yield (json.dumps(error_packet) + "\n").encode()
+            logger.error(f"[WEB_CONNECTOR_STREAM] Error: {e}", exc_info=True)
+    
+    return StreamingResponse(
+        stream_generator(),
+        media_type="application/x-ndjson",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
+
 @app.post("/api/custom/presentation/upload_image", responses={200: {"description": "Image uploaded successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/your_image_name.png"}}}},400: {"description": "Invalid file type or other error", "model": ErrorDetail},413: {"description": "File too large", "model": ErrorDetail}})
 async def upload_presentation_image(file: UploadFile = File(...)):
     """Upload an image for use in presentations"""
