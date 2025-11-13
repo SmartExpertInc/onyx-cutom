@@ -21194,7 +21194,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
                         
                         # Determine product type from context
-                        product_type_name = wiz_payload.get("product", "")
+                        product_type_name = wizard_dict.get("product", "")
                         
                         try:
                             file_context = None
