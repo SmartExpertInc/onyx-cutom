@@ -168,22 +168,24 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
   };
 
   const mainContentStyles: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     flexGrow: 1,
     position: 'relative',
     height: '400px',
-    width: '100%'
+    width: '100%',
+    overflow: 'visible'
   };
 
   const imageContainerStyles: React.CSSProperties = {
-    width: '100%',
-    height: '100%',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '500px',
+    height: '400px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative'
+    zIndex: 1
   };
 
   return (
