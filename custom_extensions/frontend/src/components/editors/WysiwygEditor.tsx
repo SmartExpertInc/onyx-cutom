@@ -32,7 +32,6 @@ export function WysiwygEditor({
   const [showTextStyleDropdown, setShowTextStyleDropdown] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [currentTextStyle, setCurrentTextStyle] = useState('Normal text');
-  const [toolbarPosition, setToolbarPosition] = useState<{ top: number; left: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const textStyleDropdownRef = useRef<HTMLDivElement>(null);
@@ -121,19 +120,6 @@ export function WysiwygEditor({
       const { empty } = editor.state.selection;
       setShowToolbar(!empty);
       
-      // Update toolbar position when selection changes
-      if (!empty && containerRef.current) {
-        const editorElement = editor.view.dom;
-        if (editorElement) {
-          const editorRect = editorElement.getBoundingClientRect();
-          const left = editorRect.left + (editorRect.width / 2);
-          const top = toolbarAbove 
-            ? editorRect.top - 60
-            : editorRect.bottom + 60;
-          setToolbarPosition({ top, left });
-        }
-      }
-      
       // Отримати поточний колір
       const currentColor = getCurrentTextColor();
       setSelectedColor(currentColor);
@@ -164,43 +150,6 @@ export function WysiwygEditor({
       setShowTextStyleDropdown(false);
     },
   });
-
-  // Calculate toolbar position based on editor's position in viewport
-  useEffect(() => {
-    if (showToolbar && containerRef.current && editor) {
-      const updateToolbarPosition = () => {
-        const editorElement = editor.view.dom;
-        if (editorElement && containerRef.current) {
-          const editorRect = editorElement.getBoundingClientRect();
-          const containerRect = containerRef.current.getBoundingClientRect();
-          
-          // Calculate center position
-          const left = editorRect.left + (editorRect.width / 2);
-          
-          // Position above or below based on toolbarAbove prop
-          const top = toolbarAbove 
-            ? editorRect.top - 60 // Above the editor
-            : editorRect.bottom + 60; // Below the editor
-          
-          setToolbarPosition({ top, left });
-        }
-      };
-      
-      // Update position immediately
-      updateToolbarPosition();
-      
-      // Update position on scroll and resize
-      window.addEventListener('scroll', updateToolbarPosition, true);
-      window.addEventListener('resize', updateToolbarPosition);
-      
-      return () => {
-        window.removeEventListener('scroll', updateToolbarPosition, true);
-        window.removeEventListener('resize', updateToolbarPosition);
-      };
-    } else {
-      setToolbarPosition(null);
-    }
-  }, [showToolbar, editor, toolbarAbove]);
 
   useEffect(() => {
     if (editor && !hasInitiallySelectedRef.current) {
@@ -292,12 +241,12 @@ export function WysiwygEditor({
         width: '100%'
       }}
     >
-      {showToolbar && toolbarPosition && (
+      {showToolbar && (
         <div
           style={{
-            position: 'fixed',
-            top: `${toolbarPosition.top}px`,
-            left: `${toolbarPosition.left}px`,
+            position: 'absolute',
+            top: '-60px',
+            left: '50%',
             transform: 'translateX(-50%)',
             display: 'flex',
             gap: '4px',
