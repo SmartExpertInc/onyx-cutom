@@ -3066,7 +3066,7 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
     component: CourseRulesTimelineSlideTemplate,
     defaultProps: {
       steps: [
-        { number: '01', text: 'Rules of the course' },
+        { number: '01', text: 'Rules of the courses' },
         { number: '02', text: 'Prerequisite courses' }
       ],
       profileImagePath: '',
