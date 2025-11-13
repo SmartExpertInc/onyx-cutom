@@ -377,7 +377,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
             </div>
 
             {/* Description */}
-            <div data-draggable="true" style={{ display: 'inline-block', marginTop: '4px' }}>
+            <div data-draggable="true" style={{ display: 'inline-block' }}>
               {editingLeftDescriptions[index] ? (
                 <WysiwygEditor
                   initialValue={leftDescriptions[index]}
@@ -508,7 +508,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
             </div>
 
             {/* Description */}
-            <div data-draggable="true" style={{ display: 'inline-block', marginTop: '4px' }}>
+            <div data-draggable="true" style={{ display: 'inline-block' }}>
               {editingRightDescriptions[index] ? (
                 <WysiwygEditor
                   initialValue={rightDescriptions[index]}
