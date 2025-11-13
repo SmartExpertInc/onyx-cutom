@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { EmailPasswordForm } from "../login/EmailPasswordForm";
 import { SignInButton } from "../login/SignInButton";
@@ -21,7 +22,7 @@ export function SignupFormContent({
 
   return (
     <div className="flex w-full flex-col justify-center">
-      <h2 className="text-center text-[26px] font-semibold text-[#0F58F9] mb-0 font-public-sans">
+      <h2 className="text-center text-[26px] font-semibold text-[#171718] md:text-[#0F58F9] mb-0 font-public-sans">
         {cloud ? "Create an account" : "Sign Up for Contentbuilder"}
       </h2>
       <p className="text-center mb-6 text-[15px] text-gray-900">
@@ -35,6 +36,15 @@ export function SignupFormContent({
         defaultEmail={defaultEmail}
         onStepChange={setStep}
       />
+
+      {step === 1 && (
+        <div className="mt-4 block text-center text-[#4D4D4D] lg:hidden">
+          Already have an account?{" "}
+          <Link href="/auth/login" className="!text-[#0F58F9]">
+            Sign in
+          </Link>
+        </div>
+      )}
 
       {cloud && authUrl && step === 1 && (
         <div className="w-full justify-center">
