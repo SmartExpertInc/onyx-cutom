@@ -8,6 +8,7 @@ import { EmailPasswordForm } from "./EmailPasswordForm";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
 import Title from "@/components/ui/title";
 import { useSendAuthRequiredMessage } from "@/lib/extension/utils";
+import { useState } from "react";
 
 export default function LoginPage({
   authUrl,
@@ -27,6 +28,7 @@ export default function LoginPage({
   hidePageRedirect?: boolean;
 }) {
   useSendAuthRequiredMessage();
+  const [formStep, setFormStep] = useState(1);
   return (
     <div className="flex flex-col w-full justify-center">
       {authUrl &&
@@ -35,9 +37,13 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
+          <h2
+            className="mb-6 text-center text-3xl font-bold text-[#0F58F9]"
+            style={{ fontFamily: "'Public Sans', sans-serif" }}
+          >
               <LoginText />
             </h2>
+            <p className="text-center text-[15px] text-gray-900">Enter your email below to create your account</p>
             <SignInButton
               authorizeUrl={authUrl}
               authType={authTypeMetadata?.authType}
@@ -47,10 +53,18 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
+        <h2
+          className="mb-0 text-center text-[26px] font-bold text-[#0F58F9]"
+          style={{ fontFamily: "'Public Sans', sans-serif" }}
+        >
             <LoginText />
           </h2>
-          <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />
+          <p className="text-center mb-6 text-[15px] text-gray-900">Enter your email below to create your account</p>
+          <EmailPasswordForm
+            shouldVerify={true}
+            nextUrl={nextUrl}
+            onStepChange={setFormStep}
+          />
           {NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED && (
             <div className="flex mt-4 justify-center">
               <Link
@@ -61,12 +75,12 @@ export default function LoginPage({
               </Link>
             </div>
           )}
-          {authUrl && authTypeMetadata && (
+          {formStep === 1 && authUrl && authTypeMetadata && (
             <>
-              <div className="flex items-center w-full my-4">
-                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
-                <span className="px-4 text-gray-900">or</span>
-                <div className="flex-grow border-t-2 border-[#d1d5db]"></div>
+              <div className="flex items-center w-full my-10">
+                <div className="flex-grow border-t-2 border-[#E4E4E7]"></div>
+                <span className="px-4 text-[13px] text-gray-900">OR CONTINUE WITH</span>
+                <div className="flex-grow border-t-2 border-[#E4E4E7]"></div>
               </div>
 
               <SignInButton

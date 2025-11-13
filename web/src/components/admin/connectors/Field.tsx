@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import ReactMarkdown from "react-markdown";
 import { FaMarkdown } from "react-icons/fa";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, ReactNode } from "react";
 import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -140,6 +140,7 @@ const FieldLabel = ({
   label,
   removeLabel,
   vertical,
+  labelClassName,
 }: {
   subtext?: string | JSX.Element;
   error?: string;
@@ -150,6 +151,7 @@ const FieldLabel = ({
   label: string;
   removeLabel?: boolean;
   vertical?: boolean;
+  labelClassName?: string;
 }) => (
   <>
     <div
@@ -158,7 +160,11 @@ const FieldLabel = ({
       } gap-x-2 items-start`}
     >
       <div className="flex gap-x-2 items-center">
-        {!removeLabel && <Label small={false}>{label}</Label>}
+        {!removeLabel && (
+          <Label small={false} className={labelClassName}>
+            {label}
+          </Label>
+        )}
         {optional ? <span>(optional) </span> : ""}
         {tooltip && <ToolTipDetails>{tooltip}</ToolTipDetails>}
       </div>
@@ -206,6 +212,8 @@ export function TextFormField({
   vertical,
   className,
   style,
+  rightElement,
+  labelClassName,
 }: {
   name: string;
   removeLabel?: boolean;
@@ -234,6 +242,8 @@ export function TextFormField({
   vertical?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  rightElement?: ReactNode;
+  labelClassName?: string;
 }) {
   let heightString = defaultHeight || "";
   if (isTextArea && !heightString) {
@@ -283,6 +293,7 @@ export function TextFormField({
         label={label}
         removeLabel={removeLabel}
         vertical={vertical}
+        labelClassName={labelClassName}
       />
       <div className={`w-full flex ${includeRevert && "gap-x-2"} relative`}>
         <Field
@@ -336,6 +347,9 @@ export function TextFormField({
           placeholder={placeholder}
           autoComplete={autoCompleteDisabled ? "off" : undefined}
         />
+        {rightElement && (
+          <div className="absolute inset-y-0 right-3 flex items-center">{rightElement}</div>
+        )}
       </div>
 
       {explanationText && (

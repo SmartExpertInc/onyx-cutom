@@ -46,7 +46,9 @@ export const basicLogin = async (
 export const basicSignup = async (
   email: string,
   password: string,
-  referralSource?: string
+  referralSource?: string,
+  firstName?: string,
+  lastName?: string
 ) => {
   const response = await fetch("/api/auth/register", {
     method: "POST",
@@ -59,6 +61,8 @@ export const basicSignup = async (
       username: email,
       password,
       referral_source: referralSource,
+      first_name: firstName,
+      last_name: lastName,
     }),
   });
   return response;

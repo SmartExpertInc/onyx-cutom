@@ -7,11 +7,9 @@ import {
   getAuthUrlSS,
 } from "@/lib/userSS";
 import { redirect } from "next/navigation";
-import { EmailPasswordForm } from "../login/EmailPasswordForm";
-import { SignInButton } from "../login/SignInButton";
 import AuthFlowContainer from "@/components/auth/AuthFlowContainer";
-import ReferralSourceSelector from "./ReferralSourceSelector";
 import AuthErrorDisplay from "@/components/auth/AuthErrorDisplay";
+import { SignupFormContent } from "./SignupFormContent";
 
 const Page = async (props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -69,35 +67,13 @@ const Page = async (props: {
       <AuthErrorDisplay searchParams={searchParams} />
 
       <div className="absolute top-10x w-full"></div>
-      <div className="flex w-full flex-col justify-center">
-        <h2 className="text-center text-3xl font-bold text-gray-900 mb-6">
-          {cloud ? "Complete your sign up" : "Sign Up for Contentbuilder"}
-        </h2>
-        {/* {cloud && (
-          <>
-            <div className="w-full flex flex-col items-center space-y-4 mb-4 mt-4">
-              <ReferralSourceSelector />
-            </div>
-          </>
-        )} */}
-
-        <EmailPasswordForm
-          isSignup
-          shouldVerify={authTypeMetadata?.requiresVerification}
-          nextUrl={nextUrl}
-          defaultEmail={defaultEmail}
-        />
-        {cloud && authUrl && (
-          <div className="w-full justify-center">
-            <div className="flex items-center w-full my-4">
-              <div className="flex-grow border-t-2 !border-[#d4d4d4] dark:!border-[#d4d4d4]"></div>
-              <span className="px-4 text-gray-900 dark:text-gray-900">or</span>
-              <div className="flex-grow border-t-2 border-[#d4d4d4] dark:!border-[#d4d4d4]"></div>
-            </div>
-            <SignInButton authorizeUrl={authUrl} authType="cloud" />
-          </div>
-        )}
-      </div>
+      <SignupFormContent
+        cloud={cloud}
+        shouldVerify={authTypeMetadata?.requiresVerification}
+        nextUrl={nextUrl}
+        defaultEmail={defaultEmail}
+        authUrl={authUrl}
+      />
     </AuthFlowContainer>
   );
 };
