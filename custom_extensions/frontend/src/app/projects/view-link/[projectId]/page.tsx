@@ -269,6 +269,9 @@ export default function ProjectInstanceViewPage() {
   const { projectId } = params || {};
   const { t } = useLanguage();
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
+  const [showMobileExportMenu, setShowMobileExportMenu] = useState(false);
+  const mobileExportMenuRef = useRef<HTMLDivElement | null>(null);
+  const mobileExportButtonRef = useRef<HTMLButtonElement | null>(null);
 
   // Add CSS for hidden scrollbar
   useEffect(() => {
@@ -315,6 +318,24 @@ export default function ProjectInstanceViewPage() {
       root.style.setProperty('--gradient-end', prev.end.trim() || '#CCE8FF');
     };
   }, []);
+
+  useEffect(() => {
+    if (!showMobileExportMenu) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mobileExportMenuRef.current &&
+        !mobileExportMenuRef.current.contains(event.target as Node) &&
+        mobileExportButtonRef.current &&
+        !mobileExportButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowMobileExportMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMobileExportMenu]);
 
   const [projectInstanceData, setProjectInstanceData] = useState<ProjectInstanceDetail | null>(null);
   const [allUserMicroproducts, setAllUserMicroproducts] = useState<ProjectListItem[] | undefined>(undefined);
@@ -2127,6 +2148,33 @@ export default function ProjectInstanceViewPage() {
       : 'bg-transparent'
   ].filter(Boolean).join(' ');
 
+  const isLinkViewProduct = projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN ||
+    projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
+    projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
+  const showMobileAuthorizedActions = Boolean(isAuthorized && isLinkViewProduct);
+
+  const mobileActionButtonFontSize = '14px';
+  const mobileActionButtonHeight = 44;
+  const mobileActionButtonPadding = {
+    paddingLeft: '16px',
+    paddingRight: '16px'
+  };
+
+  const handleMobileCopyLink = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const linkToCopy = window.location.href;
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(linkToCopy).catch((err) => {
+        console.error('Failed to copy link:', err);
+      });
+    } else {
+      console.warn('Clipboard API not available');
+    }
+  };
+
   const isVideoProductComponent = projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
   const videoProductData = isVideoProductComponent ? (editableData as any) : null;
   const sourceVideoLessonProjectId = getSourceVideoLessonProjectId(videoProductData);
@@ -2196,6 +2244,22 @@ export default function ProjectInstanceViewPage() {
       ]
     : undefined;
 
+  const handleMobileExportOptionSelect = (onSelect?: () => void) => {
+    if (onSelect) {
+      onSelect();
+    }
+    setShowMobileExportMenu(false);
+  };
+
+  const handleMobileExport = () => {
+    if (exportOptions && exportOptions.length > 0) {
+      setShowMobileExportMenu((prev) => !prev);
+      return;
+    }
+
+    handlePdfDownload();
+  };
+
   return (
     <>
       <ProductViewHeader
@@ -2237,15 +2301,90 @@ export default function ProjectInstanceViewPage() {
               </Suspense>
             </div>
           </div>
-          <aside className="flex flex-col gap-6">
-            <div className="flex flex-col h-[550px] flex-none">
+          {showMobileAuthorizedActions && (
+            <div className="lg:hidden mt-3">
+              <div className="flex w-full gap-2">
+                <div className="relative flex-1 min-w-0">
+                  <button
+                    ref={mobileExportButtonRef}
+                    type="button"
+                    onClick={handleMobileExport}
+                    className="flex h-full w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg focus:outline-none"
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      color: '#0F58F9',
+                      border: '1px solid #0F58F9',
+                      fontSize: mobileActionButtonFontSize,
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em',
+                      height: `${mobileActionButtonHeight}px`,
+                      flex: 1,
+                      minWidth: 0,
+                      ...mobileActionButtonPadding
+                    }}
+                  >
+                    <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Export
+                  </button>
+                  {exportOptions && exportOptions.length > 0 && showMobileExportMenu && (
+                    <div
+                      ref={mobileExportMenuRef}
+                      className="absolute left-0 mt-2 w-56 rounded-lg border border-[#0F58F9] bg-white py-1 shadow-xl z-[60]"
+                    >
+                      {exportOptions.map((option) => (
+                        <button
+                          key={option.key}
+                          type="button"
+                          onClick={() => handleMobileExportOptionSelect(option.onSelect)}
+                          className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-[#171718] transition-colors hover:bg-[#F2F2F4]"
+                        >
+                          {option.icon && <span className="flex h-4 w-4 items-center justify-center">{option.icon}</span>}
+                          <span>{option.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="relative flex-1 min-w-0">
+                  <button
+                    type="button"
+                    onClick={handleMobileCopyLink}
+                    className="flex h-full w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg focus:outline-none"
+                    style={{
+                      backgroundColor: '#0F58F9',
+                      color: '#FFFFFF',
+                      border: '1px solid #0F58F9',
+                      fontSize: mobileActionButtonFontSize,
+                      lineHeight: '140%',
+                      letterSpacing: '0.05em',
+                      height: `${mobileActionButtonHeight}px`,
+                      flex: 1,
+                      minWidth: 0,
+                      ...mobileActionButtonPadding
+                    }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke="#FFFFFF" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Copy Link
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          <aside className="flex flex-col gap-6 -mx-3 -mb-3 lg:mx-0 lg:mb-0">
+            <div className="flex flex-col flex-none h-[500px] lg:h-[550px]">
               <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
             </div>
-            <ProductQualityRating
-              isAuthorized={isAuthorized}
-              fullWidth
-              questionText={qualityRatingQuestion}
-            />
+            <div className="hidden lg:block">
+              <ProductQualityRating
+                isAuthorized={isAuthorized}
+                fullWidth
+                questionText={qualityRatingQuestion}
+              />
+            </div>
           </aside>
         </div>
 
