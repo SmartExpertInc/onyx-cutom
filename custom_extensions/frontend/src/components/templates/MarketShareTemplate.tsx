@@ -74,7 +74,27 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const titleRef = useRef<HTMLDivElement>(null);
   const subtitleRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<HTMLDivElement>(null);
+  const barsContainerRef = useRef<HTMLDivElement>(null);
   const slideContainerRef = useRef<HTMLDivElement>(null);
+  
+  // State for actual bars container height (for accurate bar rendering)
+  const [barsContainerHeight, setBarsContainerHeight] = useState<number | null>(null);
+  
+  // Measure bars container height on mount and resize
+  useEffect(() => {
+    const measureBarsContainer = () => {
+      if (barsContainerRef.current) {
+        const height = barsContainerRef.current.getBoundingClientRect().height;
+        setBarsContainerHeight(height);
+      }
+    };
+    
+    measureBarsContainer();
+    
+    // Re-measure on window resize
+    window.addEventListener('resize', measureBarsContainer);
+    return () => window.removeEventListener('resize', measureBarsContainer);
+  }, []);
 
   const handleTitleSave = (newTitle: string) => {
     if (onUpdate) {
@@ -208,16 +228,24 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   useEffect(() => {
     if (isDragging === null) return;
     
-    // Get the actual chart container height for accurate calculations
+    // Get the actual bars container height for accurate calculations
     const getChartHeight = () => {
+      // Use the bars container ref for accurate measurement
+      if (barsContainerRef.current) {
+        const container = barsContainerRef.current;
+        const containerRect = container.getBoundingClientRect();
+        // This is the actual usable height for bars (already accounts for padding)
+        return Math.max(containerRect.height, 300); // Minimum 300px for safety
+      }
+      // Fallback: try chart container minus padding
       if (chartRef.current) {
         const container = chartRef.current;
         const containerRect = container.getBoundingClientRect();
-        // Account for padding: top 50px, bottom 30px
         const usableHeight = containerRect.height - 50 - 30; // 80px total padding
-        return Math.max(usableHeight, 300); // Minimum 300px for safety
+        return Math.max(usableHeight, 300);
       }
-      return 400; // Fallback to 400px
+      // Final fallback
+      return 400;
     };
     
     const handleMouseMove = (e: MouseEvent) => {
@@ -406,7 +434,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const chartContainerStyles: React.CSSProperties = {
     width: '100%',
     maxWidth: '700px',
-    height: '90%',
+    height: '100%', // Use full height of right section
     position: 'relative',
     display: 'flex',
     alignItems: 'flex-end',
@@ -415,12 +443,28 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     paddingLeft: '80px',
     paddingRight: '40px',
     paddingBottom: '30px',
-    paddingTop: '50px'
+    paddingTop: '50px',
+    boxSizing: 'border-box' // Include padding in height calculation
   };
 
-  const barStyles = (height: number, gradientStart: string, gradientEnd: string): React.CSSProperties => ({
+  // Calculate bar height as percentage of available container height
+  // The bars container has height: calc(100% - 80px) which accounts for padding
+  // For initial render, we'll use a reasonable estimate, but drag will use actual measurements
+  const getBarHeightPx = (percentage: number, containerHeight?: number): number => {
+    // If we have the actual container height, use it
+    if (containerHeight) {
+      return (percentage / 100) * containerHeight;
+    }
+    // For initial render, estimate based on right section height
+    // Right section: 60% of 600px = 360px, minus 80px padding = 280px usable
+    // But to allow full 100% range, we'll use a larger base for initial render
+    const estimatedUsableHeight = 400; // This will be corrected by actual measurements during drag
+    return (percentage / 100) * estimatedUsableHeight;
+  };
+
+  const barStyles = (height: number, gradientStart: string, gradientEnd: string, containerHeight?: number): React.CSSProperties => ({
     width: '90px',
-    height: `${(height / 100) * 400}px`, // Calculate exact height based on 400px max height (increased for 100%)
+    height: `${getBarHeightPx(height, containerHeight)}px`, // Use dynamic height calculation
     background: `linear-gradient(to bottom, ${gradientStart}, ${gradientEnd})`,
     borderRadius: '8px 8px 0 0',
     display: 'flex',
@@ -709,17 +753,23 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
           </div>
 
           {/* Chart bars */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'space-evenly',
-            gap: '20px',
-            height: '100%',
-            width: '100%',
-            position: 'relative',
-            zIndex: 1,
-            paddingBottom: '0px'
-          }}>
+          <div 
+            ref={barsContainerRef}
+            style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-evenly',
+              gap: '20px',
+              position: 'absolute',
+              top: '50px', // Match paddingTop
+              left: '80px', // Match paddingLeft
+              right: '40px', // Match paddingRight
+              bottom: '30px', // Match paddingBottom
+              height: 'auto', // Will be calculated by absolute positioning
+              width: 'auto', // Will be calculated by absolute positioning
+              zIndex: 1
+            }}
+          >
             {chartData.map((item, index) => (
               <div 
                 key={index} 
@@ -742,7 +792,8 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                     ...barStyles(
                       isDragging === index && dragCurrentHeight !== null ? dragCurrentHeight : item.percentage, 
                       item.gradientStart || item.color, 
-                      item.gradientEnd || item.color
+                      item.gradientEnd || item.color,
+                      barsContainerHeight || undefined
                     ),
                     cursor: isEditable ? (isDragging === index ? 'grabbing' : 'grab') : 'default',
                     userSelect: 'none'
