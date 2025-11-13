@@ -2752,6 +2752,16 @@ export const SLIDE_TEMPLATE_REGISTRY: TemplateRegistry = {
       height: 256,  // ✅ Measured: 256px (perfect square for circle)
       shape: 'circle' // ✅ MANDATORY: Circular crop required (border-radius: 50%)
     },
+    uploadedVideoPosition: {
+      // ✅ RIGHT IMAGE VIDEO POSITION - Based on measured right image container
+      // Right image positioned on right half of slide (rightImagePath)
+      // Measured position: X: 960px, Y: 0px, Width: 960px, Height: 1080px
+      x: 960,       // ✅ Measured: 960px (right half of slide starts here)
+      y: 0,         // ✅ Measured: 0px (starts at top of slide)
+      width: 960,   // ✅ Measured: 960px (right half width: 1920 - 960 = 960px)
+      height: 1080, // ✅ Measured: 1080px (full slide height)
+      shape: 'rectangle' // Default rectangular shape for uploaded videos
+    },
     elaiBackgroundColor: '#0F58F9'  // Elai API video background color (matches slide backgroundColor)
   },
 

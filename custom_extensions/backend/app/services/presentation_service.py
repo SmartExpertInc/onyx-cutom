@@ -1144,54 +1144,60 @@ class ProfessionalPresentationService:
             logger.info(f"🎬 [UPLOADED_VIDEO] Output: {output_path}")
             
             # Extract position and size from slide data (similar to avatar position)
-            # Check metadata for element positions (from drag-and-drop)
-            metadata = slide_data.get('metadata', {})
-            element_positions = metadata.get('elementPositions', {})
+            # Priority order: 1) Template-defined uploadedVideoPosition, 2) Drag-and-drop position, 3) Default
             
-            # Try to find uploaded video element position
             uploaded_video_position = None
             slide_props = slide_data.get('props', {})
             
-            # Find the video path first (check all *Path props)
-            detected_video_path = None
-            detected_prop_key = None
-            for prop_key, prop_value in slide_props.items():
-                if prop_key.endswith('Path') and prop_value:
-                    prop_value_str = str(prop_value)
-                    if self._is_video_file(prop_value_str):
-                        detected_video_path = prop_value_str
-                        detected_prop_key = prop_key
-                        break
-            
-            # Check if there's position info in props or metadata
-            # Look for element with matching video path in any *Path prop
-            if detected_video_path:
-                # Find element ID that matches this video path
-                for element_id, position_data in element_positions.items():
-                    element_props = position_data.get('props', {})
-                    # Check all *Path props in element position data
-                    for path_prop_key, path_prop_value in element_props.items():
-                        if path_prop_key.endswith('Path') and str(path_prop_value) == detected_video_path:
-                            uploaded_video_position = position_data
-                            logger.info(f"🎬 [UPLOADED_VIDEO] Found position data for element: {element_id} (matched via {path_prop_key})")
+            # ✅ Priority 1: Check template-defined uploadedVideoPosition (from registry.ts)
+            template_uploaded_position = slide_data.get('uploadedVideoPosition')
+            if template_uploaded_position:
+                logger.info(f"🎬 [UPLOADED_VIDEO] Using template-defined position: {template_uploaded_position}")
+                uploaded_video_position = template_uploaded_position
+            else:
+                # ✅ Priority 2: Check drag-and-drop position from metadata
+                metadata = slide_data.get('metadata', {})
+                element_positions = metadata.get('elementPositions', {})
+                
+                # Find the video path first (check all *Path props)
+                detected_video_path = None
+                detected_prop_key = None
+                for prop_key, prop_value in slide_props.items():
+                    if prop_key.endswith('Path') and prop_value:
+                        prop_value_str = str(prop_value)
+                        if self._is_video_file(prop_value_str):
+                            detected_video_path = prop_value_str
+                            detected_prop_key = prop_key
                             break
-                    if uploaded_video_position:
-                        break
+                
+                # Look for element with matching video path in any *Path prop
+                if detected_video_path:
+                    # Find element ID that matches this video path
+                    for element_id, position_data in element_positions.items():
+                        element_props = position_data.get('props', {})
+                        # Check all *Path props in element position data
+                        for path_prop_key, path_prop_value in element_props.items():
+                            if path_prop_key.endswith('Path') and str(path_prop_value) == detected_video_path:
+                                uploaded_video_position = position_data
+                                logger.info(f"🎬 [UPLOADED_VIDEO] Found drag-and-drop position for element: {element_id} (matched via {path_prop_key})")
+                                break
+                        if uploaded_video_position:
+                            break
             
             # Use SimpleVideoComposer for composition (same as avatar)
             from .simple_video_composer import SimpleVideoComposer
             simple_composer = SimpleVideoComposer()
             
-            # Prepare position config (similar to avatar_position)
-            # Default: center of slide if no position specified
+            # ✅ Priority 3: Prepare position config (with fallback to default center)
             if uploaded_video_position:
                 position_config = {
-                    'x': uploaded_video_position.get('x', 0),
-                    'y': uploaded_video_position.get('y', 0),
+                    'x': uploaded_video_position.get('x', 640),
+                    'y': uploaded_video_position.get('y', 360),
                     'width': uploaded_video_position.get('width', 640),
                     'height': uploaded_video_position.get('height', 360),
-                    'shape': 'rectangle'  # Default shape for uploaded videos
+                    'shape': uploaded_video_position.get('shape', 'rectangle')
                 }
+                logger.info(f"🎬 [UPLOADED_VIDEO] Using position from template or drag-and-drop")
             else:
                 # Default: center position, reasonable size
                 position_config = {

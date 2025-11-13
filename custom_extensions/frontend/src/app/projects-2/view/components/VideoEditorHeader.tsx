@@ -196,7 +196,7 @@ export default function VideoEditorHeader({
     console.log('🎬 [VIDEO_DOWNLOAD] componentBasedSlideDeck:', componentBasedSlideDeck);
     console.log('🎬 [VIDEO_DOWNLOAD] currentSlideId:', currentSlideId);
     
-    // Helper function to attach avatar position and Elai background color from template registry to slides
+    // Helper function to attach avatar position, uploaded video position, and Elai background color from template registry to slides
     const attachAvatarPositionsToSlides = (slides: any[]) => {
       return slides.map(slide => {
         const templateId = slide.templateId;
@@ -207,6 +207,12 @@ export default function VideoEditorHeader({
           if (template?.avatarPosition) {
             console.log(`🎬 [AVATAR_POSITION] Attaching avatar position for template ${templateId}:`, template.avatarPosition);
             updatedSlide.avatarPosition = template.avatarPosition;
+          }
+          
+          // ✅ NEW: Attach uploaded video position if available
+          if (template?.uploadedVideoPosition) {
+            console.log(`🎬 [UPLOADED_VIDEO_POSITION] Attaching uploaded video position for template ${templateId}:`, template.uploadedVideoPosition);
+            updatedSlide.uploadedVideoPosition = template.uploadedVideoPosition;
           }
           
           if (template?.elaiBackgroundColor) {
