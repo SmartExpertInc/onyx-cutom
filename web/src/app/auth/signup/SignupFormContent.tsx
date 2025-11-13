@@ -22,7 +22,7 @@ export function SignupFormContent({
 
   return (
     <div className="flex w-full flex-col justify-center">
-      <h2 className="text-center text-[26px] font-semibold text-[#171718] md:text-[#0F58F9] mb-0 font-public-sans">
+      <h2 className="text-center text-[26px] font-semibold text-[#171718] md:text-[#0F58F9] pb-6 lg:pb-0 mb-0 font-public-sans">
         {cloud ? "Create an account" : "Sign Up for Contentbuilder"}
       </h2>
       {step === 1 && (

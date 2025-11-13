@@ -194,9 +194,7 @@ export function EmailPasswordForm({
                   label={multiStep ? "" : "Password"}
                   type={showPassword ? "text" : "password"}
                   placeholder={multiStep ? "Password" : "**************"}
-                  className={`!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md !pr-12 !font-['Public Sans'] [-webkit-text-security:asterisks] [text-security:asterisks]${
-                    multiStep ? " !py-2 sm:!py-3" : ""
-                  }`}
+                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md !pr-12 !font-['Public Sans'] [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
                   rightElement={
                     <button
@@ -235,7 +233,7 @@ export function EmailPasswordForm({
                   label=""
                   type={showPassword ? "text" : "password"}
                   placeholder="Confirm password"
-                  className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md -mt-2 !font-['Public Sans'] [-webkit-text-security:asterisks] [text-security:asterisks] !py-2 sm:!py-3"
+                   className="!bg-[#ffffff] !shadow-none !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md -mt-2 !font-['Public Sans'] [-webkit-text-security:asterisks] [text-security:asterisks]"
                   labelClassName="!font-normal"
                   rightElement={
                     <button
@@ -269,7 +267,7 @@ export function EmailPasswordForm({
                   label=""
                   type="text"
                   placeholder="First name"
-                  className="!bg-[#ffffff] !shadow-none -mt-2 !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md !py-2 sm:!py-3"
+                  className="!bg-[#ffffff] !shadow-none -mt-2 !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md"
                   labelClassName="!font-normal"
                 />
                 <TextFormField
@@ -277,7 +275,7 @@ export function EmailPasswordForm({
                   label=""
                   type="text"
                   placeholder="Last name"
-                  className="!bg-[#ffffff] !shadow-none -mt-2 !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md !py-2 sm:!py-3"
+                  className="!bg-[#ffffff] !shadow-none -mt-2 !hover:shadow-none !focus:shadow-none transition-shadow !border-[#d4d4d4] !text-gray-900 !placeholder-[#A5A5A5] placeholder:font-['Public Sans'] !rounded-md"
                   labelClassName="!font-normal"
                 />
               </>
