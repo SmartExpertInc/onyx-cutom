@@ -17,7 +17,7 @@ export default function AuthFlowContainer({
       
       {/* Right side - Auth Form */}
       <div className="flex flex-col w-full py-8 px-6 lg:px-0 lg:flex-1 lg:pr-[120px]">
-        <div className="flex justify-end mb-6">
+        <div className="hidden lg:block lg:flex justify-end mb-6">
           {authState === "login" && (
             <Link href="/auth/signup" className="px-3 py-1 text-[#0F58F9] border border-[#0F58F9] rounded-md">Sign up</Link>
           )}
@@ -28,6 +28,7 @@ export default function AuthFlowContainer({
         <div className="flex-1 flex items-center justify-center pl-27">
           <div className="w-full max-w-md gap-y-4 flex items-center flex-col gap-y-2 transition-all duration-200" style={{backgroundColor: 'rgba(255, 255, 255, 0.2)'}}>
             <div className="w-full">{children}</div>
+            <div className="block lg:hidden text-center w-full flex flex-row items-center justify-center gap-2"><p className="text-[#4D4D4D]">Don't have an account?</p><Link href="/auth/signup" className="text-[#0F58F9]">Sign up</Link></div>
             <p className="text-[15px] text-[#4D4D4D] text-center">By clicking continue, you agree to our <br />
             <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.</p>
             {/* {authState === "login" && (
