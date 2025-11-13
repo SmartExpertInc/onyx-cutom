@@ -292,26 +292,26 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
         <div className="flex items-center space-x-3">
           {/* Auth Toggle Switch */}
-          <div className="flex items-center gap-2 bg-gray-100 rounded-md p-1">
+          <div className="flex items-center gap-1 bg-gray-100 rounded-md p-0.5">
             <button
               onClick={() => handleAuthToggle(true)}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                 currentIsAuthorized 
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Authorized
+              Auth
             </button>
             <button
               onClick={() => handleAuthToggle(false)}
-              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+              className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                 !currentIsAuthorized 
                   ? 'bg-white text-gray-900 shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Unauthorized
+              Unauth
             </button>
           </div>
 
