@@ -1,5 +1,5 @@
 ﻿# custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -951,7 +951,7 @@ class LessonPlanResponse(BaseModel):
     message: str
 
 # custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -3897,7 +3897,7 @@ class TextPresentationDetails(BaseModel):
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -4471,7 +4471,7 @@ AnyQuizQuestion = Union[
 ]
 
 # custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -5010,7 +5010,7 @@ AnyQuizQuestion = Union[
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -5585,7 +5585,7 @@ AnyQuizQuestion = Union[
 ]
 
 # custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -6093,7 +6093,7 @@ AnyQuizQuestion = Union[
 
 MicroProductContentType = Union[TrainingPlanDetails, PdfLessonDetails, VideoLessonData, SlideDeckDetails, QuizData, TextPresentationDetails, Dict[str, Any], None]
 # custom_extensions/backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -6863,7 +6863,7 @@ AnyQuizQuestion = Union[
 ]
 
 # custom_extensions/backend/main.py
-from fastapi import Body, FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query
+from fastapi import Body, FastAPI, HTTPException, Depends, Request, status, File, UploadFile, Query, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
