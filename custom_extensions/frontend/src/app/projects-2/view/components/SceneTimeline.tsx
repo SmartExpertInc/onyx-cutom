@@ -513,7 +513,7 @@ useEffect(() => {
               >
                 <div className="relative group">
                   <div 
-                    className={`relative rounded-md border transition-all cursor-pointer overflow-hidden ${
+              className={`relative rounded-md border transition-all cursor-pointer overflow-hidden ${
                       currentSlideId === scene.id 
                         ? 'border-[#0F58F9] shadow-[0_12px_24px_rgba(15,88,249,0.18)]'
                         : 'border-transparent hover:border-[#93C5FD]'
@@ -541,7 +541,11 @@ useEffect(() => {
                         </svg>
                       </button>
                     </div>
-                    {index < displayScenes.length - 1 && renderTransitionMenu(index)}
+            {index < displayScenes.length - 1 && (
+              <div className="absolute inset-y-0 -right-3 flex items-center">
+                {renderTransitionMenu(index)}
+              </div>
+            )}
                   </div>
                 </div>
               </div>

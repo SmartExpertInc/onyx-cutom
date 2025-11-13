@@ -45,6 +45,7 @@ import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AnimateButton from '@/components/ui/animate-button';
 import { toast } from 'sonner';
+import { Toaster } from '@/components/ui/sonner';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -747,7 +748,6 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
           className: 'rounded-lg border border-[#E0E0E0] bg-white shadow-sm text-left',
         }
       );
-      setIsTemplateModalOpen(true);
     } else {
       // TODO: Implement other actions for regular scenes
     }
@@ -1782,6 +1782,7 @@ export default function Projects2ViewPage() {
       <AvatarDataProvider>
         <Projects2ViewPageContent />
       </AvatarDataProvider>
+      <Toaster position="top-center" />
     </VoiceProvider>
   );
 }
