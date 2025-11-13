@@ -471,8 +471,8 @@ const VideoEditModal: React.FC<VideoEditModalProps> = ({
       const cropSettings: VideoCropSettings = {
         x,
         y,
-        width: placeholderDimensions.width,
-        height: placeholderDimensions.height,
+        width: Math.round(placeholderDimensions.width),
+        height: Math.round(placeholderDimensions.height),
         scale: currentScale,
         objectFit: editState.objectFit
       };
