@@ -29224,7 +29224,7 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
                         
                         # Determine product type from context
-                        product_type_name = wiz_payload.get("product", "")
+                        product_type_name = wizard_dict.get("product", "")
                         
                         try:
                             file_context = None
@@ -34833,7 +34833,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                         logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
                         
                         # Determine product type from context
-                        product_type_name = wiz_payload.get("product", "")
+                        product_type_name = wizard_dict.get("product", "")
                         
                         try:
                             file_context = None
@@ -36791,7 +36791,7 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                         logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
                         
                         # Determine product type from context
-                        product_type_name = wiz_payload.get("product", "")
+                        product_type_name = wizard_dict.get("product", "")
                         
                         try:
                             file_context = None
