@@ -25,9 +25,11 @@ export function SignupFormContent({
       <h2 className="text-center text-[26px] font-semibold text-[#171718] md:text-[#0F58F9] mb-0 font-public-sans">
         {cloud ? "Create an account" : "Sign Up for Contentbuilder"}
       </h2>
-      <p className="text-center mb-6 text-[15px] text-gray-900">
-        Enter your email below to create your account
-      </p>
+      {step === 1 && (
+        <p className="text-center mb-6 text-[15px] text-gray-900">
+          Enter your email below to create your account
+        </p>
+      )}
 
       <EmailPasswordForm
         isSignup
@@ -36,15 +38,6 @@ export function SignupFormContent({
         defaultEmail={defaultEmail}
         onStepChange={setStep}
       />
-
-      {step === 1 && (
-        <div className="mt-4 block text-center text-[#4D4D4D] lg:hidden">
-          Already have an account?{" "}
-          <Link href="/auth/login" className="!text-[#0F58F9]">
-            Sign in
-          </Link>
-        </div>
-      )}
 
       {cloud && authUrl && step === 1 && (
         <div className="w-full justify-center">
@@ -56,6 +49,14 @@ export function SignupFormContent({
             <div className="flex-grow border-t-2 border-[#d4d4d4] dark:!border-[#d4d4d4]"></div>
           </div>
           <SignInButton authorizeUrl={authUrl} authType="cloud" />
+          {step === 1 && (
+            <div className="mt-4 block text-center text-[#4D4D4D] lg:hidden">
+              Already have an account?{" "}
+              <Link href="/auth/login" className="!text-[#0F58F9]">
+                Sign in
+              </Link>
+            </div>
+          )}
         </div>
       )}
     </div>
