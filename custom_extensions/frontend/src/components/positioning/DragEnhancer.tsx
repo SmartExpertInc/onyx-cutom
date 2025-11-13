@@ -19,6 +19,28 @@ interface AlignmentGuide {
   elementId?: string; // ID of element we're aligning with
 }
 
+interface GuideInfo {
+  position: number;
+  distance: number;
+}
+
+// Grid and alignment configuration
+const GRID_CONFIG = {
+  // Grid appearance
+  color: '#a78bfa', // Light violet
+  opacity: 0.15,
+  lineWidth: 1,
+  
+  // Alignment guide appearance
+  guideColor: '#10b981', // Green for alignment guides
+  guideOpacity: 0.6,
+  guideLineWidth: 2,
+  
+  // Snapping behavior
+  snapThreshold: 3, // pixels - distance at which snapping activates
+  snapStrength: 0.3, // 0-1, how strongly to snap (0.3 = light magnet, 1.0 = strong constant)
+};
+
 export const DragEnhancer: React.FC<DragEnhancerProps> = ({
   isEnabled,
   slideId,
@@ -277,17 +299,16 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           // Find all other draggable elements
           const allDraggables = container.querySelectorAll('[data-draggable="true"]');
           const guides: AlignmentGuide[] = [];
-          const SNAP_THRESHOLD = 5; // pixels
           
           // Canvas center lines (half horizontally and vertically)
           const canvasCenterX = canvas.width / 2;
           const canvasCenterY = canvas.height / 2;
           
           // Check alignment with canvas center
-          if (Math.abs(elementCenterX - canvasCenterX) < SNAP_THRESHOLD) {
+          if (Math.abs(elementCenterX - canvasCenterX) < GRID_CONFIG.snapThreshold) {
             guides.push({ type: 'vertical', position: canvasCenterX });
           }
-          if (Math.abs(elementCenterY - canvasCenterY) < SNAP_THRESHOLD) {
+          if (Math.abs(elementCenterY - canvasCenterY) < GRID_CONFIG.snapThreshold) {
             guides.push({ type: 'horizontal', position: canvasCenterY });
           }
           
@@ -305,41 +326,40 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             const otherCenterY = otherTop + (otherRect.height / 2);
             
             // Vertical alignments (left, center, right)
-            if (Math.abs(elementLeft - otherLeft) < SNAP_THRESHOLD) {
+            if (Math.abs(elementLeft - otherLeft) < GRID_CONFIG.snapThreshold) {
               guides.push({ type: 'vertical', position: otherLeft, elementId: otherEl.id });
             }
-            if (Math.abs(elementCenterX - otherCenterX) < SNAP_THRESHOLD) {
+            if (Math.abs(elementCenterX - otherCenterX) < GRID_CONFIG.snapThreshold) {
               guides.push({ type: 'vertical', position: otherCenterX, elementId: otherEl.id });
             }
-            if (Math.abs(elementRight - otherRight) < SNAP_THRESHOLD) {
+            if (Math.abs(elementRight - otherRight) < GRID_CONFIG.snapThreshold) {
               guides.push({ type: 'vertical', position: otherRight, elementId: otherEl.id });
             }
             
             // Horizontal alignments (top, center, bottom)
-            if (Math.abs(elementTop - otherTop) < SNAP_THRESHOLD) {
+            if (Math.abs(elementTop - otherTop) < GRID_CONFIG.snapThreshold) {
               guides.push({ type: 'horizontal', position: otherTop, elementId: otherEl.id });
             }
-            if (Math.abs(elementCenterY - otherCenterY) < SNAP_THRESHOLD) {
+            if (Math.abs(elementCenterY - otherCenterY) < GRID_CONFIG.snapThreshold) {
               guides.push({ type: 'horizontal', position: otherCenterY, elementId: otherEl.id });
             }
-            if (Math.abs(elementBottom - otherBottom) < SNAP_THRESHOLD) {
+            if (Math.abs(elementBottom - otherBottom) < GRID_CONFIG.snapThreshold) {
               guides.push({ type: 'horizontal', position: otherBottom, elementId: otherEl.id });
             }
           });
           
           setAlignmentGuides(guides);
           
-          // Apply snapping if guides are found
-          // We need to calculate the snap position based on the element's original position
-          // before the transform was applied
-          let snappedX = currentX;
-          let snappedY = currentY;
-          
+          // Apply light magnetic snapping - allows movement but gently pulls toward guides
           // Get the element's original position (before transform)
           const originalLeft = htmlElement.offsetLeft;
           const originalTop = htmlElement.offsetTop;
           const elementWidth = elementRect.width;
           const elementHeight = elementRect.height;
+          
+          // Find the closest guide for each axis
+          let closestVerticalGuide: GuideInfo | null = null;
+          let closestHorizontalGuide: GuideInfo | null = null;
           
           guides.forEach((guide) => {
             if (guide.type === 'vertical') {
@@ -351,16 +371,22 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
               
               const minDist = Math.min(distToLeft, distToCenter, distToRight);
               
-              if (minDist < SNAP_THRESHOLD) {
-                if (minDist === distToCenter) {
-                  // Snap center to guide
-                  snappedX = guide.position - (elementWidth / 2) - originalLeft;
-                } else if (minDist === distToLeft) {
-                  // Snap left to guide
-                  snappedX = guide.position - originalLeft;
-                } else {
-                  // Snap right to guide
-                  snappedX = guide.position - elementWidth - originalLeft;
+              if (minDist < GRID_CONFIG.snapThreshold) {
+                if (!closestVerticalGuide || minDist < closestVerticalGuide.distance) {
+                  // Determine which alignment type (left, center, or right)
+                  let targetPosition = guide.position;
+                  if (minDist === distToLeft) {
+                    targetPosition = guide.position; // Left edge
+                  } else if (minDist === distToCenter) {
+                    targetPosition = guide.position - (elementWidth / 2); // Center
+                  } else {
+                    targetPosition = guide.position - elementWidth; // Right edge
+                  }
+                  
+                  closestVerticalGuide = {
+                    position: targetPosition - originalLeft,
+                    distance: minDist
+                  } as GuideInfo;
                 }
               }
             } else if (guide.type === 'horizontal') {
@@ -372,23 +398,41 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
               
               const minDist = Math.min(distToTop, distToCenter, distToBottom);
               
-              if (minDist < SNAP_THRESHOLD) {
-                if (minDist === distToCenter) {
-                  // Snap center to guide
-                  snappedY = guide.position - (elementHeight / 2) - originalTop;
-                } else if (minDist === distToTop) {
-                  // Snap top to guide
-                  snappedY = guide.position - originalTop;
-                } else {
-                  // Snap bottom to guide
-                  snappedY = guide.position - elementHeight - originalTop;
+              if (minDist < GRID_CONFIG.snapThreshold) {
+                if (!closestHorizontalGuide || minDist < closestHorizontalGuide.distance) {
+                  // Determine which alignment type (top, center, or bottom)
+                  let targetPosition = guide.position;
+                  if (minDist === distToTop) {
+                    targetPosition = guide.position; // Top edge
+                  } else if (minDist === distToCenter) {
+                    targetPosition = guide.position - (elementHeight / 2); // Center
+                  } else {
+                    targetPosition = guide.position - elementHeight; // Bottom edge
+                  }
+                  
+                  closestHorizontalGuide = {
+                    position: targetPosition - originalTop,
+                    distance: minDist
+                  } as GuideInfo;
                 }
               }
             }
           });
           
-          currentX = snappedX;
-          currentY = snappedY;
+          // Apply light magnetic snapping - interpolate between current position and snap position
+          if (closestVerticalGuide) {
+            const vGuide: GuideInfo = closestVerticalGuide;
+            // Calculate interpolation factor based on distance (closer = stronger pull)
+            const pullStrength = (1 - (vGuide.distance / GRID_CONFIG.snapThreshold)) * GRID_CONFIG.snapStrength;
+            currentX = currentX + (vGuide.position - currentX) * pullStrength;
+          }
+          
+          if (closestHorizontalGuide) {
+            const hGuide: GuideInfo = closestHorizontalGuide;
+            // Calculate interpolation factor based on distance (closer = stronger pull)
+            const pullStrength = (1 - (hGuide.distance / GRID_CONFIG.snapThreshold)) * GRID_CONFIG.snapStrength;
+            currentY = currentY + (hGuide.position - currentY) * pullStrength;
+          }
           
           htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
           // Position is already set to relative when dragging started
@@ -550,7 +594,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             height: canvasRect.height,
             pointerEvents: 'none',
             zIndex: 9999,
-            opacity: 0.3
+            opacity: GRID_CONFIG.opacity
           }}
         >
           {/* Vertical center line (half horizontally) */}
@@ -559,9 +603,9 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
               position: 'absolute',
               left: '50%',
               top: 0,
-              width: '1px',
+              width: `${GRID_CONFIG.lineWidth}px`,
               height: '100%',
-              backgroundColor: '#3b82f6',
+              backgroundColor: GRID_CONFIG.color,
               transform: 'translateX(-50%)'
             }}
           />
@@ -573,8 +617,8 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
               top: '50%',
               left: 0,
               width: '100%',
-              height: '1px',
-              backgroundColor: '#3b82f6',
+              height: `${GRID_CONFIG.lineWidth}px`,
+              backgroundColor: GRID_CONFIG.color,
               transform: 'translateY(-50%)'
             }}
           />
@@ -592,7 +636,7 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
             height: canvasRect.height,
             pointerEvents: 'none',
             zIndex: 10000,
-            opacity: 0.8
+            opacity: GRID_CONFIG.guideOpacity
           }}
         >
           {alignmentGuides.map((guide, index) => {
@@ -604,10 +648,10 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
                     position: 'absolute',
                     left: `${guide.position}px`,
                     top: 0,
-                    width: '2px',
+                    width: `${GRID_CONFIG.guideLineWidth}px`,
                     height: '100%',
-                    backgroundColor: '#10b981',
-                    boxShadow: '0 0 4px rgba(16, 185, 129, 0.5)'
+                    backgroundColor: GRID_CONFIG.guideColor,
+                    boxShadow: `0 0 4px ${GRID_CONFIG.guideColor}80`
                   }}
                 />
               );
@@ -620,9 +664,9 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
                     top: `${guide.position}px`,
                     left: 0,
                     width: '100%',
-                    height: '2px',
-                    backgroundColor: '#10b981',
-                    boxShadow: '0 0 4px rgba(16, 185, 129, 0.5)'
+                    height: `${GRID_CONFIG.guideLineWidth}px`,
+                    backgroundColor: GRID_CONFIG.guideColor,
+                    boxShadow: `0 0 4px ${GRID_CONFIG.guideColor}80`
                   }}
                 />
               );
