@@ -4709,7 +4709,7 @@
     width: 100%;
     height: 100%;
     aspect-ratio: 16/9;
-    background: linear-gradient(to bottom, #002D91 0%, #000C5B 100%);
+    background: rgb(224, 231, 255);
     display: flex;
     flex-direction: row-reverse;
     position: relative;
@@ -4720,7 +4720,7 @@
 .two-column-slide-template .left-section {
     width: 50%;
     height: 100%;
-    background: linear-gradient(to bottom, #002D91 0%, #000C5B 100%);
+    background: rgb(224, 231, 255);
     padding: 60px;
     display: flex;
     flex-direction: column;
@@ -4729,11 +4729,12 @@
 }
 
 .two-column-slide-template .profile-image-container {
-    width: 120px;
-    height: 120px;
+    width: 230px;
+    height: 230px;
     border-radius: 50%;
     overflow: hidden;
     margin-bottom: 40px;
+    background-color: #ffffff;
 }
 
 .two-column-slide-template .profile-image-container img {
@@ -4751,7 +4752,7 @@
 }
 
 .two-column-slide-template .content-text {
-    font-size: 14px;
+    font-size: 27px;
     color: #09090B;
     line-height: 1.6;
     position: relative;
@@ -4761,7 +4762,7 @@
 }
 
 .two-column-slide-template .right-section {
-    width: 85%;
+    width: 63%;
     height: 100%;
     position: relative;
 }
@@ -4770,6 +4771,49 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.two-column-slide-template .logo-container {
+    position: absolute;
+    top: 48px;
+    left: 48px;
+    z-index: 10;
+}
+
+.two-column-slide-template .logo-img {
+    max-height: 64px;
+    max-width: 192px;
+    object-fit: contain;
+}
+
+.two-column-slide-template .logo-text {
+    color: #09090B;
+    font-size: 17px;
+    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+}
+
+.two-column-slide-template .page-number-container {
+    position: absolute;
+    bottom: 48px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    z-index: 10;
+}
+
+.two-column-slide-template .page-line {
+    width: 32px;
+    height: 2px;
+    background-color: rgba(9, 9, 11, 0.5);
+}
+
+.two-column-slide-template .page-number {
+    color: #09090B;
+    font-size: 17px;
+    font-weight: 300;
+    font-family: 'Inter', sans-serif;
 }
 
         /* Benefits And Perks Columns Slide Template - EXACT React Copy */
@@ -8841,6 +8885,21 @@ Create opportunities for growth & advancement.{% endif %}</div>
             {% elif templateId == 'two-column-slide' %}
                 <!-- Two Column Slide Template - EXACT React Copy -->
                 <div class="two-column-slide-template">
+                    <!-- Logo in top-left corner -->
+                    <div class="logo-container">
+                        {% if companyLogoPath or logoPath %}
+                            <img src="{{ companyLogoPath or logoPath }}" alt="Logo" class="logo-img">
+                        {% else %}
+                            <span class="logo-text">{{ yourLogoText or logoText or 'Your Logo' }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '01' }}</div>
+                    </div>
+
                     <!-- Left section with avatar and text -->
                     <div class="left-section">
                         <!-- Profile image -->
