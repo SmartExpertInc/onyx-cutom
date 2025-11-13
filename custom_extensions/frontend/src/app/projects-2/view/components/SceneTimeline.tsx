@@ -541,13 +541,9 @@ useEffect(() => {
                         </svg>
                       </button>
                     </div>
-            {index < displayScenes.length - 1 && (
-              <div className="absolute inset-y-0 -right-3 flex items-center">
-                {renderTransitionMenu(index)}
-              </div>
-            )}
                   </div>
                 </div>
+                {index < displayScenes.length - 1 && renderTransitionMenu(index)}
               </div>
             </React.Fragment>
           ))}

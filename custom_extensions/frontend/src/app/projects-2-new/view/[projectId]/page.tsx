@@ -745,7 +745,12 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
           ),
           position: 'top-center',
           duration: 4000,
-          className: 'rounded-lg border border-[#E0E0E0] bg-white shadow-sm text-left',
+        className: 'rounded-lg shadow-sm text-left',
+        style: {
+          backgroundColor: '#ffffff',
+          border: '1px solid #E0E0E0',
+          color: '#1f2937',
+        },
         }
       );
     } else {
