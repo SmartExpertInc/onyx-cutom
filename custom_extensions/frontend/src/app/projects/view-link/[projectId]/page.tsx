@@ -2238,14 +2238,16 @@ export default function ProjectInstanceViewPage() {
             </div>
           </div>
           <aside className="flex flex-col gap-6">
-            <div className="flex flex-col h-[550px] flex-none">
+            <div className="flex flex-col flex-none h-[500px] lg:h-[550px]">
               <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
             </div>
-            <ProductQualityRating
-              isAuthorized={isAuthorized}
-              fullWidth
-              questionText={qualityRatingQuestion}
-            />
+            <div className="hidden lg:block">
+              <ProductQualityRating
+                isAuthorized={isAuthorized}
+                fullWidth
+                questionText={qualityRatingQuestion}
+              />
+            </div>
           </aside>
         </div>
 
