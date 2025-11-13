@@ -110,7 +110,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const isVideoProduct = projectData?.component_name === 'VideoProductDisplay';
   const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation || isVideoProduct);
   const isMobileMidViewport = viewportWidth !== null && viewportWidth >= 390 && viewportWidth < 640;
-  const useMobileLinkViewLayout = isMobileMidViewport && enableLinkViewButtons && isVideoProduct;
+  const useMobileLinkViewLayout = isMobileMidViewport && enableLinkViewButtons && shouldShowLinkButtons;
 
   const getOrdinalSuffix = (day: number) => {
     const j = day % 10;
