@@ -427,11 +427,17 @@ export default function Projects2ViewPage() {
     if (applyToAll) {
       // Apply the same transition to ALL transition slots
       for (let i = 0; i < transitions.length; i++) {
-        transitions[i] = { ...transitionWithoutApplyFlag, applyToAll: false };
+        transitions[i] = {
+          ...transitionWithoutApplyFlag,
+          applyToAll: i === activeTransitionIndex
+        };
       }
     } else {
       // Update only the specific transition
-      transitions[activeTransitionIndex] = { ...transitionWithoutApplyFlag, applyToAll: false };
+      transitions[activeTransitionIndex] = {
+        ...transitionWithoutApplyFlag,
+        applyToAll: false
+      };
     }
     
     // Update the deck with new transitions

@@ -561,6 +561,53 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
      // Tips list
   };
 
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const styleId = 'transition-scroll-styles';
+    if (document.getElementById(styleId)) {
+      return;
+    }
+
+    const styleElement = document.createElement('style');
+    styleElement.id = styleId;
+    styleElement.textContent = `
+      .transition-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 #f8fafc;
+      }
+
+      .transition-scroll::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .transition-scroll::-webkit-scrollbar-track {
+        background: #f8fafc;
+        border-radius: 4px;
+        margin: 4px 0;
+      }
+
+      .transition-scroll::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
+        border-radius: 4px;
+        border: 1px solid #f1f5f9;
+        transition: background 0.2s ease;
+      }
+
+      .transition-scroll::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+      }
+
+      .transition-scroll::-webkit-scrollbar-thumb:active {
+        background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+      }
+    `;
+
+    document.head.appendChild(styleElement);
+  }, []);
+
   const narrativeKeys = useMemo(
     () =>
       new Set([
@@ -722,7 +769,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[#E7E9F1] transition-colors"
+            className="w-8 h-8 -mt-4 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-[#E7E9F1] transition-colors"
           >
             <span className="sr-only">Close</span>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -730,7 +777,7 @@ export default function TemplateSelector({ currentSlideCount, onAddSlide, varian
             </svg>
           </button>
         </div>
-        <div className="mt-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="mt-6 flex-1 overflow-y-auto pr-2 pb-4 transition-scroll">
           <div className="grid grid-cols-3 gap-5">
             {availableTemplates.map((template) => (
               <button

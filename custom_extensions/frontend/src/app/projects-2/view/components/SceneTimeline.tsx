@@ -11,11 +11,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getTransitionIcon, TransitionType } from './Transition';
+import { ComponentBasedSlideRenderer } from '@/components/ComponentBasedSlideRenderer';
 
 interface Scene {
   id: string;
   name: string | {};
   order: number;
+  slideData?: ComponentBasedSlide | VideoLessonSlideData;
 }
 
 interface SceneTimelineProps {
@@ -252,13 +254,31 @@ export default function SceneTimeline({
   }, [displayScenes]);
 
   // Function to get scene rectangle dimensions based on aspect ratio (16:9 only)
-  const getSceneRectangleStyles = () => {
-    const baseHeight = 80; // Increased for bigger cards
-    return {
-      width: `${Math.round(baseHeight * 16 / 9)}px`,
-      height: `${baseHeight}px`,
-    };
+const BASE_CANVAS_WIDTH = 1200;
+const BASE_CANVAS_HEIGHT = 675;
+const THUMBNAIL_PADDING = 6;
+
+const isComponentSlide = (
+  slideData?: ComponentBasedSlide | VideoLessonSlideData
+): slideData is ComponentBasedSlide => {
+  return !!slideData && 'templateId' in slideData;
+};
+
+const getSceneRectangleDimensions = () => {
+  const baseHeight = 80; // Increased for bigger cards
+  return {
+    width: Math.round((baseHeight * 16) / 9),
+    height: baseHeight,
   };
+};
+
+const getSceneRectangleStyles = () => {
+  const { width, height } = getSceneRectangleDimensions();
+  return {
+    width: `${width}px`,
+    height: `${height}px`,
+  };
+};
 
   const transitionPositionsWithVisibility = useMemo(() => {
     if (!timelineContainerRef.current) return transitionPositions;
@@ -273,6 +293,73 @@ export default function SceneTimeline({
 
     return adjusted;
   }, [transitionPositions]);
+
+  const deckTemplateVersion = componentBasedSlideDeck?.templateVersion || 'v2';
+
+  const renderSceneThumbnail = (scene: Scene) => {
+    const dimensions = getSceneRectangleDimensions();
+
+    if (isComponentSlide(scene.slideData)) {
+      const slide = scene.slideData;
+      const innerWidth = dimensions.width - THUMBNAIL_PADDING * 2;
+      const innerHeight = dimensions.height - THUMBNAIL_PADDING * 2;
+      const scale = Math.min(innerWidth / BASE_CANVAS_WIDTH, innerHeight / BASE_CANVAS_HEIGHT);
+
+      return (
+        <>
+          <div className="absolute inset-0 pointer-events-none bg-[#F3F4F8]" />
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: THUMBNAIL_PADDING,
+              left: THUMBNAIL_PADDING,
+              width: innerWidth,
+              height: innerHeight,
+              borderRadius: 6,
+              overflow: 'hidden',
+              background: '#ffffff',
+              boxShadow: '0 6px 16px rgba(15, 88, 249, 0.08)',
+            }}
+          >
+            <div
+              className="origin-top-left"
+              style={{
+                width: BASE_CANVAS_WIDTH,
+                height: BASE_CANVAS_HEIGHT,
+                transform: `scale(${scale})`,
+              }}
+            >
+              <ComponentBasedSlideRenderer
+                slide={slide}
+                isEditable={false}
+                isVideoMode
+                forceHybridBase
+                deckTemplateVersion={deckTemplateVersion}
+              />
+            </div>
+          </div>
+          <div className="pointer-events-none absolute bottom-1 left-1 px-1.5 py-0.5 rounded-full bg-black/60 text-white text-[10px] font-medium">
+            {scene.order.toString().padStart(2, '0')}
+          </div>
+        </>
+      );
+    }
+
+    const title = typeof scene.name === 'string' ? scene.name : '';
+
+    return (
+      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF4FF] to-[#CCDBFC] px-2 text-center">
+        <span className="text-[#0F58F9] text-xs font-semibold leading-tight">
+          Slide {scene.order}
+        </span>
+        {title && (
+          <span className="text-[#0F58F9] text-[10px] leading-tight mt-1 max-w-[90%] whitespace-nowrap overflow-hidden text-ellipsis">
+            {title}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -317,22 +404,18 @@ export default function SceneTimeline({
               >
                 <div className="relative group">
                   <div 
-                    className={`bg-gray-100 border rounded-sm flex items-center justify-center relative cursor-pointer transition-all ${
+                    className={`relative rounded-md border transition-all cursor-pointer overflow-hidden ${
                       currentSlideId === scene.id 
-                        ? 'bg-blue-50' 
-                        : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-[#0F58F9] shadow-[0_12px_24px_rgba(15,88,249,0.18)]'
+                        : 'border-transparent hover:border-[#93C5FD]'
                     }`}
                     style={{
                       ...getSceneRectangleStyles(),
-                      ...(currentSlideId === scene.id && { borderColor: '#0F58F9' })
                     }}
                     onClick={() => onSlideSelect?.(scene.id)}
                   >
-                    {/* Simple visual indicator instead of text content */}
-                    <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">{scene.order}</span>
-                    </div>
-                    
+                    {renderSceneThumbnail(scene)}
+
                     {/* Three-dot menu button - visible on hover */}
                     <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                       <button 
@@ -510,12 +593,12 @@ export default function SceneTimeline({
             const position = transitionPositionsWithVisibility[scene.id];
             if (!position) return null;
             const transitionType = (componentBasedSlideDeck?.transitions?.[index]?.type ?? 'none') as TransitionType;
-            const transitionIcon = getTransitionIcon(transitionType, true);
+            const transitionIcon = getTransitionIcon(transitionType, false);
             
             return (
               <div 
                 key={`transition-${scene.id}`}
-                className="fixed pointer-events-auto"
+                className="pointer-events-auto"
                 style={{
                   left: `${position.x}px`,
                   top: `${position.y}px`,
@@ -566,11 +649,11 @@ export default function SceneTimeline({
                     align="start"
                     side="top"
                     sideOffset={12}
-                    className="w-[220px] rounded-2xl border border-[#E5E7EB] bg-white shadow-xl py-2"
+                    className="w-[220px] rounded-[6px] border border-[#E5E7EB] bg-white shadow-xl py-2"
                   >
                     <div className="px-4 pb-2">
                       <div className="text-sm font-semibold text-[#171718] flex items-center gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#EEF4FF] text-[#0F58F9]">
+                        <span className="inline-flex h-8 w-8 items-center justify-center text-[#0F58F9]">
                           {transitionIcon}
                         </span>
                         {formatTransitionLabel(transitionType)}
@@ -598,7 +681,7 @@ export default function SceneTimeline({
                       Apply everywhere
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-[#E11900] hover:bg-[#FFF2F0] transition-colors focus:bg-[#FFF2F0] focus:text-[#E11900]"
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 bg-red-50 hover:bg-red-100 transition-colors focus:bg-[#FFF2F0] focus:text-[#E11900]"
                       onSelect={(event: Event) => {
                         event.preventDefault();
                         onTransitionDelete?.(index);
