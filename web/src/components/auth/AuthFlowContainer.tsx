@@ -34,7 +34,7 @@ export default function AuthFlowContainer({
             <div className="w-full">{children}</div>
             <p className="text-[15px] text-[#4D4D4D] text-center">By clicking continue, you agree to our <br />
             <span className="underline cursor-pointer">Terms of Service</span> and <span className="underline cursor-pointer">Privacy Policy</span>.</p>
-            <div className="block lg:hidden text-[#0F58F9]">Don't have an account? <Link href="/auth/signup" className="text-[#0F58F9]">Sign up</Link></div>
+            <div className="block lg:hidden text-[#0F58F9]">Don&apos;t have an account? <Link href="/auth/signup" className="text-[#0F58F9]">Sign up</Link></div>
             {/* {authState === "login" && (
               <div className="text-sm mt-4 text-center w-full text-gray-900 font-medium">
                 Don&apos;t have an account?{" "}
