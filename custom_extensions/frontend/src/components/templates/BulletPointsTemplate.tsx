@@ -156,24 +156,7 @@ function UnifiedBulletEditor({
             )}
           </li>
         ))}
-        {(currentBullets.length === 0 || (isEditable && editingIndex === null)) && (
-          <li 
-            style={{ 
-              display: 'flex', 
-              alignItems: 'flex-start', 
-              gap: '12px', 
-              marginBottom: '35px',
-              width: '100%'
-            }}
-            onClick={isEditable && currentBullets.length === 0 ? handleAddBullet : undefined}
-          >
-            <span style={bulletIconStyles}>•</span>
-            <span style={{ ...bulletTextStyles, color: '#9ca3af', fontStyle: 'italic', flex: 1, minWidth: 0 }}>
-              {isEditable ? 'Click to add bullet points...' : 'No bullet points'}
-            </span>
-          </li>
-        )}
-        {isEditable && editingIndex === null && currentBullets.length > 0 && (
+        {isEditable && editingIndex === null && (
           <li 
             style={{ 
               display: 'flex', 
