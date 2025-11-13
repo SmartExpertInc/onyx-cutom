@@ -73,7 +73,7 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
 
   const titleStyles: React.CSSProperties = {
     fontSize: '2.5rem',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: currentTheme.fonts.titleFont,
     color: '#000000',
     marginBottom: '50px',
     textAlign: 'left',
