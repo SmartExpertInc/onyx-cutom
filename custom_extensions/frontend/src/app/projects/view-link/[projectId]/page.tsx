@@ -2131,6 +2131,24 @@ export default function ProjectInstanceViewPage() {
   const videoProductData = isVideoProductComponent ? (editableData as any) : null;
   const sourceVideoLessonProjectId = getSourceVideoLessonProjectId(videoProductData);
 
+  const qualityRatingQuestion = useMemo(() => {
+    switch (projectInstanceData?.component_name) {
+      case COMPONENT_NAME_VIDEO_PRODUCT:
+        return t('modals.play.rateQuality', "How's the video and voice quality?");
+      case COMPONENT_NAME_SLIDE_DECK:
+      case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
+        return t('productQuality.presentationQuestion', 'How clear and engaging is this presentation?');
+      case COMPONENT_NAME_TRAINING_PLAN:
+        return t('productQuality.courseQuestion', 'How satisfied are you with this course overall?');
+      case COMPONENT_NAME_QUIZ:
+        return t('productQuality.quizQuestion', 'How satisfied are you with this quiz overall?');
+      case COMPONENT_NAME_TEXT_PRESENTATION:
+        return t('productQuality.onePagerQuestion', 'How satisfied are you with this one-pager overall?');
+      default:
+        return t('modals.play.rateQuality', "How's the video and voice quality?");
+    }
+  }, [projectInstanceData?.component_name, t]);
+
   const handleVideoDraftClick = () => {
     const targetProjectId = sourceVideoLessonProjectId ?? projectId;
     if (targetProjectId) {
@@ -2223,7 +2241,11 @@ export default function ProjectInstanceViewPage() {
             <div className="flex flex-col h-[550px] flex-none">
               <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
             </div>
-            <ProductQualityRating isAuthorized={isAuthorized} fullWidth />
+            <ProductQualityRating
+              isAuthorized={isAuthorized}
+              fullWidth
+              questionText={qualityRatingQuestion}
+            />
           </aside>
         </div>
 
