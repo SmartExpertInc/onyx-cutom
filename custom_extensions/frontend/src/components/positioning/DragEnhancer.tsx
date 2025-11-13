@@ -3,7 +3,7 @@
 
 'use client';
 
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface DragEnhancerProps {
@@ -11,6 +11,12 @@ interface DragEnhancerProps {
   slideId: string;
   savedPositions?: Record<string, { x: number; y: number }>;
   onPositionChange?: (elementId: string, position: { x: number; y: number }) => void;
+}
+
+interface AlignmentGuide {
+  type: 'vertical' | 'horizontal';
+  position: number; // Position in pixels relative to canvas
+  elementId?: string; // ID of element we're aligning with
 }
 
 export const DragEnhancer: React.FC<DragEnhancerProps> = ({
@@ -22,6 +28,13 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
   const enhancerRef = useRef<HTMLDivElement>(null);
   const dragStateRef = useRef<Map<string, { x: number; y: number }>>(new Map());
   const suppressClicksUntilRef = useRef<number>(0);
+  
+  // Grid and alignment guide state
+  const [isDraggingAny, setIsDraggingAny] = useState(false);
+  const [draggingElementId, setDraggingElementId] = useState<string | null>(null);
+  const [canvasRect, setCanvasRect] = useState<DOMRect | null>(null);
+  const [alignmentGuides, setAlignmentGuides] = useState<AlignmentGuide[]>([]);
+  const [draggingElementRect, setDraggingElementRect] = useState<DOMRect | null>(null);
 
   useLayoutEffect(() => {
     if (!isEnabled || !enhancerRef.current) return;
@@ -79,6 +92,15 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         htmlElement.style.zIndex = '1000';
         htmlElement.style.userSelect = 'none';
         htmlElement.classList.add('dragging');
+        
+        // Show grid and enable alignment detection
+        setIsDraggingAny(true);
+        setDraggingElementId(elementId);
+        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+        const canvas = slideCanvas.getBoundingClientRect();
+        setCanvasRect(canvas);
+        setDraggingElementRect(htmlElement.getBoundingClientRect());
+        
         // Prevent propagation only when we actually start dragging
         e.preventDefault();
         e.stopPropagation();
@@ -231,8 +253,143 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         }
 
         if (isDragging) {
+          // Update element position
           currentX = newX;
           currentY = newY;
+          
+          // Calculate alignment guides with other elements
+          const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+          const canvas = slideCanvas.getBoundingClientRect();
+          setCanvasRect(canvas);
+          
+          // Get current element bounds
+          const elementRect = htmlElement.getBoundingClientRect();
+          setDraggingElementRect(elementRect);
+          
+          // Calculate element position relative to canvas
+          const elementLeft = elementRect.left - canvas.left;
+          const elementRight = elementRect.right - canvas.left;
+          const elementTop = elementRect.top - canvas.top;
+          const elementBottom = elementRect.bottom - canvas.top;
+          const elementCenterX = elementLeft + (elementRect.width / 2);
+          const elementCenterY = elementTop + (elementRect.height / 2);
+          
+          // Find all other draggable elements
+          const allDraggables = container.querySelectorAll('[data-draggable="true"]');
+          const guides: AlignmentGuide[] = [];
+          const SNAP_THRESHOLD = 5; // pixels
+          
+          // Canvas center lines (half horizontally and vertically)
+          const canvasCenterX = canvas.width / 2;
+          const canvasCenterY = canvas.height / 2;
+          
+          // Check alignment with canvas center
+          if (Math.abs(elementCenterX - canvasCenterX) < SNAP_THRESHOLD) {
+            guides.push({ type: 'vertical', position: canvasCenterX });
+          }
+          if (Math.abs(elementCenterY - canvasCenterY) < SNAP_THRESHOLD) {
+            guides.push({ type: 'horizontal', position: canvasCenterY });
+          }
+          
+          // Check alignment with other elements
+          allDraggables.forEach((otherElement) => {
+            if (otherElement === htmlElement) return;
+            
+            const otherEl = otherElement as HTMLElement;
+            const otherRect = otherEl.getBoundingClientRect();
+            const otherLeft = otherRect.left - canvas.left;
+            const otherRight = otherRect.right - canvas.left;
+            const otherTop = otherRect.top - canvas.top;
+            const otherBottom = otherRect.bottom - canvas.top;
+            const otherCenterX = otherLeft + (otherRect.width / 2);
+            const otherCenterY = otherTop + (otherRect.height / 2);
+            
+            // Vertical alignments (left, center, right)
+            if (Math.abs(elementLeft - otherLeft) < SNAP_THRESHOLD) {
+              guides.push({ type: 'vertical', position: otherLeft, elementId: otherEl.id });
+            }
+            if (Math.abs(elementCenterX - otherCenterX) < SNAP_THRESHOLD) {
+              guides.push({ type: 'vertical', position: otherCenterX, elementId: otherEl.id });
+            }
+            if (Math.abs(elementRight - otherRight) < SNAP_THRESHOLD) {
+              guides.push({ type: 'vertical', position: otherRight, elementId: otherEl.id });
+            }
+            
+            // Horizontal alignments (top, center, bottom)
+            if (Math.abs(elementTop - otherTop) < SNAP_THRESHOLD) {
+              guides.push({ type: 'horizontal', position: otherTop, elementId: otherEl.id });
+            }
+            if (Math.abs(elementCenterY - otherCenterY) < SNAP_THRESHOLD) {
+              guides.push({ type: 'horizontal', position: otherCenterY, elementId: otherEl.id });
+            }
+            if (Math.abs(elementBottom - otherBottom) < SNAP_THRESHOLD) {
+              guides.push({ type: 'horizontal', position: otherBottom, elementId: otherEl.id });
+            }
+          });
+          
+          setAlignmentGuides(guides);
+          
+          // Apply snapping if guides are found
+          // We need to calculate the snap position based on the element's original position
+          // before the transform was applied
+          let snappedX = currentX;
+          let snappedY = currentY;
+          
+          // Get the element's original position (before transform)
+          const originalLeft = htmlElement.offsetLeft;
+          const originalTop = htmlElement.offsetTop;
+          const elementWidth = elementRect.width;
+          const elementHeight = elementRect.height;
+          
+          guides.forEach((guide) => {
+            if (guide.type === 'vertical') {
+              // Calculate which edge/center is closest to the guide
+              const elementCenterX = elementLeft + (elementWidth / 2);
+              const distToLeft = Math.abs(elementLeft - guide.position);
+              const distToCenter = Math.abs(elementCenterX - guide.position);
+              const distToRight = Math.abs(elementRight - guide.position);
+              
+              const minDist = Math.min(distToLeft, distToCenter, distToRight);
+              
+              if (minDist < SNAP_THRESHOLD) {
+                if (minDist === distToCenter) {
+                  // Snap center to guide
+                  snappedX = guide.position - (elementWidth / 2) - originalLeft;
+                } else if (minDist === distToLeft) {
+                  // Snap left to guide
+                  snappedX = guide.position - originalLeft;
+                } else {
+                  // Snap right to guide
+                  snappedX = guide.position - elementWidth - originalLeft;
+                }
+              }
+            } else if (guide.type === 'horizontal') {
+              // Calculate which edge/center is closest to the guide
+              const elementCenterY = elementTop + (elementHeight / 2);
+              const distToTop = Math.abs(elementTop - guide.position);
+              const distToCenter = Math.abs(elementCenterY - guide.position);
+              const distToBottom = Math.abs(elementBottom - guide.position);
+              
+              const minDist = Math.min(distToTop, distToCenter, distToBottom);
+              
+              if (minDist < SNAP_THRESHOLD) {
+                if (minDist === distToCenter) {
+                  // Snap center to guide
+                  snappedY = guide.position - (elementHeight / 2) - originalTop;
+                } else if (minDist === distToTop) {
+                  // Snap top to guide
+                  snappedY = guide.position - originalTop;
+                } else {
+                  // Snap bottom to guide
+                  snappedY = guide.position - elementHeight - originalTop;
+                }
+              }
+            }
+          });
+          
+          currentX = snappedX;
+          currentY = snappedY;
+          
           htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
           // Position is already set to relative when dragging started
           dragStateRef.current.set(elementId, { x: currentX, y: currentY });
@@ -255,6 +412,13 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
         if (isDragging) {
           isDragging = false;
+          // Hide grid and alignment guides
+          setIsDraggingAny(false);
+          setDraggingElementId(null);
+          setAlignmentGuides([]);
+          setDraggingElementRect(null);
+          setCanvasRect(null);
+          
           // FIXED: Reset position to original value to avoid layout issues
           htmlElement.style.position = '';
           htmlElement.style.zIndex = '';
@@ -372,7 +536,101 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
   if (!isEnabled) return null;
 
   return (
-    <div ref={enhancerRef} className="absolute inset-0 pointer-events-none z-20" />
+    <>
+      <div ref={enhancerRef} className="absolute inset-0 pointer-events-none z-20" />
+      
+      {/* Canva-like Grid Overlay - shows when dragging */}
+      {isDraggingAny && canvasRect && (
+        <div
+          style={{
+            position: 'fixed',
+            top: canvasRect.top,
+            left: canvasRect.left,
+            width: canvasRect.width,
+            height: canvasRect.height,
+            pointerEvents: 'none',
+            zIndex: 9999,
+            opacity: 0.3
+          }}
+        >
+          {/* Vertical center line (half horizontally) */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: 0,
+              width: '1px',
+              height: '100%',
+              backgroundColor: '#3b82f6',
+              transform: 'translateX(-50%)'
+            }}
+          />
+          
+          {/* Horizontal center line (half vertically) */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: 0,
+              width: '100%',
+              height: '1px',
+              backgroundColor: '#3b82f6',
+              transform: 'translateY(-50%)'
+            }}
+          />
+        </div>
+      )}
+      
+      {/* Alignment Guides - shows when aligning with other elements */}
+      {isDraggingAny && canvasRect && alignmentGuides.length > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            top: canvasRect.top,
+            left: canvasRect.left,
+            width: canvasRect.width,
+            height: canvasRect.height,
+            pointerEvents: 'none',
+            zIndex: 10000,
+            opacity: 0.8
+          }}
+        >
+          {alignmentGuides.map((guide, index) => {
+            if (guide.type === 'vertical') {
+              return (
+                <div
+                  key={`vertical-${index}`}
+                  style={{
+                    position: 'absolute',
+                    left: `${guide.position}px`,
+                    top: 0,
+                    width: '2px',
+                    height: '100%',
+                    backgroundColor: '#10b981',
+                    boxShadow: '0 0 4px rgba(16, 185, 129, 0.5)'
+                  }}
+                />
+              );
+            } else {
+              return (
+                <div
+                  key={`horizontal-${index}`}
+                  style={{
+                    position: 'absolute',
+                    top: `${guide.position}px`,
+                    left: 0,
+                    width: '100%',
+                    height: '2px',
+                    backgroundColor: '#10b981',
+                    boxShadow: '0 0 4px rgba(16, 185, 129, 0.5)'
+                  }}
+                />
+              );
+            }
+          })}
+        </div>
+      )}
+    </>
   );
 };
 

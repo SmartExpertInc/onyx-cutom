@@ -388,7 +388,7 @@ export const ProcessStepsTemplate: React.FC<ProcessStepsProps & {
       </div>
 
       {/* Right Column - Process Steps - GUARANTEED 5 BLOCKS */}
-      <div style={rightColumnStyles}>
+      <div data-slide-canvas="true" style={rightColumnStyles}>
         {steps.map((step: StepItem, index: number) => {
           // If step is a string, treat it as the full content (no separate title/description)
           const isStringStep = typeof step === 'string';
