@@ -427,95 +427,43 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         {/* 5 Pyramid Levels */}
         {displaySteps.map((step, index) => (
           <div key={index} style={pyramidLevelStyles(index)}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <MessageIcon />
-              {isEditable && editingItemNumbers.includes(index) ? (
-                <InlineEditor
-                  initialValue={step.number || ''}
-                  onSave={(newNumber) => handleItemNumberSave(index, newNumber)}
-                  onCancel={() => handleItemNumberCancel(index)}
-                  placeholder="Number..."
-                  style={{ ...numberStyles, margin: '0', padding: '0' }}
-                />
-              ) : (
-                <div 
-                  style={numberStyles}
-                  onClick={() => { if (isEditable) startEditingItemNumber(index); }}
-                  className={isEditable ? 'cursor-pointer' : ''}
-                >
-                  {step.number || '0'}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+            {isEditable && editingItemHeadings.includes(index) ? (
+              <InlineEditor
+                initialValue={step.heading || ''}
+                onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
+                onCancel={() => handleItemHeadingCancel(index)}
+                multiline={true}
+                placeholder="Heading..."
+                style={{ ...textHeadingStyles, margin: '0', padding: '0' }}
+              />
+            ) : (
+              <div 
+                style={textHeadingStyles}
+                onClick={() => { if (isEditable) startEditingItemHeading(index); }}
+                className={isEditable ? 'cursor-pointer' : ''}
+              >
+                {step.heading || 'Headline'}
+              </div>
+            )}
 
-        {/* 5 Text Blocks */}
-        {displaySteps.map((step, index) => (
-          <div key={`text-${index}`} style={textBlockStyles(index)}>
-            {/* Heading */}
-            <div data-draggable="true" style={{ display: 'inline-block' }}>
-              {isEditable && editingItemHeadings.includes(index) ? (
-                <InlineEditor
-                  initialValue={step.heading || ''}
-                  onSave={(newHeading) => handleItemHeadingSave(index, newHeading)}
-                  onCancel={() => handleItemHeadingCancel(index)}
-                  multiline={true}
-                  placeholder="Heading..."
-                  style={{ ...textHeadingStyles, margin: '0', padding: '0' }}
-                />
-              ) : (
-                <div 
-                  style={textHeadingStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (isEditable) {
-                      startEditingItemHeading(index);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {step.heading || 'Headline'}
-                </div>
-              )}
-            </div>
-
-            {/* Description */}
-            <div data-draggable="true" style={{ display: 'inline-block', marginTop: '15px' }}>
-              {isEditable && editingItemDescriptions.includes(index) ? (
-                <InlineEditor
-                  initialValue={step.description || ''}
-                  onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
-                  onCancel={() => handleItemDescriptionCancel(index)}
-                  multiline={true}
-                  placeholder="Description..."
-                  style={{ ...textDescriptionStyles, margin: '0', padding: '0' }}
-                />
-              ) : (
-                <div 
-                  style={textDescriptionStyles}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    if (isEditable) {
-                      startEditingItemDescription(index);
-                    }
-                  }}
-                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                >
-                  {step.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
-                </div>
-              )}
-            </div>
+            {isEditable && editingItemDescriptions.includes(index) ? (
+              <InlineEditor
+                initialValue={step.description || ''}
+                onSave={(newDescription) => handleItemDescriptionSave(index, newDescription)}
+                onCancel={() => handleItemDescriptionCancel(index)}
+                multiline={true}
+                placeholder="Description..."
+                style={{ ...textDescriptionStyles, margin: '0', padding: '0' }}
+              />
+            ) : (
+              <div 
+                style={textDescriptionStyles}
+                onClick={() => { if (isEditable) startEditingItemDescription(index); }}
+                className={isEditable ? 'cursor-pointer' : ''}
+              >
+                {step.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor'}
+              </div>
+            )}
           </div>
         ))}
 

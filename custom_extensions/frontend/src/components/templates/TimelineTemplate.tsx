@@ -287,86 +287,70 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
             {/* Text Block */}
             <div style={textBlockStyles(item.top, item.side)}>
               {/* Heading */}
-              <div data-draggable="true" style={{ display: 'inline-block' }}>
-                {isEditable && editingStepHeadings.includes(index) ? (
-                  <WysiwygEditor
-                    initialValue={displaySteps[index]?.heading || ''}
-                    onSave={(newHeading) => handleStepHeadingSave(index, newHeading)}
-                    onCancel={() => handleStepHeadingCancel(index)}
-                    placeholder="Enter heading..."
-                    className="inline-editor-heading"
-                    style={{
-                      ...headingStyles,
-                      padding: '8px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '4px',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      lineHeight: '1.2'
-                    }}
-                  />
-                ) : (
-                  <div 
-                    style={headingStyles}
-                    onClick={(e) => {
-                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        startEditingStepHeading(index);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                    dangerouslySetInnerHTML={{ __html: displaySteps[index]?.heading || `Milestone ${index + 1}` }}
-                  />
-                )}
-              </div>
+              {isEditable && editingStepHeadings.includes(index) ? (
+                <WysiwygEditor
+                  initialValue={displaySteps[index]?.heading || ''}
+                  onSave={(newHeading) => handleStepHeadingSave(index, newHeading)}
+                  onCancel={() => handleStepHeadingCancel(index)}
+                  placeholder="Enter heading..."
+                  className="inline-editor-heading"
+                  style={{
+                    ...headingStyles,
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.2'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={headingStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      startEditingStepHeading(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                  dangerouslySetInnerHTML={{ __html: displaySteps[index]?.heading || `Milestone ${index + 1}` }}
+                />
+              )}
 
               {/* Description */}
-              <div data-draggable="true" style={{ display: 'inline-block', marginTop: '8px' }}>
-                {isEditable && editingStepDescriptions.includes(index) ? (
-                  <WysiwygEditor
-                    initialValue={displaySteps[index]?.description || ''}
-                    onSave={(newDescription) => handleStepDescriptionSave(index, newDescription)}
-                    onCancel={() => handleStepDescriptionCancel(index)}
-                    placeholder="Enter description..."
-                    className="inline-editor-description"
-                    style={{
-                      ...descriptionStyles,
-                      padding: '8px',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '4px',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'pre-wrap',
-                      boxSizing: 'border-box',
-                      display: 'block',
-                      lineHeight: '1.4'
-                    }}
-                  />
-                ) : (
-                  <div 
-                    style={descriptionStyles}
-                    onClick={(e) => {
-                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return;
-                      }
-                      if (isEditable) {
-                        startEditingStepDescription(index);
-                      }
-                    }}
-                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
-                    dangerouslySetInnerHTML={{ __html: displaySteps[index]?.description || `Description of milestone ${index + 1}` }}
-                  />
-                )}
-              </div>
+              {isEditable && editingStepDescriptions.includes(index) ? (
+                <WysiwygEditor
+                  initialValue={displaySteps[index]?.description || ''}
+                  onSave={(newDescription) => handleStepDescriptionSave(index, newDescription)}
+                  onCancel={() => handleStepDescriptionCancel(index)}
+                  placeholder="Enter description..."
+                  className="inline-editor-description"
+                  style={{
+                    ...descriptionStyles,
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.4'
+                  }}
+                />
+              ) : (
+                <div 
+                  style={descriptionStyles}
+                  onClick={() => {
+                    if (isEditable) {
+                      startEditingStepDescription(index);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer' : ''}
+                  dangerouslySetInnerHTML={{ __html: displaySteps[index]?.description || `Description of milestone ${index + 1}` }}
+                />
+              )}
             </div>
           </React.Fragment>
         ))}
