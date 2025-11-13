@@ -745,7 +745,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
       toast.success(
         t('videoEditor.toast.sceneLayoutSavedTitle', 'Scene layout saved.'),
         {
-          description: <span style={{ color: '#878787', paddingLeft: '15px' }}>{descriptionText}</span>,
+          description: <span style={{ color: '#878787', paddingRight: '15px' }}>{descriptionText}</span>,
           icon: <CheckCircle2 className="w-5 h-5" style={{ color: '#74C643' }} />,
           position: 'top-center',
           duration: 4000,
