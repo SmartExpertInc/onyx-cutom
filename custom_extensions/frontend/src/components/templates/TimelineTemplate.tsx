@@ -308,8 +308,15 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                 />
               ) : (
                 <div 
+                  data-draggable="true"
                   style={headingStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingStepHeading(index);
                     }
@@ -341,8 +348,15 @@ export const TimelineTemplate: React.FC<TimelineTemplateProps> = ({
                 />
               ) : (
                 <div 
+                  data-draggable="true"
                   style={descriptionStyles}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
                     if (isEditable) {
                       startEditingStepDescription(index);
                     }
