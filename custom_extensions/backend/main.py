@@ -29302,7 +29302,7 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                                 raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
-                        file_context = None
+                            file_context = None
 
                         if file_context is None:
                             logger.info("[ENDPOINT_FALLBACK] Falling back to legacy extraction for SmartDrive files")
@@ -34944,7 +34944,7 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                                 raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
-                        file_context = None
+                            file_context = None
 
                         if file_context is None:
                             logger.info("[ENDPOINT_FALLBACK] Falling back to legacy extraction for SmartDrive files")
@@ -36935,7 +36935,7 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                                 raise Exception("No context returned from agentic extraction")
                         except Exception as e:
                             logger.error(f"[SMARTDRIVE] Direct extraction failed, using fallback: {e}")
-                        file_context = None
+                            file_context = None
 
                         if file_context is None:
                             logger.info("[ENDPOINT_FALLBACK] Falling back to legacy extraction for SmartDrive files")
