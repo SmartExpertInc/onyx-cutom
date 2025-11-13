@@ -11,6 +11,13 @@ export interface ContraindicationsIndicationsTemplateProps {
   isEditable?: boolean;
   slideId?: string;
   onUpdate?: (data: Partial<ContraindicationsIndicationsTemplateProps>) => void;
+  // Props from server
+  leftProjectTitle?: string;
+  rightProjectTitle?: string;
+  leftHeadings?: string[];
+  rightHeadings?: string[];
+  leftDescriptions?: string[];
+  rightDescriptions?: string[];
 }
 
 const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndicationsTemplateProps> = ({
@@ -19,17 +26,89 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   theme,
   isEditable = true,
   slideId = 'contraindications-indications',
-  onUpdate
+  onUpdate,
+  // Props from server
+  leftProjectTitle: propsLeftProjectTitle,
+  rightProjectTitle: propsRightProjectTitle,
+  leftHeadings: propsLeftHeadings,
+  rightHeadings: propsRightHeadings,
+  leftDescriptions: propsLeftDescriptions,
+  rightDescriptions: propsRightDescriptions
 }: ContraindicationsIndicationsTemplateProps) => {
   const currentTheme = getSlideTheme(theme) || DEFAULT_SLIDE_THEME;
   
-  // Состояние для текстовых элементов
-  const [leftProjectTitle, setLeftProjectTitle] = useState('The first project');
-  const [rightProjectTitle, setRightProjectTitle] = useState('The second project');
-  const [leftHeadings, setLeftHeadings] = useState(['Heading text goes here', 'Heading text goes here', 'Heading text goes here']);
-  const [rightHeadings, setRightHeadings] = useState(['Heading text goes here', 'Heading text goes here', 'Heading text goes here']);
-  const [leftDescriptions, setLeftDescriptions] = useState(['Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do']);
-  const [rightDescriptions, setRightDescriptions] = useState(['Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do']);
+  // Default values (used when props are not provided)
+  const defaultLeftProjectTitle = 'The first project';
+  const defaultRightProjectTitle = 'The second project';
+  const defaultLeftHeadings = ['Heading text goes here', 'Heading text goes here', 'Heading text goes here'];
+  const defaultRightHeadings = ['Heading text goes here', 'Heading text goes here', 'Heading text goes here'];
+  const defaultLeftDescriptions = ['Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do'];
+  const defaultRightDescriptions = ['Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do', 'Lorem ipsum dolor sit amet, consectetur elit, sed do'];
+  
+  // Initialize state from props (use props if available, otherwise use defaults)
+  // Following ProcessStepsTemplate pattern: use props if available, otherwise defaults
+  const [leftProjectTitle, setLeftProjectTitle] = useState(
+    propsLeftProjectTitle !== undefined ? propsLeftProjectTitle : defaultLeftProjectTitle
+  );
+  const [rightProjectTitle, setRightProjectTitle] = useState(
+    propsRightProjectTitle !== undefined ? propsRightProjectTitle : defaultRightProjectTitle
+  );
+  const [leftHeadings, setLeftHeadings] = useState(
+    propsLeftHeadings && propsLeftHeadings.length > 0 ? propsLeftHeadings : defaultLeftHeadings
+  );
+  const [rightHeadings, setRightHeadings] = useState(
+    propsRightHeadings && propsRightHeadings.length > 0 ? propsRightHeadings : defaultRightHeadings
+  );
+  const [leftDescriptions, setLeftDescriptions] = useState(
+    propsLeftDescriptions && propsLeftDescriptions.length > 0 ? propsLeftDescriptions : defaultLeftDescriptions
+  );
+  const [rightDescriptions, setRightDescriptions] = useState(
+    propsRightDescriptions && propsRightDescriptions.length > 0 ? propsRightDescriptions : defaultRightDescriptions
+  );
+  
+  // Sync state when props change (only on mount or when props actually change)
+  // This allows external updates to be reflected, but doesn't override user edits unnecessarily
+  useEffect(() => {
+    if (propsLeftProjectTitle !== undefined) {
+      setLeftProjectTitle(propsLeftProjectTitle);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propsLeftProjectTitle]);
+  
+  useEffect(() => {
+    if (propsRightProjectTitle !== undefined) {
+      setRightProjectTitle(propsRightProjectTitle);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propsRightProjectTitle]);
+  
+  useEffect(() => {
+    if (propsLeftHeadings && propsLeftHeadings.length > 0) {
+      setLeftHeadings(propsLeftHeadings);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propsLeftHeadings]);
+  
+  useEffect(() => {
+    if (propsRightHeadings && propsRightHeadings.length > 0) {
+      setRightHeadings(propsRightHeadings);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propsRightHeadings]);
+  
+  useEffect(() => {
+    if (propsLeftDescriptions && propsLeftDescriptions.length > 0) {
+      setLeftDescriptions(propsLeftDescriptions);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propsLeftDescriptions]);
+  
+  useEffect(() => {
+    if (propsRightDescriptions && propsRightDescriptions.length > 0) {
+      setRightDescriptions(propsRightDescriptions);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propsRightDescriptions]);
   
   // Состояния редактирования
   const [editingLeftProject, setIsEditingLeftProject] = useState(false);
