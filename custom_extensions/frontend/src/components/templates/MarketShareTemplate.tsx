@@ -45,6 +45,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const [isDragging, setIsDragging] = useState<number | null>(null);
   const [dragStartY, setDragStartY] = useState<number>(0);
   const [dragStartHeight, setDragStartHeight] = useState<number>(0);
+  const [dragCurrentHeight, setDragCurrentHeight] = useState<number | null>(null);
 
   // Refs for MoveableManager integration
   const titleRef = useRef<HTMLDivElement>(null);
@@ -162,6 +163,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     setIsDragging(index);
     setDragStartY(e.clientY);
     setDragStartHeight(chartData[index].percentage);
+    setDragCurrentHeight(chartData[index].percentage);
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -170,18 +172,24 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
       const deltaPercentage = (deltaY / 400) * 100; // 400px is max height
       const newHeight = Math.min(100, Math.max(0, dragStartHeight + deltaPercentage));
       
-      if (onUpdate) {
-        const newChartData = [...chartData];
-        newChartData[isDragging] = { ...newChartData[isDragging], percentage: newHeight };
-        onUpdate({ chartData: newChartData });
-      }
+      // Only update local state for visual feedback during drag
+      // Don't call onUpdate here - wait for mouseup
+      setDragCurrentHeight(newHeight);
     }
   };
 
   const handleMouseUp = () => {
+    if (isDragging !== null && dragCurrentHeight !== null && onUpdate) {
+      // Only call onUpdate once when drag ends
+      const newChartData = [...chartData];
+      newChartData[isDragging] = { ...newChartData[isDragging], percentage: dragCurrentHeight };
+      onUpdate({ chartData: newChartData });
+    }
+    
     setIsDragging(null);
     setDragStartY(0);
     setDragStartHeight(0);
+    setDragCurrentHeight(null);
   };
 
   // Add event listeners for drag
@@ -659,7 +667,11 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
                 {/* Bar with height editing and drag resize */}
                 <div 
                   style={{
-                    ...barStyles(item.percentage, item.gradientStart || item.color, item.gradientEnd || item.color),
+                    ...barStyles(
+                      isDragging === index && dragCurrentHeight !== null ? dragCurrentHeight : item.percentage, 
+                      item.gradientStart || item.color, 
+                      item.gradientEnd || item.color
+                    ),
                     cursor: isEditable ? (isDragging === index ? 'grabbing' : 'grab') : 'default',
                     userSelect: 'none'
                   }}
