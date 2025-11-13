@@ -60,11 +60,17 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
   const handleLeftProjectSave = (value: string) => {
     setLeftProjectTitle(value);
     setIsEditingLeftProject(false);
+    if (onUpdate) {
+      onUpdate({ leftProjectTitle: value } as any);
+    }
   };
 
   const handleRightProjectSave = (value: string) => {
     setRightProjectTitle(value);
     setIsEditingRightProject(false);
+    if (onUpdate) {
+      onUpdate({ rightProjectTitle: value } as any);
+    }
   };
 
   const handleLeftHeadingSave = (index: number, value: string) => {
@@ -74,6 +80,9 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     const newEditingStates = [...editingLeftHeadings];
     newEditingStates[index] = false;
     setEditingLeftHeadings(newEditingStates);
+    if (onUpdate) {
+      onUpdate({ leftHeadings: newHeadings } as any);
+    }
   };
 
   const handleRightHeadingSave = (index: number, value: string) => {
@@ -83,6 +92,9 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     const newEditingStates = [...editingRightHeadings];
     newEditingStates[index] = false;
     setEditingRightHeadings(newEditingStates);
+    if (onUpdate) {
+      onUpdate({ rightHeadings: newHeadings } as any);
+    }
   };
 
   const handleLeftDescriptionSave = (index: number, value: string) => {
@@ -92,6 +104,9 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     const newEditingStates = [...editingLeftDescriptions];
     newEditingStates[index] = false;
     setEditingLeftDescriptions(newEditingStates);
+    if (onUpdate) {
+      onUpdate({ leftDescriptions: newDescriptions } as any);
+    }
   };
 
   const handleRightDescriptionSave = (index: number, value: string) => {
@@ -101,6 +116,9 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
     const newEditingStates = [...editingRightDescriptions];
     newEditingStates[index] = false;
     setEditingRightDescriptions(newEditingStates);
+    if (onUpdate) {
+      onUpdate({ rightDescriptions: newDescriptions } as any);
+    }
   };
 
 
