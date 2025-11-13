@@ -240,6 +240,12 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         const wasDragging = isDragging && dragDistance > DRAG_THRESHOLD;
 
         clearDragTimeout();
+        
+        // If we were dragging, prevent any immediate click events
+        if (isDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
 
         if (isDragging) {
           isDragging = false;
@@ -250,44 +256,52 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           htmlElement.classList.remove('dragging');
 
           // Suppress the very next click to avoid entering edit after drag
-          htmlElement.setAttribute('data-just-dragged', 'true');
-          setTimeout(() => {
-            htmlElement.removeAttribute('data-just-dragged');
-          }, 400);
+          // Set suppress window first
           suppressClicksUntilRef.current = Date.now() + 400;
           
           // Create a more targeted click suppression that only affects draggable elements
           const suppressNextClick = (ev: MouseEvent) => {
             const target = ev.target as HTMLElement;
-            // Don't suppress clicks on text elements or elements inside wysiwyg editors
-            const isTextElement = target.tagName === 'P' || 
-                                 target.tagName === 'H1' || 
-                                 target.tagName === 'H2' || 
-                                 target.tagName === 'H3' || 
-                                 target.tagName === 'H4' || 
-                                 target.tagName === 'SPAN' ||
-                                 target.tagName === 'DIV' ||
-                                 target.closest('.wysiwyg-editor') ||
-                                 target.classList.contains('editable-text') ||
-                                 target.closest('.editable-text') ||
-                                 target.classList.contains('editable-text') ||
-                                 target.closest('.editable-text');
             
-            if (isTextElement) {
-              return; // Allow text editing
+            // Find the closest draggable element
+            const isDraggableElement = target.closest('[data-draggable="true"]');
+            
+            // If not inside a draggable element, don't suppress
+            if (!isDraggableElement) {
+              return;
             }
             
-            // Only suppress clicks on draggable elements or their children
-            const isDraggableElement = target.closest('[data-draggable="true"]');
-            if (isDraggableElement && Date.now() < suppressClicksUntilRef.current) {
+            // Check if this draggable element was just dragged
+            const wasJustDragged = isDraggableElement.getAttribute('data-just-dragged') === 'true';
+            const isWithinSuppressWindow = Date.now() < suppressClicksUntilRef.current;
+            
+            // Don't suppress clicks on wysiwyg editor elements (toolbar, buttons, etc.)
+            const isWysiwygElement = target.closest('.wysiwyg-editor') ||
+                                    target.closest('[class*="wysiwyg"]') ||
+                                    target.tagName === 'BUTTON' ||
+                                    target.tagName === 'INPUT' ||
+                                    target.getAttribute('role') === 'button';
+            
+            // Suppress clicks if:
+            // 1. The draggable element was just dragged AND we're within the suppress window
+            // 2. AND it's not a wysiwyg editor element (toolbar buttons, etc.)
+            if ((wasJustDragged || isWithinSuppressWindow) && !isWysiwygElement) {
               ev.stopImmediatePropagation();
               ev.stopPropagation();
               ev.preventDefault();
             }
           };
+          
+          // Add listener BEFORE setting attribute to catch any immediate click events
           document.addEventListener('click', suppressNextClick, true);
+          
+          // Now set the attribute to mark this element as just dragged
+          htmlElement.setAttribute('data-just-dragged', 'true');
+          
+          // Clean up after suppress window
           setTimeout(() => {
             document.removeEventListener('click', suppressNextClick, true);
+            htmlElement.removeAttribute('data-just-dragged');
           }, 450);
 
           // 🔍 COMPREHENSIVE DRAG LOGGING
