@@ -360,7 +360,7 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
         {/* Right column */}
         <div style={{
           width: '55%',
-          height: '370px',
+          height: '500px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between'
@@ -506,7 +506,7 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
 
           {/* Team image at bottom */}
           <div style={{
-            width: '100%',
+            width: '74%',
             height: '46%',
             borderRadius: '6px',
           }}>
