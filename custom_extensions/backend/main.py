@@ -11557,6 +11557,164 @@ async def upload_presentation_video(file: UploadFile = File(...)):
     web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{unique_filename}"
     return {"file_path": web_accessible_path}
 
+# NEW: Video Processing Endpoint
+class VideoCropSettings(BaseModel):
+    x: float = Field(..., description="X position offset")
+    y: float = Field(..., description="Y position offset")
+    width: int = Field(..., description="Target width")
+    height: int = Field(..., description="Target height")
+    scale: float = Field(..., description="Scale factor")
+    objectFit: str = Field(..., description="Object fit mode: cover, contain, or fill")
+
+@app.post("/api/custom/presentation/process_video", responses={
+    200: {"description": "Video processed successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/processed_video.mp4"}}}},
+    400: {"description": "Invalid request parameters", "model": ErrorDetail},
+    500: {"description": "Video processing failed", "model": ErrorDetail}
+})
+async def process_video(
+    file: Optional[UploadFile] = File(None),
+    video_path: Optional[str] = Form(None),
+    crop_settings: str = Form(...)
+):
+    """Process a video with cropping, scaling, and object-fit transformations using FFmpeg"""
+    try:
+        import subprocess
+        import json
+        
+        # Parse crop settings
+        try:
+            settings = json.loads(crop_settings)
+            crop_config = VideoCropSettings(**settings)
+        except Exception as e:
+            detail_msg = "Invalid crop settings." if IS_PRODUCTION else f"Invalid crop settings: {str(e)}"
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail_msg)
+        
+        # Determine input video path
+        input_video_path = None
+        temp_file = None
+        
+        if file:
+            # Save uploaded file temporarily
+            file_extension = os.path.splitext(file.filename)[1].lower() if file.filename else ".mp4"
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=file_extension)
+            try:
+                shutil.copyfileobj(file.file, temp_file)
+                temp_file.close()
+                input_video_path = temp_file.name
+            except Exception as e:
+                if temp_file:
+                    os.unlink(temp_file.name)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                                  detail=f"Failed to save uploaded video: {str(e)}")
+        elif video_path:
+            # Use existing video path
+            # Remove leading slash if present and construct full path
+            video_path_clean = video_path.lstrip('/')
+            input_video_path = os.path.join(STATIC_DESIGN_IMAGES_DIR, os.path.basename(video_path_clean))
+            if not os.path.exists(input_video_path):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video file not found")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Either file or video_path must be provided")
+        
+        # Generate output filename
+        safe_filename_base = str(uuid.uuid4())
+        output_filename = f"presentation_processed_{safe_filename_base}.mp4"
+        output_path = os.path.join(STATIC_DESIGN_IMAGES_DIR, output_filename)
+        
+        # Build FFmpeg command based on object-fit mode
+        ffmpeg_cmd = ['ffmpeg', '-y', '-i', input_video_path]
+        
+        # Calculate video filter based on object-fit and crop settings
+        video_filter_parts = []
+        
+        # Get video dimensions first (we'll use a simple approach)
+        # For now, we'll assume the video needs to be scaled and cropped
+        target_width = crop_config.width
+        target_height = crop_config.height
+        
+        if crop_config.objectFit == 'fill':
+            # Stretch to fill exactly
+            video_filter_parts.append(f'scale={target_width}:{target_height}')
+        elif crop_config.objectFit == 'cover':
+            # Scale to cover, then crop
+            # Scale to cover the target dimensions
+            video_filter_parts.append(f'scale={target_width}:{target_height}:force_original_aspect_ratio=increase')
+            # Crop to exact dimensions (centered)
+            video_filter_parts.append(f'crop={target_width}:{target_height}')
+        else:  # contain
+            # Scale to fit, then pad
+            video_filter_parts.append(f'scale={target_width}:{target_height}:force_original_aspect_ratio=decrease')
+            # Pad to exact dimensions (centered, black background)
+            video_filter_parts.append(f'pad={target_width}:{target_height}:(ow-iw)/2:(oh-ih)/2:color=black')
+        
+        # Apply position offset if needed (using crop with offset)
+        if crop_config.x != 0 or crop_config.y != 0:
+            # Note: FFmpeg crop uses x:y from top-left, so we need to adjust
+            # For now, we'll apply the offset in the final crop
+            pass  # Position offset is handled by the overlay in composition, not in preprocessing
+        
+        # Combine video filters
+        if video_filter_parts:
+            ffmpeg_cmd.extend(['-vf', ','.join(video_filter_parts)])
+        
+        # Add encoding settings
+        ffmpeg_cmd.extend([
+            '-c:v', 'libx264',
+            '-preset', 'medium',
+            '-crf', '23',
+            '-pix_fmt', 'yuv420p',
+            output_path
+        ])
+        
+        logger.info(f"🎬 [VIDEO_PROCESSING] Processing video with FFmpeg")
+        logger.info(f"🎬 [VIDEO_PROCESSING] Input: {input_video_path}")
+        logger.info(f"🎬 [VIDEO_PROCESSING] Output: {output_path}")
+        logger.info(f"🎬 [VIDEO_PROCESSING] Settings: {crop_config.dict()}")
+        logger.info(f"🎬 [VIDEO_PROCESSING] FFmpeg command: {' '.join(ffmpeg_cmd)}")
+        
+        # Execute FFmpeg
+        process = await asyncio.create_subprocess_exec(
+            *ffmpeg_cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        
+        stdout, stderr = await process.communicate()
+        
+        # Clean up temp file if we created one
+        if temp_file and os.path.exists(temp_file.name):
+            try:
+                os.unlink(temp_file.name)
+            except:
+                pass
+        
+        if process.returncode != 0:
+            error_msg = stderr.decode() if stderr else "Unknown FFmpeg error"
+            logger.error(f"🎬 [VIDEO_PROCESSING] FFmpeg failed: {error_msg}")
+            detail_msg = "Video processing failed." if IS_PRODUCTION else f"Video processing failed: {error_msg}"
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+        
+        # Verify output file exists
+        if not os.path.exists(output_path):
+            logger.error(f"🎬 [VIDEO_PROCESSING] Output file not created: {output_path}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Video processing completed but output file not found")
+        
+        file_size = os.path.getsize(output_path)
+        logger.info(f"🎬 [VIDEO_PROCESSING] Video processed successfully: {output_path} ({file_size} bytes)")
+        
+        web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{output_filename}"
+        return {"file_path": web_accessible_path}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"🎬 [VIDEO_PROCESSING] Error processing video: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Video processing failed." if IS_PRODUCTION else f"Video processing failed: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    finally:
+        if file:
+            await file.close()
+
 # NEW: AI Image Generation Endpoint
 class AIImageGenerationRequest(BaseModel):
     prompt: str = Field(..., description="Text prompt for image generation")

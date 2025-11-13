@@ -98,6 +98,48 @@ export async function uploadPresentationVideo(videoFile: File): Promise<ImageUpl
   return response.json();
 }
 
+// Video processing types
+export interface VideoCropSettings {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scale: number;
+  objectFit: 'cover' | 'contain' | 'fill';
+}
+
+export interface VideoProcessRequest {
+  cropSettings: VideoCropSettings;
+}
+
+export async function processVideo(
+  videoSource: File | string,
+  cropSettings: VideoCropSettings
+): Promise<ImageUploadResponse> {
+  const formData = new FormData();
+  
+  // If it's a File, append it; otherwise it's already uploaded and we'll send the path
+  if (videoSource instanceof File) {
+    formData.append('file', videoSource);
+  } else {
+    formData.append('video_path', videoSource);
+  }
+  
+  formData.append('crop_settings', JSON.stringify(cropSettings));
+
+  const response = await fetch(`${API_BASE_URL}/presentation/process_video`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to process video');
+  }
+
+  return response.json();
+}
+
 // NEW: AI Image Generation Types
 export interface AIImageGenerationRequest {
   prompt: string;

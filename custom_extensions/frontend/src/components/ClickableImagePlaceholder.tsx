@@ -9,6 +9,7 @@ import AIImageGenerationModal from './AIImageGenerationModal';
 import ImageChoiceModal from './ImageChoiceModal';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
+import VideoEditModal from './VideoEditModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // ✅ REMOVED: Global context menu management - replaced with inline buttons!
@@ -88,6 +89,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   // Modal state
   const [showImageEditModal, setShowImageEditModal] = useState(false);
   const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  
+  // ✅ NEW: Video edit modal state
+  const [showVideoEditModal, setShowVideoEditModal] = useState(false);
+  const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
+  const [pendingVideoPath, setPendingVideoPath] = useState<string | undefined>(undefined);
 
   // ✅ NEW: AI Generation modal state
   const [showAIGenerationModal, setShowAIGenerationModal] = useState(false);
@@ -419,28 +425,30 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
   }, [onImageUploaded, elementId, instanceId, displayedImage]);
 
-  // ✅ NEW: Video Upload handler
+  // ✅ NEW: Video Upload handler - opens edit modal
   const handleVideoUploaded = useCallback((videoPath: string, videoFile?: File) => {
     console.log('🔍 [VideoUpload] Video uploaded successfully', { 
       elementId,
       instanceId,
       videoPath,
+      hasVideoFile: !!videoFile,
       timestamp: Date.now()
     });
     
-    // Set the uploaded video path (same as image path prop)
-    setDisplayedImage(videoPath);
+    if (videoFile) {
+      // Store the file and path, then open the edit modal
+      setPendingVideoFile(videoFile);
+      setPendingVideoPath(videoPath);
+      setShowVideoEditModal(true);
+    } else {
+      // Direct upload without file (fallback - no editing)
+      setDisplayedImage(videoPath);
+      onImageUploaded(videoPath);
+      setIsSelected(false);
+      setWasManuallyDeleted(false);
+    }
     
-    // Notify parent component (using same callback as images)
-    onImageUploaded(videoPath);
-    
-    // Clear selection state
-    setIsSelected(false);
-    
-    // Reset manual deletion flag
-    setWasManuallyDeleted(false);
-    
-    console.log('🔍 [VideoUpload] Video integration completed', {
+    console.log('🔍 [VideoUpload] Video edit modal opened', {
       elementId,
       instanceId,
       videoPath,
@@ -704,6 +712,48 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setPendingImageFile(null);
   }, [elementId, instanceId]);
 
+  // ✅ NEW: Handle video edit modal confirm crop
+  const handleVideoConfirmCrop = useCallback((processedVideoPath: string) => {
+    log('ClickableImagePlaceholder', 'handleVideoConfirmCrop', {
+      elementId,
+      instanceId,
+      processedVideoPath: !!processedVideoPath
+    });
+
+    onImageUploaded(processedVideoPath);
+    setDisplayedImage(processedVideoPath);
+    setShowVideoEditModal(false);
+    setPendingVideoFile(null);
+    setPendingVideoPath(undefined);
+  }, [onImageUploaded, elementId, instanceId]);
+
+  // ✅ NEW: Handle video edit modal do not crop
+  const handleVideoDoNotCrop = useCallback((originalVideoPath: string) => {
+    log('ClickableImagePlaceholder', 'handleVideoDoNotCrop', {
+      elementId,
+      instanceId,
+      originalVideoPath: !!originalVideoPath
+    });
+
+    onImageUploaded(originalVideoPath);
+    setDisplayedImage(originalVideoPath);
+    setShowVideoEditModal(false);
+    setPendingVideoFile(null);
+    setPendingVideoPath(undefined);
+  }, [onImageUploaded, elementId, instanceId]);
+
+  // ✅ NEW: Handle video edit modal cancel
+  const handleVideoModalCancel = useCallback(() => {
+    log('ClickableImagePlaceholder', 'handleVideoModalCancel', { 
+      elementId, 
+      instanceId 
+    });
+
+    setShowVideoEditModal(false);
+    setPendingVideoFile(null);
+    setPendingVideoPath(undefined);
+  }, [elementId, instanceId]);
+
   // Finalize image upload
   const finalizeImageUpload = useCallback(async (imagePath: string) => {
     log('ClickableImagePlaceholder', 'finalizeImageUpload', {
@@ -932,6 +982,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onCancel={handleModalCancel}
         />
 
+        {/* ✅ NEW: Video Edit Modal */}
+        <VideoEditModal
+          isOpen={showVideoEditModal}
+          onClose={() => setShowVideoEditModal(false)}
+          videoFile={pendingVideoFile}
+          videoPath={pendingVideoPath}
+          placeholderDimensions={getPlaceholderDimensions()}
+          onConfirmCrop={handleVideoConfirmCrop}
+          onDoNotCrop={handleVideoDoNotCrop}
+          onCancel={handleVideoModalCancel}
+        />
+
         {/* ✅ NEW: AI Image Generation Modal */}
         <AIImageGenerationModal
           isOpen={showAIGenerationModal}
@@ -1030,6 +1092,18 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onConfirmCrop={handleConfirmCrop}
         onDoNotCrop={handleDoNotCrop}
         onCancel={handleModalCancel}
+      />
+
+      {/* ✅ NEW: Video Edit Modal for placeholder */}
+      <VideoEditModal
+        isOpen={showVideoEditModal}
+        onClose={() => setShowVideoEditModal(false)}
+        videoFile={pendingVideoFile}
+        videoPath={pendingVideoPath}
+        placeholderDimensions={getPlaceholderDimensions()}
+        onConfirmCrop={handleVideoConfirmCrop}
+        onDoNotCrop={handleVideoDoNotCrop}
+        onCancel={handleVideoModalCancel}
       />
 
       {/* ✅ NEW: AI Image Generation Modal for placeholder */}
