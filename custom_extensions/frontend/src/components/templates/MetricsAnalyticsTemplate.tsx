@@ -85,45 +85,57 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
     >
       {/* Title Section */}
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-        {isEditable && editingTitle ? (
-          <WysiwygEditor
-            initialValue={title}
-            onSave={handleTitleSave}
-            onCancel={handleTitleCancel}
-            placeholder="Enter title..."
-            className="inline-editor-title"
-            style={{
-              fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
-              textAlign: 'center',
-              width: '100%',
-              fontFamily: currentTheme.fonts.titleFont,
-              padding: '8px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '4px',
-              wordWrap: 'break-word',
-              whiteSpace: 'pre-wrap',
-              boxSizing: 'border-box',
-              display: 'block',
-              lineHeight: '1.2'
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              fontWeight: 700,
-              fontSize: currentTheme.fonts.titleSize,
-              color: tColor,
-              textAlign: 'center',
-              cursor: isEditable ? 'pointer' : 'default',
-              fontFamily: currentTheme.fonts.titleFont
-            }}
-            onClick={() => isEditable && setEditingTitle(true)}
-            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-            dangerouslySetInnerHTML={{ __html: title || (isEditable ? 'Click to add title' : '') }}
-          />
-        )}
+        <div data-draggable="true" style={{ display: 'inline-block' }}>
+          {isEditable && editingTitle ? (
+            <WysiwygEditor
+              initialValue={title}
+              onSave={handleTitleSave}
+              onCancel={handleTitleCancel}
+              placeholder="Enter title..."
+              className="inline-editor-title"
+              style={{
+                fontWeight: 700,
+                fontSize: currentTheme.fonts.titleSize,
+                color: tColor,
+                textAlign: 'center',
+                width: '100%',
+                fontFamily: currentTheme.fonts.titleFont,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block',
+                lineHeight: '1.2'
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                fontWeight: 700,
+                fontSize: currentTheme.fonts.titleSize,
+                color: tColor,
+                textAlign: 'center',
+                cursor: isEditable ? 'pointer' : 'default',
+                fontFamily: currentTheme.fonts.titleFont
+              }}
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setEditingTitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+              dangerouslySetInnerHTML={{ __html: title || (isEditable ? 'Click to add title' : '') }}
+            />
+          )}
+        </div>
       </div>
 
       {/* Metrics Grid */}
@@ -136,7 +148,7 @@ const MetricsAnalyticsTemplate: React.FC<MetricsAnalyticsTemplateProps> = ({
       }}>
 
         {metrics.map((metric, index) => (
-          <div key={index} style={{ 
+          <div key={index} data-draggable="true" style={{ 
             display: 'flex', 
             flexDirection: 'column',
             alignItems: 'center',

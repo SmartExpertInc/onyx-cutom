@@ -109,45 +109,57 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
       }}>
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          {isEditable && editingTitle ? (
-            <WysiwygEditor
-              initialValue={title}
-              onSave={handleTitleSave}
-              onCancel={handleTitleCancel}
-              placeholder="Enter title..."
-              className="inline-editor-title"
-              style={{
-                fontWeight: 700,
-                fontSize: currentTheme.fonts.titleSize,
-                color: tColor,
-                textAlign: 'center',
-                width: '100%',
-                fontFamily: currentTheme.fonts.titleFont,
-                padding: '8px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '4px',
-                wordWrap: 'break-word',
-                whiteSpace: 'pre-wrap',
-                boxSizing: 'border-box',
-                display: 'block',
-                lineHeight: '1.2'
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                fontWeight: 700,
-                fontSize: currentTheme.fonts.titleSize,
-                color: tColor,
-                textAlign: 'center',
-                cursor: isEditable ? 'pointer' : 'default',
-                fontFamily: currentTheme.fonts.titleFont
-              }}
-              onClick={() => isEditable && setEditingTitle(true)}
-              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              dangerouslySetInnerHTML={{ __html: title || (isEditable ? 'Click to add title' : '') }}
-            />
-          )}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {isEditable && editingTitle ? (
+              <WysiwygEditor
+                initialValue={title}
+                onSave={handleTitleSave}
+                onCancel={handleTitleCancel}
+                placeholder="Enter title..."
+                className="inline-editor-title"
+                style={{
+                  fontWeight: 700,
+                  fontSize: currentTheme.fonts.titleSize,
+                  color: tColor,
+                  textAlign: 'center',
+                  width: '100%',
+                  fontFamily: currentTheme.fonts.titleFont,
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  lineHeight: '1.2'
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: currentTheme.fonts.titleSize,
+                  color: tColor,
+                  textAlign: 'center',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  fontFamily: currentTheme.fonts.titleFont
+                }}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setEditingTitle(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                dangerouslySetInnerHTML={{ __html: title || (isEditable ? 'Click to add title' : '') }}
+              />
+            )}
+          </div>
         </div>
 
         {/* Ideas Grid */}
@@ -218,43 +230,55 @@ const SixIdeasListTemplate: React.FC<SixIdeasListTemplateProps> = ({
               </div>
               
               {/* Text */}
-              {isEditable && editingIdeas[index]?.text ? (
-                <WysiwygEditor
-                  initialValue={idea.text}
-                  onSave={(value) => handleIdeaSave(index, 'text', value)}
-                  onCancel={() => handleIdeaCancel(index, 'text')}
-                  placeholder="Click to add text"
-                  className="inline-editor-idea-text"
-                  style={{
-                    fontSize: currentTheme.fonts.contentSize,
-                    color: txtColor,
-                    lineHeight: '1.4',
-                    fontFamily: currentTheme.fonts.contentFont,
-                    width: '100%',
-                    padding: '8px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    fontSize: currentTheme.fonts.contentSize,
-                    color: txtColor,
-                    lineHeight: '1.4',
-                    fontFamily: currentTheme.fonts.contentFont,
-                    cursor: isEditable ? 'pointer' : 'default',
-                    minHeight: '1.4em'
-                  }}
-                  onClick={() => handleIdeaEdit(index, 'text')}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  dangerouslySetInnerHTML={{ __html: idea.text || (isEditable ? 'Click to add text' : '') }}
-                />
-              )}
+              <div data-draggable="true" style={{ display: 'inline-block', width: '100%' }}>
+                {isEditable && editingIdeas[index]?.text ? (
+                  <WysiwygEditor
+                    initialValue={idea.text}
+                    onSave={(value) => handleIdeaSave(index, 'text', value)}
+                    onCancel={() => handleIdeaCancel(index, 'text')}
+                    placeholder="Click to add text"
+                    className="inline-editor-idea-text"
+                    style={{
+                      fontSize: currentTheme.fonts.contentSize,
+                      color: txtColor,
+                      lineHeight: '1.4',
+                      fontFamily: currentTheme.fonts.contentFont,
+                      width: '100%',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      fontSize: currentTheme.fonts.contentSize,
+                      color: txtColor,
+                      lineHeight: '1.4',
+                      fontFamily: currentTheme.fonts.contentFont,
+                      cursor: isEditable ? 'pointer' : 'default',
+                      minHeight: '1.4em'
+                    }}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      if (isEditable) {
+                        handleIdeaEdit(index, 'text');
+                      }
+                    }}
+                    className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                    dangerouslySetInnerHTML={{ __html: idea.text || (isEditable ? 'Click to add text' : '') }}
+                  />
+                )}
+              </div>
             </div>
             );
           })}
