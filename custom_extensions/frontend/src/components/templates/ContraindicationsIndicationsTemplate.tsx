@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThemes';
 import Image from 'next/image';
 import contradImg from './contrad_img.png';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export interface ContraindicationsIndicationsTemplateProps {
   title?: string;
@@ -10,107 +11,6 @@ export interface ContraindicationsIndicationsTemplateProps {
   isEditable?: boolean;
   slideId?: string;
   onUpdate?: (data: Partial<ContraindicationsIndicationsTemplateProps>) => void;
-}
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={className}
-        style={{
-          ...style,
-          border: 'none',
-          outline: 'none',
-          background: 'transparent',
-          resize: 'none',
-          fontFamily: 'inherit',
-          fontSize: 'inherit',
-          fontWeight: 'inherit',
-          color: 'inherit',
-          textAlign: 'inherit',
-          lineHeight: 'inherit',
-          width: '100%',
-          minHeight: '60px'
-        }}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      type="text"
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      className={className}
-      style={{
-        ...style,
-        border: 'none',
-        outline: 'none',
-        background: 'transparent',
-        fontFamily: 'inherit',
-        fontSize: 'inherit',
-        fontWeight: 'inherit',
-        color: 'inherit',
-        textAlign: 'inherit',
-        width: '100%'
-      }}
-    />
-  );
 }
 
 const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndicationsTemplateProps> = ({
@@ -288,87 +188,123 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           transform: 'translateY(-50%)',
           zIndex: 10
         }}>
-          {editingLeftProject ? (
-          <InlineEditor
-              initialValue={leftProjectTitle}
-              onSave={handleLeftProjectSave}
-              onCancel={() => setIsEditingLeftProject(false)}
-              placeholder="Enter project title"
-            style={{
-                width: '200px',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
-                padding: '10px',
-                borderRadius: '8px',
-                minWidth: '150px'
-            }}
-          />
-        ) : (
-          <div
-            style={{
-                width: '200px',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
-              cursor: isEditable ? 'pointer' : 'default',
-                padding: '10px',
-                borderRadius: '8px',
-                minWidth: '150px'
-            }}
-              onClick={() => isEditable && setIsEditingLeftProject(true)}
-              data-draggable={isEditable}
-          >
-              {leftProjectTitle}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {editingLeftProject ? (
+              <WysiwygEditor
+                initialValue={leftProjectTitle}
+                onSave={handleLeftProjectSave}
+                onCancel={() => setIsEditingLeftProject(false)}
+                placeholder="Enter project title"
+                className="inline-editor-left-project"
+                style={{
+                  width: '200px',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  color: '#ffffff',
+                  fontFamily: 'Arial, sans-serif',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  minWidth: '150px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  lineHeight: '1.2'
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: '200px',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  color: '#ffffff',
+                  fontFamily: 'Arial, sans-serif',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  minWidth: '150px'
+                }}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setIsEditingLeftProject(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                dangerouslySetInnerHTML={{ __html: leftProjectTitle }}
+              />
+            )}
           </div>
-        )}
-      </div>
+        </div>
 
         {/* Right Project Title */}
-      <div style={{ 
+        <div style={{ 
           position: 'absolute',
           right: rightProjectPosition.right,
           top: rightProjectPosition.top,
           transform: 'translateY(-50%)',
           zIndex: 10
         }}>
-          {editingRightProject ? (
-            <InlineEditor
-              initialValue={rightProjectTitle}
-              onSave={handleRightProjectSave}
-              onCancel={() => setIsEditingRightProject(false)}
-              placeholder="Enter project title"
-              style={{
-                fontSize: '1.5rem',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
-                padding: '10px',
-                borderRadius: '8px',
-                minWidth: '150px',
-                width: '200px'
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                fontSize: '1.5rem',
-                color: '#ffffff',
-                fontFamily: 'Arial, sans-serif',
-                cursor: isEditable ? 'pointer' : 'default',
-                padding: '10px',
-            borderRadius: '8px',
-                minWidth: '150px',
-                width: '200px'
-              }}
-              onClick={() => isEditable && setIsEditingRightProject(true)}
-              data-draggable={isEditable}
-            >
-              {rightProjectTitle}
-            </div>
-          )}
+          <div data-draggable="true" style={{ display: 'inline-block' }}>
+            {editingRightProject ? (
+              <WysiwygEditor
+                initialValue={rightProjectTitle}
+                onSave={handleRightProjectSave}
+                onCancel={() => setIsEditingRightProject(false)}
+                placeholder="Enter project title"
+                className="inline-editor-right-project"
+                style={{
+                  fontSize: '1.5rem',
+                  color: '#ffffff',
+                  fontFamily: 'Arial, sans-serif',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  minWidth: '150px',
+                  width: '200px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                  lineHeight: '1.2'
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  fontSize: '1.5rem',
+                  color: '#ffffff',
+                  fontFamily: 'Arial, sans-serif',
+                  cursor: isEditable ? 'pointer' : 'default',
+                  padding: '10px',
+                  borderRadius: '8px',
+                  minWidth: '150px',
+                  width: '200px'
+                }}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setIsEditingRightProject(true);
+                  }
+                }}
+                className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                dangerouslySetInnerHTML={{ __html: rightProjectTitle }}
+              />
+            )}
           </div>
+        </div>
           
         {/* Left Side Text Blocks */}
         {leftHeadings.map((heading: string, index: number) => (
@@ -383,91 +319,119 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
             }}
           >
             {/* Heading */}
-            {editingLeftHeadings[index] ? (
-              <InlineEditor
-                initialValue={leftHeadings[index]}
-                onSave={(value) => handleLeftHeadingSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingLeftHeadings];
-                  newEditingStates[index] = false;
-                  setEditingLeftHeadings(newEditingStates);
-                }}
-                placeholder="Enter heading"
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
-                  cursor: isEditable ? 'pointer' : 'default'
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
-                cursor: isEditable ? 'pointer' : 'default'
-              }}
-                onClick={() => {
-                  if (isEditable) {
+            <div data-draggable="true" style={{ display: 'inline-block' }}>
+              {editingLeftHeadings[index] ? (
+                <WysiwygEditor
+                  initialValue={leftHeadings[index]}
+                  onSave={(value) => handleLeftHeadingSave(index, value)}
+                  onCancel={() => {
                     const newEditingStates = [...editingLeftHeadings];
-                    newEditingStates[index] = true;
+                    newEditingStates[index] = false;
                     setEditingLeftHeadings(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {heading}
-              </div>
-            )}
+                  }}
+                  placeholder="Enter heading"
+                  className="inline-editor-left-heading"
+                  style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    marginBottom: '4px',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.2'
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    marginBottom: '4px',
+                    cursor: isEditable ? 'pointer' : 'default'
+                  }}
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      const newEditingStates = [...editingLeftHeadings];
+                      newEditingStates[index] = true;
+                      setEditingLeftHeadings(newEditingStates);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  dangerouslySetInnerHTML={{ __html: heading }}
+                />
+              )}
+            </div>
 
             {/* Description */}
-            {editingLeftDescriptions[index] ? (
-                  <InlineEditor
-                initialValue={leftDescriptions[index]}
-                onSave={(value) => handleLeftDescriptionSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingLeftDescriptions];
-                  newEditingStates[index] = false;
-                  setEditingLeftDescriptions(newEditingStates);
-                }}
-                placeholder="Enter description"
-                    multiline={true}
-                    style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default'
-                    }}
-                  />
-                ) : (
-              <div
-                style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default'
-                }}
-                onClick={() => {
-                  if (isEditable) {
+            <div data-draggable="true" style={{ display: 'inline-block', marginTop: '4px' }}>
+              {editingLeftDescriptions[index] ? (
+                <WysiwygEditor
+                  initialValue={leftDescriptions[index]}
+                  onSave={(value) => handleLeftDescriptionSave(index, value)}
+                  onCancel={() => {
                     const newEditingStates = [...editingLeftDescriptions];
-                    newEditingStates[index] = true;
+                    newEditingStates[index] = false;
                     setEditingLeftDescriptions(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {leftDescriptions[index]}
-                  </div>
-                )}
-              </div>
-            ))}
+                  }}
+                  placeholder="Enter description"
+                  className="inline-editor-left-description"
+                  style={{
+                    fontSize: '0.8rem',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    lineHeight: '1.3',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    fontSize: '0.8rem',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    lineHeight: '1.3',
+                    cursor: isEditable ? 'pointer' : 'default'
+                  }}
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      const newEditingStates = [...editingLeftDescriptions];
+                      newEditingStates[index] = true;
+                      setEditingLeftDescriptions(newEditingStates);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  dangerouslySetInnerHTML={{ __html: leftDescriptions[index] }}
+                />
+              )}
+            </div>
+          </div>
+        ))}
 
 
         {/* Right Side Text Blocks */}
@@ -484,95 +448,123 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
             }}
           >
             {/* Heading */}
-            {editingRightHeadings[index] ? (
-              <InlineEditor
-                initialValue={rightHeadings[index]}
-                onSave={(value) => handleRightHeadingSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingRightHeadings];
-                  newEditingStates[index] = false;
-                  setEditingRightHeadings(newEditingStates);
-                }}
-                placeholder="Enter heading"
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  fontSize: '0.9rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  marginBottom: '4px',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
-                }}
-                onClick={() => {
-                  if (isEditable) {
+            <div data-draggable="true" style={{ display: 'inline-block' }}>
+              {editingRightHeadings[index] ? (
+                <WysiwygEditor
+                  initialValue={rightHeadings[index]}
+                  onSave={(value) => handleRightHeadingSave(index, value)}
+                  onCancel={() => {
                     const newEditingStates = [...editingRightHeadings];
-                    newEditingStates[index] = true;
+                    newEditingStates[index] = false;
                     setEditingRightHeadings(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {heading}
+                  }}
+                  placeholder="Enter heading"
+                  className="inline-editor-right-heading"
+                  style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    marginBottom: '4px',
+                    textAlign: 'right',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block',
+                    lineHeight: '1.2'
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    marginBottom: '4px',
+                    cursor: isEditable ? 'pointer' : 'default',
+                    textAlign: 'right'
+                  }}
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      const newEditingStates = [...editingRightHeadings];
+                      newEditingStates[index] = true;
+                      setEditingRightHeadings(newEditingStates);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  dangerouslySetInnerHTML={{ __html: heading }}
+                />
+              )}
             </div>
-            )}
 
             {/* Description */}
-            {editingRightDescriptions[index] ? (
-              <InlineEditor
-                initialValue={rightDescriptions[index]}
-                onSave={(value) => handleRightDescriptionSave(index, value)}
-                onCancel={() => {
-                  const newEditingStates = [...editingRightDescriptions];
-                  newEditingStates[index] = false;
-                  setEditingRightDescriptions(newEditingStates);
-                }}
-                placeholder="Enter description"
-                    multiline={true}
-                    style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
-                    }}
-                  />
-                ) : (
-              <div
-                style={{
-                  fontSize: '0.8rem',
-                  color: '#000000',
-                  fontFamily: 'Arial, sans-serif',
-                  lineHeight: '1.3',
-                  cursor: isEditable ? 'pointer' : 'default',
-                  textAlign: 'right'
-                }}
-                onClick={() => {
-                  if (isEditable) {
+            <div data-draggable="true" style={{ display: 'inline-block', marginTop: '4px' }}>
+              {editingRightDescriptions[index] ? (
+                <WysiwygEditor
+                  initialValue={rightDescriptions[index]}
+                  onSave={(value) => handleRightDescriptionSave(index, value)}
+                  onCancel={() => {
                     const newEditingStates = [...editingRightDescriptions];
-                    newEditingStates[index] = true;
+                    newEditingStates[index] = false;
                     setEditingRightDescriptions(newEditingStates);
-                  }
-                }}
-                data-draggable={isEditable}
-              >
-                {rightDescriptions[index]}
-                  </div>
-                )}
-              </div>
-            ))}
+                  }}
+                  placeholder="Enter description"
+                  className="inline-editor-right-description"
+                  style={{
+                    fontSize: '0.8rem',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    lineHeight: '1.3',
+                    textAlign: 'right',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    fontSize: '0.8rem',
+                    color: '#000000',
+                    fontFamily: 'Arial, sans-serif',
+                    lineHeight: '1.3',
+                    cursor: isEditable ? 'pointer' : 'default',
+                    textAlign: 'right'
+                  }}
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    if (isEditable) {
+                      const newEditingStates = [...editingRightDescriptions];
+                      newEditingStates[index] = true;
+                      setEditingRightDescriptions(newEditingStates);
+                    }
+                  }}
+                  className={isEditable ? 'cursor-pointer hover:border hover:border-gray-300 hover:border-opacity-50' : ''}
+                  dangerouslySetInnerHTML={{ __html: rightDescriptions[index] }}
+                />
+              )}
+            </div>
+          </div>
+        ))}
 
       </div>
     </div>
