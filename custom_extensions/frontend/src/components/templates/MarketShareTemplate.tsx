@@ -234,14 +234,16 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
       if (barsContainerRef.current) {
         const container = barsContainerRef.current;
         const containerRect = container.getBoundingClientRect();
-        // This is the actual usable height for bars (already accounts for padding)
+        // The bars container now matches the grid lines container (top: 0, bottom: 30px)
+        // This gives us the full usable height for bars
         return Math.max(containerRect.height, 300); // Minimum 300px for safety
       }
-      // Fallback: try chart container minus padding
+      // Fallback: try chart container minus bottom padding only (top is now included)
       if (chartRef.current) {
         const container = chartRef.current;
         const containerRect = container.getBoundingClientRect();
-        const usableHeight = containerRect.height - 50 - 30; // 80px total padding
+        // Bars container starts at top: 0, so only subtract bottom padding (30px)
+        const usableHeight = containerRect.height - 30;
         return Math.max(usableHeight, 300);
       }
       // Final fallback
@@ -761,10 +763,10 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
               justifyContent: 'space-evenly',
               gap: '20px',
               position: 'absolute',
-              top: '50px', // Match paddingTop
-              left: '80px', // Match paddingLeft
-              right: '40px', // Match paddingRight
-              bottom: '30px', // Match paddingBottom
+              top: '0', // Match grid lines container
+              left: '80px', // Match grid lines container
+              right: '0', // Match grid lines container
+              bottom: '30px', // Match grid lines container
               height: 'auto', // Will be calculated by absolute positioning
               width: 'auto', // Will be calculated by absolute positioning
               zIndex: 1
