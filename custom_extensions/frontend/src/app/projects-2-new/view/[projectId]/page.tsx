@@ -45,6 +45,7 @@ import TariffPlanModal from '@/components/ui/tariff-plan-modal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import AnimateButton from '@/components/ui/animate-button';
 import { toast } from 'sonner';
+import { CheckCircle2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
@@ -736,13 +737,15 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
     if (action === 'delete' && isVideoLessonMode) {
       handleDeleteSlide(sceneId);
     } else if (action === 'Save as Scene Layout') {
+      const descriptionText = t(
+        'videoEditor.toast.sceneLayoutSavedDescription',
+        'You can find saved scenes in templates'
+      );
       toast.success(
         t('videoEditor.toast.sceneLayoutSavedTitle', 'Scene layout saved.'),
         {
-          description: t(
-            'videoEditor.toast.sceneLayoutSavedDescription',
-            'You can find saved scenes in templates'
-          ),
+          description: <span style={{ color: '#878787' }}>{descriptionText}</span>,
+          icon: <CheckCircle2 className="w-5 h-5" style={{ color: '#74C643' }} />,
           position: 'top-center',
           duration: 4000,
         className: 'rounded-lg shadow-sm text-left',
