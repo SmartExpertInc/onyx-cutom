@@ -73,12 +73,55 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
       const startDrag = (e: MouseEvent) => {
         if (isDragging) return;
+        
+        // 🔧 CRITICAL FIX: Calculate element's current visual position BEFORE changing position
+        // This prevents the "jump" when switching from absolute to relative positioning
+        const slideCanvas = container.closest('[data-slide-canvas="true"]') || container;
+        const canvasRect = slideCanvas.getBoundingClientRect();
+        const elementRect = htmlElement.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(htmlElement);
+        const wasAbsolutelyPositioned = computedStyle.position === 'absolute';
+        
+        // If element was absolutely positioned and we don't have saved position,
+        // calculate its current visual position relative to canvas
+        if (wasAbsolutelyPositioned && (currentX === 0 && currentY === 0)) {
+          // Get the element's top-left corner position relative to canvas
+          // elementRect gives us the actual visual position on screen
+          const canvasRelativeX = elementRect.left - canvasRect.left;
+          const canvasRelativeY = elementRect.top - canvasRect.top;
+          
+          // Update currentX and currentY to the actual visual position
+          currentX = canvasRelativeX;
+          currentY = canvasRelativeY;
+          
+          // Store in state
+          dragStateRef.current.set(elementId, { x: currentX, y: currentY });
+        }
+        
         isDragging = true;
         // FIXED: Only set position: relative when actually dragging to avoid layout issues
-        htmlElement.style.position = 'relative';
+        // For absolutely positioned elements, convert to pixel-based positioning
+        if (wasAbsolutelyPositioned) {
+          // Mark element as originally absolutely positioned (for cleanup)
+          htmlElement.classList.add('was-absolutely-positioned');
+          // Convert absolute positioning to pixel-based
+          htmlElement.style.position = 'absolute';
+          htmlElement.style.left = `${currentX}px`;
+          htmlElement.style.top = `${currentY}px`;
+          htmlElement.style.transform = 'none'; // Remove CSS transforms, we'll use left/top
+        } else {
+          htmlElement.style.position = 'relative';
+        }
         htmlElement.style.zIndex = '1000';
         htmlElement.style.userSelect = 'none';
         htmlElement.classList.add('dragging');
+        
+        // Update startOffsetX and startOffsetY based on current position
+        const canvasX = e.clientX - canvasRect.left;
+        const canvasY = e.clientY - canvasRect.top;
+        startOffsetX = canvasX - currentX;
+        startOffsetY = canvasY - currentY;
+        
         // Prevent propagation only when we actually start dragging
         e.preventDefault();
         e.stopPropagation();
@@ -233,8 +276,19 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
         if (isDragging) {
           currentX = newX;
           currentY = newY;
-          htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
-          // Position is already set to relative when dragging started
+          
+          // Update position based on whether element was originally absolutely positioned
+          const computedStyle = window.getComputedStyle(htmlElement);
+          if (computedStyle.position === 'absolute') {
+            // For absolutely positioned elements, use left/top directly
+            htmlElement.style.left = `${currentX}px`;
+            htmlElement.style.top = `${currentY}px`;
+            htmlElement.style.transform = 'none';
+          } else {
+            // For relatively positioned elements, use transform
+            htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+          }
+          
           dragStateRef.current.set(elementId, { x: currentX, y: currentY });
           e.stopPropagation();
         }
@@ -255,11 +309,27 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
 
         if (isDragging) {
           isDragging = false;
-          // FIXED: Reset position to original value to avoid layout issues
-          htmlElement.style.position = '';
+          
+          // Check if element was originally absolutely positioned
+          const wasAbsolutelyPositioned = htmlElement.classList.contains('was-absolutely-positioned');
+          
+          // FIXED: Keep absolute positioning for elements that were originally absolutely positioned
+          if (wasAbsolutelyPositioned) {
+            // Keep absolute positioning with pixel values
+            htmlElement.style.position = 'absolute';
+            htmlElement.style.left = `${currentX}px`;
+            htmlElement.style.top = `${currentY}px`;
+            htmlElement.style.transform = 'none';
+          } else {
+            // For relatively positioned elements, reset to relative and use transform
+            htmlElement.style.position = 'relative';
+            htmlElement.style.transform = `translate(${currentX}px, ${currentY}px)`;
+          }
+          
           htmlElement.style.zIndex = '';
           htmlElement.style.userSelect = '';
           htmlElement.classList.remove('dragging');
+          htmlElement.classList.remove('was-absolutely-positioned');
 
           // Suppress the very next click to avoid entering edit after drag
           // Set suppress window first
