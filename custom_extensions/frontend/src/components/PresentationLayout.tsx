@@ -345,7 +345,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
         shouldCenterView ? 'justify-center' : '',
         isViewMode ? 'presentation-view items-start' : '',
         rightSidebar
-          ? (rightSidebarContainerClassName ?? 'flex-col lg:flex-row gap-6 lg:gap-10 px-4 lg:px-10')
+          ? (rightSidebarContainerClassName ?? 'flex-col lg:flex-row gap-6 lg:gap-10 rounded-lg')
           : isViewMode
             ? 'flex-col gap-6 px-4 lg:px-10'
             : ''
