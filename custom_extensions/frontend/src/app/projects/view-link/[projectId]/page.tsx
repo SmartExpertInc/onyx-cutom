@@ -2131,7 +2131,7 @@ export default function ProjectInstanceViewPage() {
   const videoProductData = isVideoProductComponent ? (editableData as any) : null;
   const sourceVideoLessonProjectId = getSourceVideoLessonProjectId(videoProductData);
 
-  const qualityRatingQuestion = useMemo(() => {
+  const qualityRatingQuestion = (() => {
     switch (projectInstanceData?.component_name) {
       case COMPONENT_NAME_VIDEO_PRODUCT:
         return t('modals.play.rateQuality', "How's the video and voice quality?");
@@ -2147,7 +2147,7 @@ export default function ProjectInstanceViewPage() {
       default:
         return t('modals.play.rateQuality', "How's the video and voice quality?");
     }
-  }, [projectInstanceData?.component_name, t]);
+  })();
 
   const handleVideoDraftClick = () => {
     const targetProjectId = sourceVideoLessonProjectId ?? projectId;
