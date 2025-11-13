@@ -2309,7 +2309,7 @@ export default function ProjectInstanceViewPage() {
                     ref={mobileExportButtonRef}
                     type="button"
                     onClick={handleMobileExport}
-                    className="flex h-full w-full items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg focus:outline-none"
+                    className="flex h-full w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg focus:outline-none"
                     style={{
                       backgroundColor: '#FFFFFF',
                       color: '#0F58F9',
@@ -2351,7 +2351,7 @@ export default function ProjectInstanceViewPage() {
                   <button
                     type="button"
                     onClick={handleMobileCopyLink}
-                    className="flex h-full w-full items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg focus:outline-none"
+                    className="flex h-full w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg focus:outline-none"
                     style={{
                       backgroundColor: '#0F58F9',
                       color: '#FFFFFF',
@@ -2374,7 +2374,7 @@ export default function ProjectInstanceViewPage() {
               </div>
             </div>
           )}
-          <aside className="flex flex-col gap-6">
+          <aside className="flex flex-col gap-6 -mx-3 -mb-3 lg:mx-0 lg:mb-0">
             <div className="flex flex-col flex-none h-[500px] lg:h-[550px]">
               <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
             </div>

@@ -33,7 +33,7 @@ const CommentsForGeneratedProduct = ({
   }, [filterDropdownOpen]);
 
   return (
-    <div className="flex-1 flex flex-col p-4 rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
+    <div className="flex-1 flex flex-col p-4 lg:rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
       {isAuthorized ? (
         <>
           {/* Search bar and Filter button */}
