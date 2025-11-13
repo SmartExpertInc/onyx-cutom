@@ -46,6 +46,29 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   const [dragStartY, setDragStartY] = useState<number>(0);
   const [dragStartHeight, setDragStartHeight] = useState<number>(0);
   const [dragCurrentHeight, setDragCurrentHeight] = useState<number | null>(null);
+  
+  // Use refs to avoid closure issues in event handlers
+  const dragStateRef = useRef<{
+    isDragging: number | null;
+    dragStartY: number;
+    dragStartHeight: number;
+    dragCurrentHeight: number | null;
+  }>({
+    isDragging: null,
+    dragStartY: 0,
+    dragStartHeight: 0,
+    dragCurrentHeight: null
+  });
+  
+  // Update ref when state changes
+  useEffect(() => {
+    dragStateRef.current = {
+      isDragging,
+      dragStartY,
+      dragStartHeight,
+      dragCurrentHeight
+    };
+  }, [isDragging, dragStartY, dragStartHeight, dragCurrentHeight]);
 
   // Refs for MoveableManager integration
   const titleRef = useRef<HTMLDivElement>(null);
@@ -165,53 +188,92 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     if (e.nativeEvent) {
       e.nativeEvent.stopImmediatePropagation();
     }
+    
+    const initialHeight = chartData[index].percentage;
     setIsDragging(index);
     setDragStartY(e.clientY);
-    setDragStartHeight(chartData[index].percentage);
-    setDragCurrentHeight(chartData[index].percentage);
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging !== null) {
-      e.stopPropagation(); // Prevent DragEnhancer from handling this event
-      const deltaY = dragStartY - e.clientY; // Inverted because Y increases downward
-      const deltaPercentage = (deltaY / 400) * 100; // 400px is max height
-      const newHeight = Math.min(100, Math.max(0, dragStartHeight + deltaPercentage));
-      
-      // Only update local state for visual feedback during drag
-      // Don't call onUpdate here - wait for mouseup
-      setDragCurrentHeight(newHeight);
-    }
-  };
-
-  const handleMouseUp = (e?: MouseEvent) => {
-    if (e) {
-      e.stopPropagation(); // Prevent DragEnhancer from handling this event
-    }
-    if (isDragging !== null && dragCurrentHeight !== null && onUpdate) {
-      // Only call onUpdate once when drag ends
-      const newChartData = [...chartData];
-      newChartData[isDragging] = { ...newChartData[isDragging], percentage: dragCurrentHeight };
-      onUpdate({ chartData: newChartData });
-    }
+    setDragStartHeight(initialHeight);
+    setDragCurrentHeight(initialHeight);
     
-    setIsDragging(null);
-    setDragStartY(0);
-    setDragStartHeight(0);
-    setDragCurrentHeight(null);
+    // Update ref immediately
+    dragStateRef.current = {
+      isDragging: index,
+      dragStartY: e.clientY,
+      dragStartHeight: initialHeight,
+      dragCurrentHeight: initialHeight
+    };
   };
 
   // Add event listeners for drag
   useEffect(() => {
-    if (isDragging !== null) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+    if (isDragging === null) return;
+    
+    // Get the actual chart container height for accurate calculations
+    const getChartHeight = () => {
+      if (chartRef.current) {
+        const container = chartRef.current;
+        const containerRect = container.getBoundingClientRect();
+        // Account for padding: top 50px, bottom 30px
+        const usableHeight = containerRect.height - 50 - 30; // 80px total padding
+        return Math.max(usableHeight, 300); // Minimum 300px for safety
+      }
+      return 400; // Fallback to 400px
+    };
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      e.stopPropagation(); // Prevent DragEnhancer from handling this event
+      
+      const state = dragStateRef.current;
+      if (state.isDragging === null) return;
+      
+      const chartHeight = getChartHeight();
+      const deltaY = state.dragStartY - e.clientY; // Inverted because Y increases downward
+      // Calculate percentage change: deltaY pixels / chartHeight pixels * 100%
+      const deltaPercentage = (deltaY / chartHeight) * 100;
+      const newHeight = Math.min(100, Math.max(0, state.dragStartHeight + deltaPercentage));
+      
+      // Update both state and ref for visual feedback during drag
+      setDragCurrentHeight(newHeight);
+      dragStateRef.current.dragCurrentHeight = newHeight;
+    };
+
+    const handleMouseUp = (e: MouseEvent) => {
+      e.stopPropagation(); // Prevent DragEnhancer from handling this event
+      
+      const state = dragStateRef.current;
+      if (state.isDragging !== null && state.dragCurrentHeight !== null && onUpdate) {
+        // Only call onUpdate once when drag ends with the final height
+        const finalHeight = state.dragCurrentHeight;
+        const newChartData = [...chartData];
+        newChartData[state.isDragging] = { 
+          ...newChartData[state.isDragging], 
+          percentage: finalHeight 
+        };
+        onUpdate({ chartData: newChartData });
+      }
+      
+      setIsDragging(null);
+      setDragStartY(0);
+      setDragStartHeight(0);
+      setDragCurrentHeight(null);
+      
+      // Reset ref
+      dragStateRef.current = {
+        isDragging: null,
+        dragStartY: 0,
+        dragStartHeight: 0,
+        dragCurrentHeight: null
       };
-    }
-  }, [isDragging, dragStartY, dragStartHeight]);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, chartData, onUpdate]);
 
   // Handle image upload
   const handleImageUploaded = (newImagePath: string) => {
