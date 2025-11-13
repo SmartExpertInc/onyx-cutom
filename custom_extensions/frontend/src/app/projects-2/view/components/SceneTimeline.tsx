@@ -600,10 +600,11 @@ const getSceneRectangleStyles = () => {
                 key={`transition-${scene.id}`}
                 className="pointer-events-auto"
                 style={{
+                  position: 'absolute',
                   left: `${position.x}px`,
                   top: `${position.y}px`,
                   transform: 'translate(-50%, -50%)',
-                  zIndex: 40
+                  zIndex: 2000
                 }}
               >
                 <DropdownMenu>
