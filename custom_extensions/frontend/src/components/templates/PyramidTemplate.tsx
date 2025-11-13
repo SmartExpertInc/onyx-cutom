@@ -455,7 +455,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
         {displaySteps.map((step, index) => (
           <div key={`text-${index}`} style={textBlockStyles(index)}>
             {/* Heading */}
-            <div data-draggable="true" style={{ display: 'inline-block' }}>
+            <div data-draggable="true">
               {isEditable && editingItemHeadings.includes(index) ? (
                 <WysiwygEditor
                   initialValue={step.heading || ''}
@@ -497,7 +497,7 @@ export const PyramidTemplate: React.FC<PyramidTemplateProps> = ({
             </div>
 
             {/* Description */}
-            <div data-draggable="true" style={{ display: 'inline-block', marginTop: '15px' }}>
+            <div data-draggable="true">
               {isEditable && editingItemDescriptions.includes(index) ? (
                 <WysiwygEditor
                   initialValue={step.description || ''}
