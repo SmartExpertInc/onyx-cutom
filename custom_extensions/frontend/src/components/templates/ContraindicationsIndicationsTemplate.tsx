@@ -283,9 +283,10 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           left: leftProjectPosition.left,
           top: leftProjectPosition.top,
           transform: 'translateY(-50%)',
-          zIndex: 10
+          zIndex: 10,
+          display: 'block'
         }}>
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
+          <div data-draggable="true">
             {editingLeftProject ? (
               <WysiwygEditor
                 initialValue={leftProjectTitle}
@@ -347,9 +348,10 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
           right: rightProjectPosition.right,
           top: rightProjectPosition.top,
           transform: 'translateY(-50%)',
-          zIndex: 10
+          zIndex: 10,
+          display: 'block'
         }}>
-          <div data-draggable="true" style={{ display: 'inline-block' }}>
+          <div data-draggable="true">
             {editingRightProject ? (
               <WysiwygEditor
                 initialValue={rightProjectTitle}
@@ -412,11 +414,12 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               left: leftItemsPositions[index].left,
               top: leftItemsPositions[index].top,
               zIndex: 10,
-              maxWidth: '200px'
+              maxWidth: '200px',
+              display: 'block'
             }}
           >
             {/* Heading */}
-            <div data-draggable="true" style={{ display: 'inline-block' }}>
+            <div data-draggable="true">
               {editingLeftHeadings[index] ? (
                 <WysiwygEditor
                   initialValue={leftHeadings[index]}
@@ -474,7 +477,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
             </div>
 
             {/* Description */}
-            <div data-draggable="true" style={{ display: 'inline-block' }}>
+            <div data-draggable="true">
               {editingLeftDescriptions[index] ? (
                 <WysiwygEditor
                   initialValue={leftDescriptions[index]}
@@ -541,11 +544,12 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
               top: rightItemsPositions[index].top,
               zIndex: 10,
               maxWidth: '200px',
-              textAlign: 'right'
+              textAlign: 'right',
+              display: 'block'
             }}
           >
             {/* Heading */}
-            <div data-draggable="true" style={{ display: 'inline-block' }}>
+            <div data-draggable="true">
               {editingRightHeadings[index] ? (
                 <WysiwygEditor
                   initialValue={rightHeadings[index]}
@@ -605,7 +609,7 @@ const ContraindicationsIndicationsTemplate: React.FC<ContraindicationsIndication
             </div>
 
             {/* Description */}
-            <div data-draggable="true" style={{ display: 'inline-block' }}>
+            <div data-draggable="true">
               {editingRightDescriptions[index] ? (
                 <WysiwygEditor
                   initialValue={rightDescriptions[index]}
