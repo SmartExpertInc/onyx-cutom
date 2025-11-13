@@ -13667,6 +13667,326 @@ async def collect_agentic_context(
     return enhanced_context
 
 
+async def collect_unified_agentic_context_streaming(
+    file_ids: List[int],
+    connector_sources: List[str],
+    connector_ids: List[int],
+    original_prompt: str,
+    product_type: str,
+    cookies: Dict[str, str],
+    model: str = "gpt-4o-mini"
+):
+    """
+    UNIFIED Agentic RAG workflow that combines files AND connectors into ONE skeleton.
+    
+    Stage 1: Collect broad context from ALL sources (files + connectors)
+    Stage 2: Generate ONE skeleton from combined context
+    Stage 3: Perform focused retrieval across ALL sources for each skeleton item
+    Stage 4: Assemble context within token budget
+    
+    Yields:
+        ("progress", message): Progress updates
+        ("complete", context_dict): Final assembled context
+        ("error", error_str): Error message
+    """
+    import time
+    import hashlib
+    import json
+    
+    try:
+        start_time = time.time()
+        logger.info(f"[UNIFIED_AGENTIC_START] product_type={product_type}")
+        logger.info(f"[UNIFIED_AGENTIC_START] file_count={len(file_ids)} connector_sources={connector_sources} connector_ids={connector_ids}")
+        
+        # STAGE 1: Collect broad context from ALL sources
+        yield ("progress", f"🔍 Scanning content from {len(file_ids)} file(s) and {len(connector_sources)} connector(s)...")
+        
+        all_broad_chunks = []
+        
+        # 1a. Get chunks from files
+        if file_ids:
+            logger.info(f"[UNIFIED_STAGE1] Fetching broad context from {len(file_ids)} files...")
+            file_broad_context = await extract_file_content_direct(
+                file_ids=file_ids,
+                prompt="",
+                cookies=cookies,
+                max_chunks_per_file=50
+            )
+            # Extract the file_contents list (each item is a string)
+            file_chunks = file_broad_context.get("file_contents", [])
+            logger.info(f"[UNIFIED_STAGE1] Retrieved {len(file_chunks)} chunks from files")
+            all_broad_chunks.extend(file_chunks)
+        
+        # 1b. Get chunks from connectors
+        if connector_sources and connector_ids:
+            logger.info(f"[UNIFIED_STAGE1] Fetching broad context from connectors: {connector_sources}")
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                connector_response = await client.post(
+                    f"{ONYX_API_SERVER_URL}/document/get-file-content",
+                    json={
+                        "source_types": connector_sources,
+                        "connector_ids": connector_ids,
+                        "query": original_prompt,
+                        "max_chunks_per_file": 50,
+                        "include_metadata": True
+                    },
+                    cookies=cookies
+                )
+                connector_response.raise_for_status()
+                connector_data = connector_response.json()
+            
+            connector_chunks_raw = connector_data.get("connector_chunks", [])
+            logger.info(f"[UNIFIED_STAGE1] Retrieved {len(connector_chunks_raw)} chunks from connectors")
+            
+            # Convert connector chunks to string format
+            connector_chunks = [
+                f"=== CONNECTOR CHUNK ===\n{chunk.get('content', '')}"
+                for chunk in connector_chunks_raw
+            ]
+            all_broad_chunks.extend(connector_chunks)
+        
+        if not all_broad_chunks:
+            logger.warning(f"[UNIFIED_STAGE1] No chunks found from any source")
+            yield ("error", "No content found in selected sources")
+            return
+        
+        logger.info(f"[UNIFIED_STAGE1] Total broad chunks from all sources: {len(all_broad_chunks)}")
+        
+        # STAGE 2: Generate ONE skeleton from combined context
+        yield ("progress", f"📋 Creating unified {product_type.lower()} outline from all sources...")
+        
+        # Build unified context for skeleton generation (limit to first 25 chunks to avoid token overflow)
+        unified_context = {
+            "file_contents": all_broad_chunks[:25],
+            "file_summaries": [],
+            "key_topics": []
+        }
+        
+        skeleton_prompt = build_skeleton_prompt(original_prompt, unified_context, product_type)
+        skeleton = await generate_skeleton(skeleton_prompt, product_type, model)
+        
+        # Extract skeleton items based on product type
+        logger.info(f"[UNIFIED_STAGE2] Extracting items for product_type='{product_type}'")
+        if product_type == "Course Outline":
+            skeleton_items = skeleton.get('modules', [])
+        elif product_type in ["Lesson Presentation", "Text Presentation", "Slides Deck", "Video Lesson Slides Deck"]:
+            skeleton_items = skeleton.get('slides') or skeleton.get('sections', [])
+        elif product_type == "Quiz":
+            skeleton_items = skeleton.get('quiz_topics', [])
+        else:
+            logger.warning(f"[UNIFIED_STAGE2] Unknown product_type='{product_type}', defaulting to empty skeleton")
+            skeleton_items = []
+        
+        logger.info(f"[UNIFIED_STAGE2] Generated ONE skeleton with {len(skeleton_items)} items from all sources")
+        yield ("progress", f"✅ Generated unified skeleton with {len(skeleton_items)} items")
+        
+        # STAGE 3: Focused retrieval across ALL sources for each skeleton item
+        yield ("progress", f"📚 Collecting focused content for {len(skeleton_items)} items from all sources...")
+        
+        # Relevance filtering configuration
+        ABSOLUTE_MIN_RELEVANCE = 0.45
+        RELATIVE_THRESHOLD = 0.4
+        MIN_CHUNKS_PER_QUERY = 1
+        MAX_CHUNKS_PER_QUERY = 12
+        
+        collected_chunks = {}
+        chunk_index = 0
+        unique_chunk_hashes = set()
+        
+        for idx, item in enumerate(skeleton_items, 1):
+            item_start = time.time()
+            
+            # Build focused query for this skeleton item
+            focused_query = build_focused_query(item, product_type)
+            
+            # Get item title for progress message
+            if product_type == "Course Outline":
+                item_title = item.get('module_name', f"Module {idx}")
+            elif product_type in ["Lesson Presentation", "Text Presentation"]:
+                item_title = item.get('title', f"Item {idx}")
+            elif product_type == "Quiz":
+                item_title = item.get('topic', f"Topic {idx}")
+            else:
+                item_title = f"Item {idx}"
+            
+            yield ("progress", f"📚 {idx}/{len(skeleton_items)}: {item_title}")
+            logger.info(f"[UNIFIED_STAGE3] {idx}/{len(skeleton_items)}: {item_title}")
+            logger.info(f"[UNIFIED_STAGE3] focused_query='{focused_query[:100]}...'")
+            
+            # 3a. Search in FILES
+            if file_ids:
+                try:
+                    file_focused_context = await extract_file_content_direct(
+                        file_ids=file_ids,
+                        prompt=focused_query,
+                        cookies=cookies,
+                        max_chunks_per_file=MAX_CHUNKS_PER_QUERY
+                    )
+                    file_focused_chunks = file_focused_context.get("file_contents", [])
+                    logger.info(f"[UNIFIED_STAGE3] Retrieved {len(file_focused_chunks)} chunks from files")
+                    
+                    # Add file chunks with metadata
+                    for chunk_content in file_focused_chunks:
+                        if not chunk_content or not isinstance(chunk_content, str):
+                            continue
+                        
+                        # Deduplicate using hash
+                        chunk_hash = hashlib.sha256(chunk_content.encode()).hexdigest()
+                        if chunk_hash in unique_chunk_hashes:
+                            continue
+                        
+                        unique_chunk_hashes.add(chunk_hash)
+                        
+                        # Add header
+                        header = f"## Section: {item_title}\nSource: File\nFocus Query: {focused_query}\n\n"
+                        collected_chunks[f"file_{chunk_index}"] = header + chunk_content
+                        chunk_index += 1
+                        
+                except Exception as e:
+                    logger.error(f"[UNIFIED_STAGE3] Error fetching from files: {e}")
+            
+            # 3b. Search in CONNECTORS
+            if connector_sources and connector_ids:
+                try:
+                    async with httpx.AsyncClient(timeout=60.0) as client:
+                        connector_response = await client.post(
+                            f"{ONYX_API_SERVER_URL}/document/get-file-content",
+                            json={
+                                "source_types": connector_sources,
+                                "connector_ids": connector_ids,
+                                "query": focused_query,
+                                "max_chunks_per_file": MAX_CHUNKS_PER_QUERY,
+                                "include_metadata": True
+                            },
+                            cookies=cookies
+                        )
+                        connector_response.raise_for_status()
+                        connector_data = connector_response.json()
+                    
+                    connector_focused_chunks = connector_data.get("connector_chunks", [])
+                    logger.info(f"[UNIFIED_STAGE3] Retrieved {len(connector_focused_chunks)} chunks from connectors")
+                    
+                    # Filter by relevance and add connector chunks
+                    if connector_focused_chunks:
+                        best_score = max(chunk.get("relevance_score", 0.0) for chunk in connector_focused_chunks)
+                        dynamic_threshold = best_score * RELATIVE_THRESHOLD
+                        effective_threshold = max(dynamic_threshold, ABSOLUTE_MIN_RELEVANCE)
+                        
+                        logger.info(
+                            f"[UNIFIED_STAGE3_FILTER] best_score={best_score:.3f} "
+                            f"effective_threshold={effective_threshold:.3f}"
+                        )
+                        
+                        kept_count = 0
+                        for chunk in connector_focused_chunks:
+                            chunk_content = chunk.get("content", "")
+                            if not chunk_content:
+                                continue
+                            
+                            relevance_score = chunk.get("relevance_score", 0.0)
+                            
+                            # Filter by relevance
+                            if relevance_score < ABSOLUTE_MIN_RELEVANCE:
+                                continue
+                            if relevance_score <= effective_threshold and kept_count >= MIN_CHUNKS_PER_QUERY:
+                                continue
+                            
+                            # Deduplicate
+                            chunk_hash = hashlib.sha256(chunk_content.encode()).hexdigest()
+                            if chunk_hash in unique_chunk_hashes:
+                                continue
+                            
+                            unique_chunk_hashes.add(chunk_hash)
+                            kept_count += 1
+                            
+                            # Add header with metadata
+                            header_lines = [f"## Section: {item_title}"]
+                            if chunk.get("semantic_identifier"):
+                                header_lines.append(f"Source: {chunk.get('semantic_identifier')}")
+                            if chunk.get("source_type"):
+                                header_lines.append(f"Connector: {chunk.get('source_type')}")
+                            header_lines.append(f"Relevance Score: {relevance_score:.3f}")
+                            header_lines.append(f"Focus Query: {focused_query}")
+                            
+                            header = "\n".join(header_lines) + "\n\n"
+                            collected_chunks[f"connector_{chunk_index}"] = header + chunk_content
+                            chunk_index += 1
+                        
+                        logger.info(f"[UNIFIED_STAGE3] Kept {kept_count} connector chunks after filtering")
+                
+                except Exception as e:
+                    logger.error(f"[UNIFIED_STAGE3] Error fetching from connectors: {e}")
+            
+            item_elapsed = time.time() - item_start
+            logger.info(f"[UNIFIED_STAGE3] Item {idx} completed in {item_elapsed:.2f}s, total chunks so far: {len(collected_chunks)}")
+        
+        logger.info(f"[UNIFIED_STAGE3] Collected {len(collected_chunks)} unique chunks total")
+        yield ("progress", f"✅ Collected {len(collected_chunks)} unique chunks from all sources")
+        
+        # STAGE 4: Return combined context
+        elapsed = time.time() - start_time
+        logger.info(f"[UNIFIED_AGENTIC_COMPLETE] total_chunks={len(collected_chunks)} total_time={elapsed:.2f}s")
+        yield ("progress", f"✅ Context collection complete ({elapsed:.1f}s)")
+        
+        # Return in same format as file extraction for compatibility
+        yield ("complete", {
+            "file_contents": list(collected_chunks.values()),
+            "file_summaries": [],
+            "key_topics": []
+        })
+        
+        # Auto-delete ONLY the web connectors used in THIS request (they're temporary)
+        if connector_sources and connector_ids and "web" in connector_sources:
+            logger.info(f"[UNIFIED_CLEANUP] Checking which of the REQUEST connectors are web type: {connector_ids}")
+            try:
+                # Query connector details ONLY for the connectors used in THIS request
+                web_connector_ids = []
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    for conn_id in connector_ids:
+                        try:
+                            # Get individual connector details
+                            detail_response = await client.get(
+                                f"{ONYX_API_SERVER_URL}/manage/connector/{conn_id}",
+                                cookies=cookies
+                            )
+                            if detail_response.status_code == 200:
+                                connector_info = detail_response.json()
+                                source = connector_info.get('source')
+                                if source == 'web':
+                                    web_connector_ids.append(conn_id)
+                                    logger.info(f"[UNIFIED_CLEANUP] Connector {conn_id} is web type, will delete")
+                                else:
+                                    logger.info(f"[UNIFIED_CLEANUP] Connector {conn_id} is {source} type, will NOT delete")
+                        except Exception as e:
+                            logger.warning(f"[UNIFIED_CLEANUP] Could not check connector {conn_id}: {e}")
+                
+                logger.info(f"[UNIFIED_CLEANUP] Identified {len(web_connector_ids)} web connectors from THIS request to delete: {web_connector_ids}")
+                
+                # Delete only the web connectors from THIS request
+                for conn_id in web_connector_ids:
+                    try:
+                        async with httpx.AsyncClient(timeout=10.0) as client:
+                            delete_url = f"{ONYX_API_SERVER_URL}/manage/admin/connector/{conn_id}"
+                            delete_response = await client.delete(delete_url, cookies=cookies)
+                            if delete_response.status_code in [200, 204]:
+                                logger.info(f"[UNIFIED_CLEANUP] ✅ Deleted web connector {conn_id} (used in THIS request)")
+                            else:
+                                logger.warning(f"[UNIFIED_CLEANUP] ⚠️ Failed to delete connector {conn_id}: HTTP {delete_response.status_code}")
+                                try:
+                                    error_detail = delete_response.json()
+                                    logger.warning(f"[UNIFIED_CLEANUP] Error detail: {error_detail}")
+                                except:
+                                    pass
+                    except Exception as delete_error:
+                        logger.warning(f"[UNIFIED_CLEANUP] ⚠️ Error deleting connector {conn_id}: {delete_error}")
+            except Exception as cleanup_error:
+                logger.warning(f"[UNIFIED_CLEANUP] ⚠️ Cleanup error: {cleanup_error}")
+        
+    except Exception as e:
+        logger.error(f"[UNIFIED_AGENTIC] Error: {e}", exc_info=True)
+        yield ("error", str(e))
+
+
 async def collect_agentic_context_from_connectors_streaming(
     connector_sources: List[str],
     connector_ids: List[int],
@@ -13909,24 +14229,52 @@ async def collect_agentic_context_from_connectors_streaming(
             "key_topics": []
         })
         
-        # Auto-delete web connectors after successful extraction (they're temporary)
-        if "web" in connector_sources:
-            logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Cleaning up web connectors: {connector_ids}")
+        # Auto-delete ONLY the web connectors used in THIS request (they're temporary)
+        if "web" in connector_sources and connector_ids:
+            logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Checking which of the REQUEST connectors are web type: {connector_ids}")
             try:
-                for conn_id in connector_ids:
+                # Query connector details ONLY for the connectors used in THIS request
+                web_connector_ids = []
+                async with httpx.AsyncClient(timeout=10.0) as client:
+                    for conn_id in connector_ids:
+                        try:
+                            # Get individual connector details
+                            detail_response = await client.get(
+                                f"{ONYX_API_SERVER_URL}/manage/connector/{conn_id}",
+                                cookies=cookies
+                            )
+                            if detail_response.status_code == 200:
+                                connector_info = detail_response.json()
+                                source = connector_info.get('source')
+                                if source == 'web':
+                                    web_connector_ids.append(conn_id)
+                                    logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Connector {conn_id} is web type, will delete")
+                                else:
+                                    logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Connector {conn_id} is {source} type, will NOT delete")
+                        except Exception as e:
+                            logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Could not check connector {conn_id}: {e}")
+                
+                logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Identified {len(web_connector_ids)} web connectors from THIS request to delete: {web_connector_ids}")
+                
+                # Delete only the web connectors from THIS request
+                for conn_id in web_connector_ids:
                     try:
                         async with httpx.AsyncClient(timeout=10.0) as client:
-                            # Delete the connector via Onyx API
                             delete_url = f"{ONYX_API_SERVER_URL}/manage/admin/connector/{conn_id}"
                             delete_response = await client.delete(delete_url, cookies=cookies)
                             if delete_response.status_code in [200, 204]:
-                                logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] Deleted web connector {conn_id}")
+                                logger.info(f"[AGENTIC_CONNECTOR_CLEANUP] ✅ Deleted web connector {conn_id} (used in THIS request)")
                             else:
-                                logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Failed to delete connector {conn_id}: {delete_response.status_code}")
+                                logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] ⚠️ Failed to delete connector {conn_id}: HTTP {delete_response.status_code}")
+                                try:
+                                    error_detail = delete_response.json()
+                                    logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Error detail: {error_detail}")
+                                except:
+                                    pass
                     except Exception as delete_error:
-                        logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Error deleting connector {conn_id}: {delete_error}")
+                        logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] ⚠️ Error deleting connector {conn_id}: {delete_error}")
             except Exception as cleanup_error:
-                logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] Cleanup error: {cleanup_error}")
+                logger.warning(f"[AGENTIC_CONNECTOR_CLEANUP] ⚠️ Cleanup error: {cleanup_error}")
         
     except Exception as e:
         logger.error(f"[AGENTIC_CONNECTOR] Error: {e}", exc_info=True)
@@ -21208,38 +21556,8 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                     connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
                     
                     if payload.selectedFiles:
-                        # Combined context: connectors + SmartDrive files
-                        logger.info(f"[HYBRID_CONTEXT] Extracting COMBINED context from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
-                        
-                        # Extract connector context using AGENTIC RAG
-                        connector_context = None
-                        
-                        try:
-                            async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
-                                connector_sources=connector_sources_list,
-                                connector_ids=connector_ids_list,
-                                original_prompt=payload.prompt,
-                                product_type="Course Outline",
-                                cookies=cookies
-                            ):
-                                if update_type == "progress":
-                                    progress_packet = {"type": "info", "message": update_data}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update_type == "complete":
-                                    connector_context = update_data
-                                    logger.info(f"[COURSE_OUTLINE] Agentic connector extraction success: {len(connector_context.get('file_contents', []))} chunks")
-                                elif update_type == "error":
-                                    raise Exception(update_data)
-                            
-                            if connector_context is None:
-                                raise Exception("No context returned from agentic connector extraction")
-                        except Exception as e:
-                            logger.warning(f"[COURSE_OUTLINE] Agentic connector extraction failed, using fallback: {e}")
-                            connector_context = None
-                        if connector_context is None:
-                            logger.info("[COURSE_OUTLINE] Falling back to legacy connector extraction")
-                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        # Combined context: connectors + SmartDrive files -> USE UNIFIED SKELETON APPROACH
+                        logger.info(f"[HYBRID_CONTEXT] Extracting UNIFIED context (ONE skeleton) from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
                         
                         # Map SmartDrive paths to Onyx file IDs with proper normalization
                         raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
@@ -21273,55 +21591,58 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         
                         file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
                         
-                        if file_ids:
+                        if not file_ids:
+                            file_ids = []
+                            logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
+                        else:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract context using AGENTIC RAG
-                            file_context_from_smartdrive = None
+                        
+                        # USE UNIFIED AGENTIC CONTEXT COLLECTION (ONE SKELETON FOR ALL SOURCES)
+                        logger.info(f"[COURSE_OUTLINE] Using UNIFIED AGENTIC extraction for {len(file_ids)} files and {len(connector_sources_list)} connectors")
+                        
+                        file_context = None
+                        try:
+                            async for update_type, update_data in collect_unified_agentic_context_streaming(
+                                file_ids=file_ids,
+                                connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Course Outline",
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[COURSE_OUTLINE] Unified agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
                             
-                            # USE NEW AGENTIC CONTEXT COLLECTION
-                            logger.info(f"[COURSE_OUTLINE] Using AGENTIC extraction for {len(file_ids)} files")
-                            
-                            try:
-                                async for update_type, update_data in collect_agentic_context_streaming(
-                                    file_ids=file_ids,
-                                    original_prompt=payload.prompt,
-                                    product_type="Course Outline",
-                                    cookies=cookies
-                                ):
-                                    if update_type == "progress":
-                                        progress_packet = {"type": "info", "message": update_data}
-                                        yield (json.dumps(progress_packet) + "\n").encode()
-                                        last_send = asyncio.get_event_loop().time()
-                                    elif update_type == "complete":
-                                        file_context_from_smartdrive = update_data
-                                        logger.info(f"[COURSE_OUTLINE] Agentic extraction success: {len(file_context_from_smartdrive.get('file_contents', []))} chunks")
-                                    elif update_type == "error":
-                                        raise Exception(update_data)
-                                
-                                if file_context_from_smartdrive is None:
-                                    raise Exception("No context returned from agentic extraction")
-                            except Exception as e:
-                                logger.error(f"[COURSE_OUTLINE] Agentic extraction failed, using fallback: {e}")
-                                file_context_from_smartdrive = None
+                            if file_context is None:
+                                raise Exception("No context returned from unified agentic extraction")
+                        except Exception as e:
+                            logger.error(f"[COURSE_OUTLINE] Unified agentic extraction failed: {e}")
+                            file_context = None
 
-                            if file_context_from_smartdrive is None:
-                                logger.info("[COURSE_OUTLINE] Falling back to legacy extraction for SmartDrive files")
+                        # Fallback if unified approach fails: extract separately and merge
+                        if file_context is None:
+                            logger.info("[COURSE_OUTLINE] Falling back to separate extraction for connectors and files")
+                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                            
+                            file_context_from_smartdrive = ""
+                            if file_ids:
                                 async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                    if update["type"] == "progress":
-                                        progress_packet = {"type": "info", "message": update["message"]}
-                                        yield (json.dumps(progress_packet) + "\n").encode()
-                                        last_send = asyncio.get_event_loop().time()
-                                    elif update["type"] == "complete":
+                                    if update["type"] == "complete":
                                         file_context_from_smartdrive = update["context"]
                                         break
                                     elif update["type"] == "error":
                                         logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
+                                        break
                             
                             # Combine both contexts
-                            file_context = f"{connector_context}\n\n=== ADDITIONAL CONTEXT FROM SELECTED FILES ===\n\n{file_context_from_smartdrive}"
-                        else:
-                            logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths, using only connector context")
-                            file_context = connector_context
+                            file_context = merge_source_contexts(connector_context, file_context_from_smartdrive)
                     else:
                         # For connector-based filtering only, extract context from specific connectors using AGENTIC RAG
                         logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
@@ -29316,38 +29637,8 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                     connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
                     
                     if payload.selectedFiles:
-                        # Combined context: connectors + SmartDrive files
-                        logger.info(f"[HYBRID_CONTEXT] Extracting COMBINED context from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
-                        
-                        # Extract connector context using AGENTIC RAG
-                        connector_context = None
-                        
-                        try:
-                            async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
-                                connector_sources=connector_sources_list,
-                                connector_ids=connector_ids_list,
-                                original_prompt=payload.prompt,
-                                product_type="Lesson Presentation",
-                                cookies=cookies
-                            ):
-                                if update_type == "progress":
-                                    progress_packet = {"type": "info", "message": update_data}
-                                    yield (json.dumps(progress_packet) + "\n").encode()
-                                    last_send = asyncio.get_event_loop().time()
-                                elif update_type == "complete":
-                                    connector_context = update_data
-                                    logger.info(f"[LESSON_PRESENTATION] Agentic connector extraction success: {len(connector_context.get('file_contents', []))} chunks")
-                                elif update_type == "error":
-                                    raise Exception(update_data)
-                            
-                            if connector_context is None:
-                                raise Exception("No context returned from agentic connector extraction")
-                        except Exception as e:
-                            logger.warning(f"[LESSON_PRESENTATION] Agentic connector extraction failed, using fallback: {e}")
-                            connector_context = None
-                        if connector_context is None:
-                            logger.info("[LESSON_PRESENTATION] Falling back to legacy connector extraction")
-                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        # Combined context: connectors + SmartDrive files -> USE UNIFIED SKELETON APPROACH
+                        logger.info(f"[HYBRID_CONTEXT] Extracting UNIFIED context (ONE skeleton) from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
                         
                         # Map SmartDrive paths to Onyx file IDs with proper normalization
                         raw_paths = [path.strip() for path in payload.selectedFiles.split(',') if path.strip()]
@@ -29381,60 +29672,58 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         
                         file_ids = await map_smartdrive_paths_to_onyx_files(smartdrive_file_paths, onyx_user_id)
                         
-                        if file_ids:
+                        if not file_ids:
+                            file_ids = []
+                            logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths")
+                        else:
                             logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
-                            # Extract context using AGENTIC RAG
-                            file_context_from_smartdrive = None
+                        
+                        # USE UNIFIED AGENTIC CONTEXT COLLECTION (ONE SKELETON FOR ALL SOURCES)
+                        logger.info(f"[LESSON_PRESENTATION] Using UNIFIED AGENTIC extraction for {len(file_ids)} files and {len(connector_sources_list)} connectors")
+                        
+                        file_context = None
+                        try:
+                            async for update_type, update_data in collect_unified_agentic_context_streaming(
+                                file_ids=file_ids,
+                                connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Lesson Presentation",
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[LESSON_PRESENTATION] Unified agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
                             
-                            # USE NEW AGENTIC CONTEXT COLLECTION
-                            logger.info(f"[LESSON_PRESENTATION] Using AGENTIC extraction for {len(file_ids)} files")
-                            
-                            try:
-                                async for update_type, update_data in collect_agentic_context_streaming(
-                                    file_ids=file_ids,
-                                    original_prompt=payload.prompt,
-                                    product_type="Lesson Presentation",
-                                    cookies=cookies
-                                ):
-                                    if update_type == "progress":
-                                        progress_packet = {"type": "info", "message": update_data}
-                                        yield (json.dumps(progress_packet) + "\n").encode()
-                                        last_send = asyncio.get_event_loop().time()
-                                    elif update_type == "complete":
-                                        file_context_from_smartdrive = update_data
-                                        logger.info(f"[LESSON_PRESENTATION] Agentic extraction success: {len(file_context_from_smartdrive.get('file_contents', []))} chunks")
-                                    elif update_type == "error":
-                                        raise Exception(update_data)
-                                
-                                if file_context_from_smartdrive is None:
-                                    raise Exception("No context returned from agentic extraction")
-                            except Exception as e:
-                                logger.error(f"[LESSON_PRESENTATION] Agentic extraction failed, using fallback: {e}")
-                                file_context_from_smartdrive = None
+                            if file_context is None:
+                                raise Exception("No context returned from unified agentic extraction")
+                        except Exception as e:
+                            logger.error(f"[LESSON_PRESENTATION] Unified agentic extraction failed: {e}")
+                            file_context = None
 
-                            if file_context_from_smartdrive is None:
-                                logger.info("[LESSON_PRESENTATION] Falling back to legacy extraction for SmartDrive files")
+                        # Fallback if unified approach fails: extract separately and merge
+                        if file_context is None:
+                            logger.info("[LESSON_PRESENTATION] Falling back to separate extraction for connectors and files")
+                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                            
+                            file_context_from_smartdrive = {}
+                            if file_ids:
                                 async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                    if update["type"] == "progress":
-                                        progress_packet = {"type": "info", "message": update["message"]}
-                                        yield (json.dumps(progress_packet) + "\n").encode()
-                                        last_send = asyncio.get_event_loop().time()
-                                    elif update["type"] == "complete":
+                                    if update["type"] == "complete":
                                         file_context_from_smartdrive = update["context"]
                                         break
                                     elif update["type"] == "error":
                                         logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
-                                        file_context_from_smartdrive = None
                                         break
-                                if file_context_from_smartdrive is None:
-                                    logger.warning("[LESSON_PRESENTATION] Legacy extraction also failed; continuing without SmartDrive context")
-                                    file_context_from_smartdrive = {}
                             
                             # Combine both contexts using merge helper
                             file_context = merge_source_contexts(connector_context, file_context_from_smartdrive)
-                        else:
-                            logger.warning(f"[HYBRID_CONTEXT] No Onyx file IDs found for SmartDrive paths, using only connector context")
-                            file_context = connector_context
                     else:
                         # For connector-based filtering only, extract context from specific connectors using AGENTIC RAG
                         logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
@@ -35019,96 +35308,95 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
             try:
                 # Step 1: Extract context from Onyx
                 if payload.fromConnectors and payload.connectorSources:
-                    # For connector-based filtering, extract context from specific connectors using AGENTIC RAG
-                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    
                     connector_sources_list = [s.strip() for s in payload.connectorSources.split(',')]
                     connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
-                    connector_context = None
                     
-                    try:
-                        async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
-                            connector_sources=connector_sources_list,
-                            connector_ids=connector_ids_list,
-                            original_prompt=payload.prompt,
-                            product_type="Quiz",
-                            cookies=cookies
-                        ):
-                            if update_type == "progress":
-                                progress_packet = {"type": "info", "message": update_data}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                last_send = asyncio.get_event_loop().time()
-                            elif update_type == "complete":
-                                connector_context = update_data
-                                logger.info(f"[QUIZ] Agentic connector extraction success: {len(connector_context.get('file_contents', []))} chunks")
-                            elif update_type == "error":
-                                raise Exception(update_data)
-                        
-                        if connector_context is None:
-                            raise Exception("No context returned from agentic connector extraction")
-                    except Exception as e:
-                        logger.warning(f"[QUIZ] Agentic connector extraction failed, using fallback: {e}")
-                        connector_context = None
-                    if connector_context is None:
-                        logger.info("[QUIZ] Falling back to legacy connector extraction")
-                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
-                    
-                    file_context = connector_context
-                    # If specific SmartDrive files were also selected, map and extract them too, then merge
+                    # Check if we have BOTH connectors AND files -> use unified approach
                     if getattr(payload, 'selectedFiles', None):
-                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
-                        # Reuse existing mapping flow
+                        # Combined context: connectors + SmartDrive files -> USE UNIFIED SKELETON APPROACH
+                        logger.info(f"[HYBRID_CONTEXT] Extracting UNIFIED context (ONE skeleton) from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
+                        
+                        # Map SmartDrive paths to Onyx file IDs
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
-                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)  # best-effort using /me
+                        onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
+                        file_ids = []
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
-                                logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
-                                files_ctx = None
-                                try:
-                                    async for update_type, update_data in collect_agentic_context_streaming(
-                                        file_ids=file_ids,
-                                        original_prompt=payload.prompt,
-                                        product_type="Quiz",
-                                        cookies=cookies
-                                    ):
-                                        if update_type == "progress":
-                                            progress_packet = {"type": "info", "message": update_data}
-                                            yield (json.dumps(progress_packet) + "\n").encode()
-                                            last_send = asyncio.get_event_loop().time()
-                                        elif update_type == "complete":
-                                            files_ctx = update_data
-                                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(files_ctx.get('file_contents', []))} chunks")
-                                        elif update_type == "error":
-                                            raise Exception(update_data)
-                                    
-                                    if files_ctx is None:
-                                        raise Exception("No context returned from agentic extraction")
-                                except Exception as e:
-                                    logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
-                                    files_ctx = None
+                                logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
+                        except Exception as e:
+                            logger.warning(f"[HYBRID_CONTEXT] File mapping failed: {e}")
+                        
+                        # USE UNIFIED AGENTIC CONTEXT COLLECTION (ONE SKELETON FOR ALL SOURCES)
+                        logger.info(f"[QUIZ] Using UNIFIED AGENTIC extraction for {len(file_ids)} files and {len(connector_sources_list)} connectors")
+                        
+                        file_context = None
+                        try:
+                            async for update_type, update_data in collect_unified_agentic_context_streaming(
+                                file_ids=file_ids,
+                                connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Quiz",
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[QUIZ] Unified agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if file_context is None:
+                                raise Exception("No context returned from unified agentic extraction")
+                        except Exception as e:
+                            logger.error(f"[QUIZ] Unified agentic extraction failed: {e}")
+                            file_context = None
 
-                                if files_ctx is None:
-                                    logger.info("[SMARTDRIVE] Falling back to legacy extraction for SmartDrive files")
-                                    async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                        if update["type"] == "progress":
-                                            progress_packet = {"type": "info", "message": update["message"]}
-                                            yield (json.dumps(progress_packet) + "\n").encode()
-                                            last_send = asyncio.get_event_loop().time()
-                                        elif update["type"] == "complete":
-                                            files_ctx = update["context"]
-                                            break
-                                        elif update["type"] == "error":
-                                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
-                                            files_ctx = None
-                                            break
-                                    if files_ctx is None:
-                                        logger.warning("[SMARTDRIVE] Legacy extraction also failed; continuing without SmartDrive context")
-                                        files_ctx = {}
-                                
-                                file_context = merge_source_contexts(connector_context, files_ctx)
-                        except Exception as merr:
-                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
+                        # Fallback if unified approach fails
+                        if file_context is None:
+                            logger.info("[QUIZ] Falling back to separate extraction")
+                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                            files_ctx = {}
+                            if file_ids:
+                                async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                    if update["type"] == "complete":
+                                        files_ctx = update["context"]
+                                        break
+                            file_context = merge_source_contexts(connector_context, files_ctx)
+                    else:
+                        # Connectors only (no files) -> use connector-specific agentic approach
+                        logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors only: {payload.connectorSources}")
+                        
+                        connector_context = None
+                        try:
+                            async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
+                                connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Quiz",
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    connector_context = update_data
+                                    logger.info(f"[QUIZ] Agentic connector extraction success: {len(connector_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if connector_context is None:
+                                raise Exception("No context returned from agentic connector extraction")
+                        except Exception as e:
+                            logger.warning(f"[QUIZ] Agentic connector extraction failed, using fallback: {e}")
+                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        
+                        file_context = connector_context
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")
@@ -37014,94 +37302,95 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
             try:
                 # Step 1: Extract context from Onyx
                 if payload.fromConnectors and payload.connectorSources:
-                    # For connector-based filtering, extract context from specific connectors using AGENTIC RAG
-                    logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
-                    
                     connector_sources_list = [s.strip() for s in payload.connectorSources.split(',')]
                     connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
-                    connector_context = None
                     
-                    try:
-                        async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
-                            connector_sources=connector_sources_list,
-                            connector_ids=connector_ids_list,
-                            original_prompt=payload.prompt,
-                            product_type="Text Presentation",
-                            cookies=cookies
-                        ):
-                            if update_type == "progress":
-                                progress_packet = {"type": "info", "message": update_data}
-                                yield (json.dumps(progress_packet) + "\n").encode()
-                                last_send = asyncio.get_event_loop().time()
-                            elif update_type == "complete":
-                                connector_context = update_data
-                                logger.info(f"[TEXT_PRESENTATION] Agentic connector extraction success: {len(connector_context.get('file_contents', []))} chunks")
-                            elif update_type == "error":
-                                raise Exception(update_data)
-                        
-                        if connector_context is None:
-                            raise Exception("No context returned from agentic connector extraction")
-                    except Exception as e:
-                        logger.warning(f"[TEXT_PRESENTATION] Agentic connector extraction failed, using fallback: {e}")
-                        connector_context = None
-                    if connector_context is None:
-                        logger.info("[TEXT_PRESENTATION] Falling back to legacy connector extraction")
-                        connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
-                    
-                    file_context = connector_context
+                    # Check if we have BOTH connectors AND files -> use unified approach
                     if getattr(payload, 'selectedFiles', None):
-                        logger.info("[HYBRID_CONTEXT] Also extracting from selected SmartDrive files to combine with connector context")
+                        # Combined context: connectors + SmartDrive files -> USE UNIFIED SKELETON APPROACH
+                        logger.info(f"[HYBRID_CONTEXT] Extracting UNIFIED context (ONE skeleton) from connectors: {payload.connectorSources} and SmartDrive files: {payload.selectedFiles}")
+                        
+                        # Map SmartDrive paths to Onyx file IDs
                         raw_paths = [p.strip() for p in payload.selectedFiles.split(',') if p and p.strip()]
                         onyx_user_id = await fetch_current_onyx_user_id_via_me(cookies)
+                        file_ids = []
                         try:
                             file_ids = await map_smartdrive_paths_to_onyx_files(raw_paths, onyx_user_id)
                             if file_ids:
-                                logger.info(f"[SMARTDRIVE] Using AGENTIC extraction for {len(file_ids)} files")
-                                files_ctx = None
-                                try:
-                                    async for update_type, update_data in collect_agentic_context_streaming(
-                                        file_ids=file_ids,
-                                        original_prompt=payload.prompt,
-                                        product_type="Text Presentation",
-                                        cookies=cookies
-                                    ):
-                                        if update_type == "progress":
-                                            progress_packet = {"type": "info", "message": update_data}
-                                            yield (json.dumps(progress_packet) + "\n").encode()
-                                            last_send = asyncio.get_event_loop().time()
-                                        elif update_type == "complete":
-                                            files_ctx = update_data
-                                            logger.info(f"[SMARTDRIVE] Agentic extraction success: {len(files_ctx.get('file_contents', []))} chunks")
-                                        elif update_type == "error":
-                                            raise Exception(update_data)
-                                    
-                                    if files_ctx is None:
-                                        raise Exception("No context returned from agentic extraction")
-                                except Exception as e:
-                                    logger.warning(f"[SMARTDRIVE] Agentic extraction failed, using fallback: {e}")
-                                    files_ctx = None
+                                logger.info(f"[HYBRID_CONTEXT] Mapped {len(file_ids)} SmartDrive files to Onyx file IDs")
+                        except Exception as e:
+                            logger.warning(f"[HYBRID_CONTEXT] File mapping failed: {e}")
+                        
+                        # USE UNIFIED AGENTIC CONTEXT COLLECTION (ONE SKELETON FOR ALL SOURCES)
+                        logger.info(f"[TEXT_PRESENTATION] Using UNIFIED AGENTIC extraction for {len(file_ids)} files and {len(connector_sources_list)} connectors")
+                        
+                        file_context = None
+                        try:
+                            async for update_type, update_data in collect_unified_agentic_context_streaming(
+                                file_ids=file_ids,
+                                connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Text Presentation",
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    file_context = update_data
+                                    logger.info(f"[TEXT_PRESENTATION] Unified agentic extraction success: {len(file_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if file_context is None:
+                                raise Exception("No context returned from unified agentic extraction")
+                        except Exception as e:
+                            logger.error(f"[TEXT_PRESENTATION] Unified agentic extraction failed: {e}")
+                            file_context = None
 
-                                if files_ctx is None:
-                                    logger.info("[SMARTDRIVE] Falling back to legacy extraction for SmartDrive files")
-                                    async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
-                                        if update["type"] == "progress":
-                                            progress_packet = {"type": "info", "message": update["message"]}
-                                            yield (json.dumps(progress_packet) + "\n").encode()
-                                            last_send = asyncio.get_event_loop().time()
-                                        elif update["type"] == "complete":
-                                            files_ctx = update["context"]
-                                            break
-                                        elif update["type"] == "error":
-                                            logger.error(f"[FILE_EXTRACTION_ERROR] {update['message']}")
-                                            files_ctx = None
-                                            break
-                                    if files_ctx is None:
-                                        logger.warning("[SMARTDRIVE] Legacy extraction also failed; continuing without SmartDrive context")
-                                        files_ctx = {}
-                                
-                                file_context = merge_source_contexts(connector_context, files_ctx)
-                        except Exception as merr:
-                            logger.warning(f"[HYBRID_CONTEXT] SmartDrive mapping/merge failed: {merr}")
+                        # Fallback if unified approach fails
+                        if file_context is None:
+                            logger.info("[TEXT_PRESENTATION] Falling back to separate extraction")
+                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                            files_ctx = {}
+                            if file_ids:
+                                async for update in extract_file_context_from_onyx_with_progress(file_ids, [], cookies):
+                                    if update["type"] == "complete":
+                                        files_ctx = update["context"]
+                                        break
+                            file_context = merge_source_contexts(connector_context, files_ctx)
+                    else:
+                        # Connectors only (no files) -> use connector-specific agentic approach
+                        logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors only: {payload.connectorSources}")
+                        
+                        connector_context = None
+                        try:
+                            async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
+                                connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
+                                original_prompt=payload.prompt,
+                                product_type="Text Presentation",
+                                cookies=cookies
+                            ):
+                                if update_type == "progress":
+                                    progress_packet = {"type": "info", "message": update_data}
+                                    yield (json.dumps(progress_packet) + "\n").encode()
+                                    last_send = asyncio.get_event_loop().time()
+                                elif update_type == "complete":
+                                    connector_context = update_data
+                                    logger.info(f"[TEXT_PRESENTATION] Agentic connector extraction success: {len(connector_context.get('file_contents', []))} chunks")
+                                elif update_type == "error":
+                                    raise Exception(update_data)
+                            
+                            if connector_context is None:
+                                raise Exception("No context returned from agentic connector extraction")
+                        except Exception as e:
+                            logger.warning(f"[TEXT_PRESENTATION] Agentic connector extraction failed, using fallback: {e}")
+                            connector_context = await extract_connector_context_from_onyx(payload.connectorSources, payload.prompt, cookies)
+                        
+                        file_context = connector_context
                 elif payload.fromConnectors and payload.selectedFiles:
                     # SmartDrive files only (no connectors)
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from SmartDrive files only: {payload.selectedFiles}")

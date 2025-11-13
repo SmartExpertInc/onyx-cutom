@@ -425,6 +425,7 @@ export default function CourseOutlineClient() {
   const [thoughts, setThoughts] = useState<string[]>(makeThoughts());
   const [thoughtIdx, setThoughtIdx] = useState(0);
   const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [progressMessage, setProgressMessage] = useState<string | null>(null); // Backend progress updates
 
   const rand = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -571,6 +572,7 @@ export default function CourseOutlineClient() {
         setError(null);
         setPreview([]);
         setRawOutline("");
+        setProgressMessage(null); // Reset progress message
         setHasUserEdits(false); // Reset user edits flag when generating new preview
 
         let gotFirstChunk = false;
@@ -704,7 +706,13 @@ export default function CourseOutlineClient() {
                 const parsed = parseOutlineMarkdown(accumulatedRaw);
                 setPreview(parsed);
                 setRawOutline(accumulatedRaw);
+              } else if (pkt.type === "info") {
+                // Handle progress updates from backend
+                if (pkt.message) {
+                  setProgressMessage(pkt.message);
+                }
               } else if (pkt.type === "done") {
+                setProgressMessage(null); // Clear progress when done
                 const finalModsRaw = Array.isArray(pkt.modules) ? pkt.modules : parseOutlineMarkdown(pkt.raw || accumulatedRaw);
                 const finalMods = finalModsRaw.filter((m: any) => (m.title || "").toLowerCase() !== "outline");
                 setPreview(finalMods);
@@ -719,6 +727,8 @@ export default function CourseOutlineClient() {
                   textMode: textMode || undefined,
                   isFromText
                 };
+              } else if (pkt.type === "error") {
+                setProgressMessage(null); // Clear progress on error
               }
             }
           }
@@ -1528,7 +1538,7 @@ export default function CourseOutlineClient() {
         </div>
 
         <section className="flex flex-col gap-3">
-          {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+          {loading && <LoadingAnimation message={progressMessage || thoughts[thoughtIdx]} />}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-6 shadow-sm">
               <div className="flex items-center gap-2 text-red-800 font-semibold mb-3">

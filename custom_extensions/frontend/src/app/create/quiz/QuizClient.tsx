@@ -870,6 +870,7 @@ export default function QuizClient() {
   const [thoughts, setThoughts] = useState<string[]>(makeThoughts());
   const [thoughtIdx, setThoughtIdx] = useState(0);
   const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [progressMessage, setProgressMessage] = useState<string | null>(null); // Backend progress updates
 
   const rand = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -997,6 +998,7 @@ export default function QuizClient() {
         setLoading(true);
         setError(null);
         setQuizData(""); // Clear previous content
+        setProgressMessage(null); // Reset progress message
         setTextareaVisible(true);
         // setLoading(false);
         let gotFirstChunk = false;
@@ -1158,10 +1160,17 @@ export default function QuizClient() {
                   }
                   accumulatedText += pkt.text;
                   accumulatedJsonText += pkt.text;
+                } else if (pkt.type === "info") {
+                  // Handle progress updates from backend
+                  if (pkt.message) {
+                    setProgressMessage(pkt.message);
+                  }
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
+                  setProgressMessage(null); // Clear progress when done
                   break;
                 } else if (pkt.type === "error") {
+                  setProgressMessage(null); // Clear progress on error
                   throw new Error(pkt.text || "Unknown error");
                 }
               } catch (e) {
@@ -1783,7 +1792,7 @@ export default function QuizClient() {
                 
                 {/* Questions container */}
                 <div className="px-10 py-5 flex flex-col gap-[15px] shadow-lg">
-                  {loading && <LoadingAnimation message={thoughts[thoughtIdx]} />}
+                  {loading && <LoadingAnimation message={progressMessage || thoughts[thoughtIdx]} />}
                   
                   {loadingEdit && (
                     <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">

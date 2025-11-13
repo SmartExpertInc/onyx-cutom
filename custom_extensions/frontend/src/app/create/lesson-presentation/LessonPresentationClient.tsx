@@ -512,6 +512,7 @@ export default function LessonPresentationClient() {
   const [thoughts, setThoughts] = useState<string[]>(makeThoughts());
   const [thoughtIdx, setThoughtIdx] = useState(0);
   const thoughtTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [progressMessage, setProgressMessage] = useState<string | null>(null); // Backend progress updates
 
   const rand = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -642,6 +643,7 @@ export default function LessonPresentationClient() {
         setLoading(true);
         setError(null);
         setContent("");
+        setProgressMessage(null); // Reset progress message
         setTextareaVisible(true);
         let gotFirstChunk = false;
         let lastDataTime = Date.now();
@@ -803,10 +805,17 @@ export default function LessonPresentationClient() {
                   }
                   accumulatedText += pkt.text;
                   setContent(accumulatedText);
+                } else if (pkt.type === "info") {
+                  // Handle progress updates from backend
+                  if (pkt.message) {
+                    setProgressMessage(pkt.message);
+                  }
                 } else if (pkt.type === "done") {
                   setStreamDone(true);
+                  setProgressMessage(null); // Clear progress when done
                   break;
                 } else if (pkt.type === "error") {
+                  setProgressMessage(null); // Clear progress on error
                   throw new Error(pkt.text || "Unknown error");
                 }
               } catch (e) {
@@ -2284,7 +2293,7 @@ export default function LessonPresentationClient() {
             {/* Loading state */}
             {loading && (
               <div className="flex flex-col items-center gap-4 py-8">
-                <LoadingAnimation message={thoughts[thoughtIdx]} showFallback={false} />
+                <LoadingAnimation message={progressMessage || thoughts[thoughtIdx]} showFallback={false} />
               </div>
             )}
             {error && (
