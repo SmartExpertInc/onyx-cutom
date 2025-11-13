@@ -160,6 +160,11 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
   // Drag resize functions
   const handleMouseDown = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent DragEnhancer from handling this event
+    // Use native event for stopImmediatePropagation
+    if (e.nativeEvent) {
+      e.nativeEvent.stopImmediatePropagation();
+    }
     setIsDragging(index);
     setDragStartY(e.clientY);
     setDragStartHeight(chartData[index].percentage);
@@ -168,6 +173,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging !== null) {
+      e.stopPropagation(); // Prevent DragEnhancer from handling this event
       const deltaY = dragStartY - e.clientY; // Inverted because Y increases downward
       const deltaPercentage = (deltaY / 400) * 100; // 400px is max height
       const newHeight = Math.min(100, Math.max(0, dragStartHeight + deltaPercentage));
@@ -178,7 +184,10 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e?: MouseEvent) => {
+    if (e) {
+      e.stopPropagation(); // Prevent DragEnhancer from handling this event
+    }
     if (isDragging !== null && dragCurrentHeight !== null && onUpdate) {
       // Only call onUpdate once when drag ends
       const newChartData = [...chartData];
@@ -487,7 +496,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
         </div>
 
         {/* Numbered list */}
-        <div style={{ width: '100%' }}>
+        <div data-draggable="true" style={{ width: '100%' }}>
           {chartData.map((item, index) => (
             <div key={index} style={listItemStyles}>
               <div style={squareStyles(item.color)}>
@@ -666,6 +675,7 @@ export const MarketShareTemplate: React.FC<MarketShareTemplateProps & {
 
                 {/* Bar with height editing and drag resize */}
                 <div 
+                  data-no-drag="true"
                   style={{
                     ...barStyles(
                       isDragging === index && dragCurrentHeight !== null ? dragCurrentHeight : item.percentage, 

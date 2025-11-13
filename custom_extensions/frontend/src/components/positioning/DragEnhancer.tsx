@@ -99,6 +99,12 @@ export const DragEnhancer: React.FC<DragEnhancerProps> = ({
           return; // allow inline editing
         }
 
+        // Prevent drag on elements with data-no-drag attribute (custom drag handlers)
+        // This allows components like bar charts to have their own drag logic
+        if (targetElement.closest('[data-no-drag="true"]')) {
+          return; // Allow custom drag handlers
+        }
+
         // Prevent drag on WysiwygEditor toolbar and its buttons
         // Toolbar buttons are interactive elements that should not trigger drag
         if (targetElement.tagName === 'BUTTON' || 
