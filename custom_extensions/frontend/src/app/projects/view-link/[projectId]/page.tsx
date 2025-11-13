@@ -269,7 +269,6 @@ export default function ProjectInstanceViewPage() {
   const { projectId } = params || {};
   const { t } = useLanguage();
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
-  const [viewportWidth, setViewportWidth] = useState<number | null>(null);
   const [showMobileExportMenu, setShowMobileExportMenu] = useState(false);
   const mobileExportMenuRef = useRef<HTMLDivElement | null>(null);
   const mobileExportButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -318,16 +317,6 @@ export default function ProjectInstanceViewPage() {
       root.style.setProperty('--gradient-mid2', prev.mid2.trim() || '#BFD7FF');
       root.style.setProperty('--gradient-end', prev.end.trim() || '#CCE8FF');
     };
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const updateViewportWidth = () => setViewportWidth(window.innerWidth);
-    updateViewportWidth();
-
-    window.addEventListener('resize', updateViewportWidth);
-    return () => window.removeEventListener('resize', updateViewportWidth);
   }, []);
 
   useEffect(() => {
@@ -2159,11 +2148,10 @@ export default function ProjectInstanceViewPage() {
       : 'bg-transparent'
   ].filter(Boolean).join(' ');
 
-  const isMobileMidViewport = viewportWidth !== null && viewportWidth >= 390 && viewportWidth < 640;
   const isLinkViewProduct = projectInstanceData?.component_name === COMPONENT_NAME_TRAINING_PLAN ||
     projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK ||
     projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
-  const showMobileAuthorizedActions = Boolean(isMobileMidViewport && isAuthorized && isLinkViewProduct);
+  const showMobileAuthorizedActions = Boolean(isAuthorized && isLinkViewProduct);
 
   const mobileActionButtonFontSize = '14px';
   const mobileActionButtonHeight = 44;
@@ -2271,12 +2259,6 @@ export default function ProjectInstanceViewPage() {
 
     handlePdfDownload();
   };
-
-  useEffect(() => {
-    if (!isMobileMidViewport) {
-      setShowMobileExportMenu(false);
-    }
-  }, [isMobileMidViewport]);
 
   return (
     <>
