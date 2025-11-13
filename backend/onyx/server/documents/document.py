@@ -288,6 +288,24 @@ def _get_connector_content_by_source_types(
             total_tokens=0
         )
     
+    # Post-retrieval filtering by connector IDs (for session-specific filtering)
+    if request.connector_ids:
+        from onyx.db.document import get_document_ids_for_connector_ids
+        
+        logger.info(f"[GET_CONNECTOR_CONTENT] Filtering by connector_ids: {request.connector_ids}")
+        allowed_doc_ids = get_document_ids_for_connector_ids(
+            db_session=db_session,
+            connector_ids=request.connector_ids
+        )
+        logger.info(f"[GET_CONNECTOR_CONTENT] Found {len(allowed_doc_ids)} documents for connector_ids")
+        
+        chunks_before_filter = len(chunks)
+        chunks = [
+            chunk for chunk in chunks 
+            if chunk.document_id in allowed_doc_ids
+        ]
+        logger.info(f"[GET_CONNECTOR_CONTENT] Connector filtering: {chunks_before_filter} -> {len(chunks)} chunks")
+    
     if not chunks:
         logger.warning(f"[GET_CONNECTOR_CONTENT] No chunks found for source_types: {request.source_types}")
         

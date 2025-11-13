@@ -13441,6 +13441,7 @@ async def collect_agentic_context(
 
 async def collect_agentic_context_from_connectors_streaming(
     connector_sources: List[str],
+    connector_ids: List[int],
     original_prompt: str,
     product_type: str,
     cookies: Dict[str, str],
@@ -13476,6 +13477,7 @@ async def collect_agentic_context_from_connectors_streaming(
                 f"{ONYX_API_SERVER_URL}/document/get-file-content",
                 json={
                     "source_types": connector_sources,
+                    "connector_ids": connector_ids,
                     "query": original_prompt,
                     "max_chunks_per_file": 50,
                     "include_metadata": True
@@ -13566,6 +13568,7 @@ async def collect_agentic_context_from_connectors_streaming(
                         f"{ONYX_API_SERVER_URL}/document/get-file-content",
                         json={
                             "source_types": connector_sources,
+                            "connector_ids": connector_ids,
                             "query": focused_query,
                             "max_chunks_per_file": MAX_CHUNKS_PER_QUERY,
                             "include_metadata": True
@@ -20955,6 +20958,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                 # Step 1: Extract context from Onyx
                 if payload.fromConnectors and payload.connectorSources:
                     connector_sources_list = [s.strip() for s in payload.connectorSources.split(',')]
+                    connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
                     
                     if payload.selectedFiles:
                         # Combined context: connectors + SmartDrive files
@@ -20966,6 +20970,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         try:
                             async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
                                 connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Course Outline",
                                 cookies=cookies
@@ -21078,6 +21083,7 @@ Do NOT include code fences, markdown or extra commentary. Return JSON object onl
                         try:
                             async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
                                 connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Course Outline",
                                 cookies=cookies
@@ -29060,6 +29066,7 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                 # Step 1: Extract context from Onyx
                 if payload.fromConnectors and payload.connectorSources:
                     connector_sources_list = [s.strip() for s in payload.connectorSources.split(',')]
+                    connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
                     
                     if payload.selectedFiles:
                         # Combined context: connectors + SmartDrive files
@@ -29071,6 +29078,7 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         try:
                             async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
                                 connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Lesson Presentation",
                                 cookies=cookies
@@ -29188,6 +29196,7 @@ DELETE any slide or bullet that cannot be traced to the sources. If a slide woul
                         try:
                             async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
                                 connector_sources=connector_sources_list,
+                                connector_ids=connector_ids_list,
                                 original_prompt=payload.prompt,
                                 product_type="Lesson Presentation",
                                 cookies=cookies
@@ -34767,11 +34776,13 @@ CRITICAL SCHEMA AND CONTENT RULES (MUST MATCH FINAL FORMAT):
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
                     
                     connector_sources_list = [s.strip() for s in payload.connectorSources.split(',')]
+                    connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
                     connector_context = None
                     
                     try:
                         async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
                             connector_sources=connector_sources_list,
+                            connector_ids=connector_ids_list,
                             original_prompt=payload.prompt,
                             product_type="Quiz",
                             cookies=cookies
@@ -36760,11 +36771,13 @@ When fromFiles=true, you MUST use ONLY content that appears in the provided sour
                     logger.info(f"[HYBRID_CONTEXT] Extracting context from connectors: {payload.connectorSources}")
                     
                     connector_sources_list = [s.strip() for s in payload.connectorSources.split(',')]
+                    connector_ids_list = [int(id.strip()) for id in payload.connectorIds.split(',')] if payload.connectorIds else []
                     connector_context = None
                     
                     try:
                         async for update_type, update_data in collect_agentic_context_from_connectors_streaming(
                             connector_sources=connector_sources_list,
+                            connector_ids=connector_ids_list,
                             original_prompt=payload.prompt,
                             product_type="Text Presentation",
                             cookies=cookies

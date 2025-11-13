@@ -495,6 +495,7 @@ class FileContentRequest(BaseModel):
     """Request for file content extraction - supports both files and connectors"""
     file_ids: list[int] | None = None  # User file IDs (UserFile.id)
     source_types: list[str] | None = None  # Connector sources (e.g., ["slack", "notion"])
+    connector_ids: list[int] | None = None  # Filter by specific connector IDs (for session-specific filtering)
     query: str | None = None  # Optional query for semantic ranking
     max_chunks_per_file: int = 50  # Limit chunks per file/connector
     include_metadata: bool = True

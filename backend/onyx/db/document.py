@@ -1280,3 +1280,28 @@ def get_document_kg_entities_and_relationships(
         .all()
     )
     return entities, relationships
+
+
+def get_document_ids_for_connector_ids(
+    db_session: Session,
+    connector_ids: list[int]
+) -> set[str]:
+    """
+    Get all document IDs associated with specific connector IDs.
+    
+    This is used for session-specific filtering, such as when users upload
+    web links and we want to retrieve context only from those specific connectors,
+    not all connectors of the same type.
+    
+    Args:
+        db_session: Database session
+        connector_ids: List of connector IDs to filter by
+        
+    Returns:
+        Set of document IDs associated with the specified connectors
+    """
+    result = db_session.execute(
+        select(DocumentByConnectorCredentialPair.id)
+        .where(DocumentByConnectorCredentialPair.connector_id.in_(connector_ids))
+    )
+    return {row[0] for row in result}
