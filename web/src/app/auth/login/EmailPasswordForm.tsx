@@ -283,7 +283,7 @@ export function EmailPasswordForm({
               variant="default"
               type="submit"
               disabled={isSubmitting}
-              className="mx-auto font-bold lg:font-normal !py-3 lg:!py-2 !px-4 !h-auto w-full hover:shadow-md transition-shadow -mt-2 !bg-[#0F58F9] !text-[#ffffff] !rounded-md"
+              className="mx-auto !py-2 !px-4 !h-auto w-full hover:shadow-md transition-shadow -mt-2 !bg-[#0F58F9] !text-[#ffffff] !rounded-md"
             >
               {multiStep && step === 1
                 ? "Create Account"
@@ -296,7 +296,7 @@ export function EmailPasswordForm({
             {!isSignup && shouldVerify && (
               <Link
                 href="/auth/forgot-password"
-                className="text-[15px] text-[#0F58F9] -mt-2 cursor-pointer text-center md:text-left w-full text-link font-medium"
+                className="text-[15px] text-[#0F58F9] -mt-2 cursor-pointer text-left w-full text-link font-medium"
               >
                 Forgot password?
               </Link>
