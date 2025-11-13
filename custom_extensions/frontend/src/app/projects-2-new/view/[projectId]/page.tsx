@@ -747,6 +747,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
           className: 'rounded-lg border border-[#E0E0E0] bg-white shadow-sm text-left',
         }
       );
+      setIsTemplateModalOpen(true);
     } else {
       // TODO: Implement other actions for regular scenes
     }

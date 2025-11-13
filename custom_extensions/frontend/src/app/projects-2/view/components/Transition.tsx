@@ -427,12 +427,12 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               </div>
 
               {/* Variant row */}
-              <div className="flex flex-row items-center gap-2">
+              <div className="flex flex-row items-center gap-4">
                 <span className="text-[#171718] text-xs">Variant</span>
                 <DropdownMenu open={isVariantMenuOpen} onOpenChange={setIsVariantMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors w-full max-w-[120px]"
+                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors w-full max-w-[125px]"
                       type="button"
                     >
                       <span className="flex items-center gap-2">
@@ -451,7 +451,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <DropdownMenuContent
                     align="start"
                     sideOffset={8}
-                    className="w-[160px] rounded-md border border-[#A5A5A5] bg-white shadow-lg overflow-hidden p-0"
+                    className="w-[140px] rounded-md border border-[#A5A5A5] bg-white shadow-lg overflow-hidden p-0"
                   >
                     {VARIANT_OPTIONS.map((option) => (
                       <DropdownMenuItem

@@ -662,8 +662,8 @@ useEffect(() => {
                 className="pointer-events-auto"
                 style={{
                   position: 'absolute',
-                  left: `${position.x + (timelineContainerRef.current?.scrollLeft || 0)}px`,
-                  top: `${position.y + (window.scrollY || 0)}px`,
+                  left: `${position.x + window.scrollX}px`,
+                  top: `${position.y + window.scrollY}px`,
                   transform: 'translate(-50%, -50%)',
                   zIndex: 2000
                 }}
