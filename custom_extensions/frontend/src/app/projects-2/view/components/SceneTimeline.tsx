@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 // NEW: Import types and template registry
 import { ComponentBasedSlide, ComponentBasedSlideDeck } from '@/types/slideTemplates';
 import { VideoLessonData, VideoLessonSlideData } from '@/types/videoLessonTypes';
-import { LayoutGrid, Gem, LayoutDashboard, Settings, Zap, Trash2 } from 'lucide-react';
+import { LayoutGrid, Gem, LayoutDashboard, Settings, Zap, Trash2, Settings2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -72,6 +72,11 @@ export default function SceneTimeline({
   const [playheadPosition, setPlayheadPosition] = useState(0); // x position in pixels
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
   const addDropdownRef = useRef<HTMLDivElement | null>(null);
+  const [pendingClearedTransitions, setPendingClearedTransitions] = useState<number[]>([]);
+  const [pendingApplyEverywhere, setPendingApplyEverywhere] = useState<{
+    index: number;
+    type: TransitionType;
+  } | null>(null);
 
   // Convert Video Lesson slides to scenes if provided
   const displayScenes = useMemo(() => {
@@ -295,6 +300,49 @@ const getSceneRectangleStyles = () => {
   }, [transitionPositions]);
 
   const deckTemplateVersion = componentBasedSlideDeck?.templateVersion || 'v2';
+  useEffect(() => {
+    const transitions = componentBasedSlideDeck?.transitions;
+    if (!transitions || transitions.length === 0) {
+      setPendingClearedTransitions((prev) => (prev.length ? [] : prev));
+    if (pendingApplyEverywhere) {
+      setPendingApplyEverywhere(null);
+    }
+      return;
+    }
+    setPendingClearedTransitions((prev) =>
+      prev.filter((transitionIndex) => {
+        const transition = transitions[transitionIndex];
+        return transition ? transition.type !== 'none' : true;
+      })
+    );
+}, [componentBasedSlideDeck?.transitions]);
+
+useEffect(() => {
+  if (!pendingApplyEverywhere) return;
+  const transitions = componentBasedSlideDeck?.transitions;
+  if (!transitions || transitions.length === 0) return;
+  const expectedType = pendingApplyEverywhere.type;
+  const allMatch = transitions.every((transition) => transition?.type === expectedType);
+  if (allMatch) {
+    setPendingApplyEverywhere(null);
+  }
+}, [componentBasedSlideDeck?.transitions, pendingApplyEverywhere]);
+
+  const handleTransitionDeleteClick = (index: number) => {
+    setPendingClearedTransitions((prev) =>
+      prev.includes(index) ? prev : [...prev, index]
+    );
+    if (pendingApplyEverywhere) {
+      setPendingApplyEverywhere(null);
+    }
+    onTransitionDelete?.(index);
+  };
+  const handleApplyEverywhereClick = (index: number) => {
+    const currentType = (componentBasedSlideDeck?.transitions?.[index]?.type ?? 'none') as TransitionType;
+    setPendingClearedTransitions([]);
+    setPendingApplyEverywhere({ index, type: currentType });
+    onTransitionApplyEverywhere?.(index);
+  };
 
   const renderSceneThumbnail = (scene: Scene) => {
     const dimensions = getSceneRectangleDimensions();
@@ -303,7 +351,13 @@ const getSceneRectangleStyles = () => {
       const slide = scene.slideData;
       const innerWidth = dimensions.width - THUMBNAIL_PADDING * 2;
       const innerHeight = dimensions.height - THUMBNAIL_PADDING * 2;
-      const scale = Math.min(innerWidth / BASE_CANVAS_WIDTH, innerHeight / BASE_CANVAS_HEIGHT);
+      const widthScale = innerWidth / BASE_CANVAS_WIDTH;
+      const heightScale = innerHeight / BASE_CANVAS_HEIGHT;
+      const scale = Math.min(widthScale, heightScale);
+      const scaledWidth = BASE_CANVAS_WIDTH * scale;
+      const scaledHeight = BASE_CANVAS_HEIGHT * scale;
+      const offsetX = (innerWidth - scaledWidth) / 2;
+      const offsetY = (innerHeight - scaledHeight) / 2;
 
       return (
         <>
@@ -311,10 +365,10 @@ const getSceneRectangleStyles = () => {
           <div
             className="absolute pointer-events-none"
             style={{
-              top: THUMBNAIL_PADDING,
-              left: THUMBNAIL_PADDING,
-              width: innerWidth,
-              height: innerHeight,
+              top: THUMBNAIL_PADDING + offsetY,
+              left: THUMBNAIL_PADDING + offsetX,
+              width: scaledWidth,
+              height: scaledHeight,
               borderRadius: 6,
               overflow: 'hidden',
               background: '#ffffff',
@@ -592,7 +646,13 @@ const getSceneRectangleStyles = () => {
             
             const position = transitionPositionsWithVisibility[scene.id];
             if (!position) return null;
-            const transitionType = (componentBasedSlideDeck?.transitions?.[index]?.type ?? 'none') as TransitionType;
+            let transitionType = (componentBasedSlideDeck?.transitions?.[index]?.type ?? 'none') as TransitionType;
+            if (pendingApplyEverywhere) {
+              transitionType = pendingApplyEverywhere.type;
+            }
+            if (pendingClearedTransitions.includes(index)) {
+              transitionType = 'none';
+            }
             const transitionIcon = getTransitionIcon(transitionType, false);
             
             return (
@@ -652,7 +712,7 @@ const getSceneRectangleStyles = () => {
                     sideOffset={12}
                     className="w-[220px] rounded-[6px] border border-[#E5E7EB] bg-white shadow-xl py-2"
                   >
-                    <div className="px-4 pb-2">
+                    <div className="px-2 pb-2">
                       <div className="text-sm font-semibold text-[#171718] flex items-center gap-2">
                         <span className="inline-flex h-8 w-8 items-center justify-center text-[#0F58F9]">
                           {transitionIcon}
@@ -662,34 +722,34 @@ const getSceneRectangleStyles = () => {
                     </div>
                     <div className="h-px bg-[#F1F5F9] mb-1"></div>
                     <DropdownMenuItem
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
+                      className="flex items-center gap-3 px-4 py-2 text-xs text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
                       onSelect={(event: Event) => {
                         event.preventDefault();
                         onTransitionClick?.(index);
                       }}
                     >
-                      <Settings size={16} />
+                      <Settings2 size={16} />
                       Modify
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
+                      className="flex items-center gap-3 px-4 py-2 text-xs text-[#171718] hover:bg-[#F6F8FF] transition-colors focus:bg-[#F6F8FF] focus:text-[#171718]"
                       onSelect={(event: Event) => {
                         event.preventDefault();
-                        onTransitionApplyEverywhere?.(index);
+                      handleApplyEverywhereClick(index);
                       }}
                     >
                       <Zap size={16} />
                       Apply everywhere
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-red-600 bg-red-50 hover:bg-red-100 transition-colors focus:bg-[#FFF2F0] focus:text-[#E11900]"
-                      onSelect={(event: Event) => {
-                        event.preventDefault();
-                        onTransitionDelete?.(index);
-                      }}
-                    >
-                      <Trash2 size={16} />
-                      Delete
+                      <DropdownMenuItem
+                        className="flex items-center gap-3 px-4 py-2 text-xs text-red-600 bg-red-50 hover:bg-red-100 transition-colors focus:bg-[#FFF2F0] focus:text-[#E11900]"
+                        onSelect={(event: Event) => {
+                          event.preventDefault();
+                          handleTransitionDeleteClick(index);
+                        }}
+                      >
+                      <Trash2 className='text-red-600' size={16} />
+                      <span className='text-red-600'>Delete</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

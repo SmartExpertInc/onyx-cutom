@@ -151,10 +151,34 @@ const effectsIcon = ({fillLighter = '#878787', fillDarker = '#4D4D4D'}: {fillLig
 const defaultIconProps = { fillLighter: '#E4E4E4', fillDarker: '#4D4D4D' };
 const hoverIconProps = { fillLighter: '#CCDBFC', fillDarker: '#0F58F9' };
 
-const VARIANT_OPTIONS: Array<{ value: TransitionVariant; label: string; icon: string; helper?: string }> = [
-  { value: 'horizontal-chevrons', label: 'Left', icon: '←' },
-  { value: 'vertical-chevrons', label: 'Up', icon: '↑' },
-  { value: 'circle', label: 'Circle', icon: '◯' }
+const VARIANT_OPTIONS: Array<{ value: TransitionVariant; label: string; icon: React.ReactNode; helper?: string }> = [
+  {
+    value: 'horizontal-chevrons',
+    label: 'Left',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.99967 5.33594L1.33301 8.0026M1.33301 8.0026L3.99967 10.6693M1.33301 8.0026H14.6663" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    )
+  },
+  {
+    value: 'vertical-chevrons',
+    label: 'Up',
+    icon: (
+      <svg width="7" height="15" viewBox="0 0 7 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5.83301 3.16667L3.16634 0.5M3.16634 0.5L0.499674 3.16667M3.16634 0.5L3.16634 13.8333" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    )
+  },
+  {
+    value: 'circle',
+    label: 'Circle',
+    icon: (
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    )
+  }
 ];
 
 export const getTransitionIcon = (transitionType: TransitionType, isHovered = false): React.ReactNode => {
@@ -408,7 +432,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                 <DropdownMenu open={isVariantMenuOpen} onOpenChange={setIsVariantMenuOpen}>
                   <DropdownMenuTrigger asChild>
                     <button
-                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors w-full max-w-[200px]"
+                      className="flex items-center justify-between px-4 py-1 border border-[#E5E7EB] rounded-md bg-white shadow-sm text-sm text-[#171718] hover:border-[#0F58F9] transition-colors w-full max-w-[170px]"
                       type="button"
                     >
                       <span className="flex items-center gap-2">
@@ -427,7 +451,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                   <DropdownMenuContent
                     align="start"
                     sideOffset={8}
-                    className="w-[220px] rounded-xl border border-[#E5E7EB] bg-white shadow-lg overflow-hidden p-0"
+                    className="w-[200px] rounded-xl border border-[#A5A5A5] bg-white shadow-lg overflow-hidden p-0"
                   >
                     {VARIANT_OPTIONS.map((option) => (
                       <DropdownMenuItem
@@ -437,7 +461,7 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
                           handleVariantChange(option.value);
                         }}
                         className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors focus:bg-[#EFF4FF] focus:text-[#0F58F9] ${
-                          variant === option.value ? 'bg-[#EFF4FF] text-[#0F58F9]' : 'text-[#171718] hover:bg-gray-50'
+                          variant === option.value ? 'bg-[#EFF4FF] text-[#878787]' : 'text-[#171718] hover:bg-gray-50'
                         }`}
                       >
                         <span className="text-lg leading-none">{option.icon}</span>
@@ -482,12 +506,12 @@ export default function Transition({ transitionIndex, currentTransition, onTrans
               <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Basic</h4>
               <div className="grid grid-cols-3 gap-2">
               <button 
-                className={`w-14 h-14 flex items-center justify-center gap-2 bg-[#F4F4F5] border rounded-lg py-3 px-4 transition-colors duration-200 hover:bg-gray-50 ${isTransitionActive('none') ? 'border-[#0F58F9]' : 'border-gray-300'}`}
+                className={`w-14 h-14 flex flex-col items-center justify-center gap-2 bg-[#F4F4F5] border rounded-lg py-3 px-4 transition-colors duration-200 hover:bg-gray-50 ${isTransitionActive('none') ? 'border-[#0F58F9]' : 'border-gray-300'}`}
                 onClick={() => handleTransitionSelect('none')}
                 onMouseEnter={() => setHoveredTransition('none')}
                 onMouseLeave={() => setHoveredTransition(null)}
               >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="17" height="17" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0.75 0.75L12.75 12.75M12.75 0.75L0.75 12.75" stroke={isTransitionActive('none') ? '#0F58F9' : '#878787'} stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
                 <span className="text-gray-700 text-xs font-medium">None</span>
