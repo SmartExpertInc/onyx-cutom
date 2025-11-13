@@ -5968,10 +5968,10 @@
 
         .two-column-cutout-image-slide .left-top-image-container {
             position: absolute;
-            top: 116px;
+            top: 123px;
             right: 62px;
             width: 225px;
-            height: 236px;
+            height: 227px;
             border-radius: 0;
             overflow: hidden;
             z-index: 20;
@@ -8920,11 +8920,11 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 {% for point in painPoints %}
                                     <div class="pain-point-item">
                                         <div class="icon-container">
-                                            {% set iconPath = '/documentPainPoints.png' %}
+                                            {% set iconPath = '/custom-projects-ui/documentPainPoints.png' %}
                                             {% if point.iconType == 'message' %}
-                                                {% set iconPath = '/messagePainPoints.png' %}
+                                                {% set iconPath = '/custom-projects-ui/messagePainPoints.png' %}
                                             {% elif point.iconType == 'arrow' %}
-                                                {% set iconPath = '/topArrowPainPoints.png' %}
+                                                {% set iconPath = '/custom-projects-ui/topArrowPainPoints.png' %}
                                             {% endif %}
                                             <img src="{{ iconPath }}" alt="{{ point.iconType }}" class="icon-image" />
                                         </div>
@@ -8934,19 +8934,19 @@ Create opportunities for growth & advancement.{% endif %}</div>
                             {% else %}
                                 <div class="pain-point-item">
                                     <div class="icon-container">
-                                        <img src="/documentPainPoints.png" alt="document" class="icon-image" />
+                                        <img src="/custom-projects-ui/documentPainPoints.png" alt="document" class="icon-image" />
                                     </div>
                                     <div class="pain-point-text">Hindered career progression and access to valuable resources.</div>
                                 </div>
                                 <div class="pain-point-item">
                                     <div class="icon-container">
-                                        <img src="/messagePainPoints.png" alt="message" class="icon-image" />
+                                        <img src="/custom-projects-ui/messagePainPoints.png" alt="message" class="icon-image" />
                                     </div>
                                     <div class="pain-point-text">Strained communication and reduced effectiveness.</div>
                                 </div>
                                 <div class="pain-point-item">
                                     <div class="icon-container">
-                                        <img src="/topArrowPainPoints.png" alt="arrow" class="icon-image" />
+                                        <img src="/custom-projects-ui/topArrowPainPoints.png" alt="arrow" class="icon-image" />
                                     </div>
                                     <div class="pain-point-text">Missed opportunities for collaboration and growth.</div>
                                 </div>
@@ -9001,7 +9001,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     <!-- Top Middle -->
                     <div class="top-middle">
                         {% if topMiddle and topMiddle.imagePath %}
-                            <div style="margin-top: -40px; margin-bottom: 20px; width: calc(100% + 80px); margin-left: -40px; margin-right: -40px; overflow: hidden;">
+                            <div style="margin-top: -60px; margin-bottom: 20px; width: calc(100% + 120px); margin-left: -60px; overflow: hidden;">
                                 <img src="{{ topMiddle.imagePath }}" alt="Image" class="top-middle-image" />
                             </div>
                         {% endif %}
@@ -9079,27 +9079,51 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         <!-- Top Left -->
                         <div class="top-left">
                             {% if topLeft and topLeft.iconPath %}
-                                <img src="{{ topLeft.iconPath }}" alt="Icon" class="icon" />
+                                {% set iconPath = topLeft.iconPath %}
+                                {% if iconPath[:18] != '/custom-projects-ui' %}
+                                    {% if iconPath[0] == '/' %}
+                                        {% set iconPath = '/custom-projects-ui' + iconPath %}
+                                    {% else %}
+                                        {% set iconPath = '/custom-projects-ui/' + iconPath %}
+                                    {% endif %}
+                                {% endif %}
+                                <img src="{{ iconPath }}" alt="Financial losses" class="icon" />
                             {% else %}
-                                <img src="/financialLosses.png" alt="Financial losses" class="icon" />
+                                <img src="/custom-projects-ui/financialLosses.png" alt="Financial losses" class="icon" />
                             {% endif %}
                         </div>
 
                         <!-- Top Middle -->
                         <div class="top-middle">
                             {% if topMiddle and topMiddle.iconPath %}
-                                <img src="{{ topMiddle.iconPath }}" alt="Icon" class="icon" />
+                                {% set iconPath = topMiddle.iconPath %}
+                                {% if iconPath[:18] != '/custom-projects-ui' %}
+                                    {% if iconPath[0] == '/' %}
+                                        {% set iconPath = '/custom-projects-ui' + iconPath %}
+                                    {% else %}
+                                        {% set iconPath = '/custom-projects-ui/' + iconPath %}
+                                    {% endif %}
+                                {% endif %}
+                                <img src="{{ iconPath }}" alt="Fines" class="icon" />
                             {% else %}
-                                <img src="/fines.png" alt="Fines" class="icon" />
+                                <img src="/custom-projects-ui/fines.png" alt="Fines" class="icon" />
                             {% endif %}
                         </div>
 
                         <!-- Top Right -->
                         <div class="top-right">
                             {% if topRight and topRight.iconPath %}
-                                <img src="{{ topRight.iconPath }}" alt="Icon" class="icon" />
+                                {% set iconPath = topRight.iconPath %}
+                                {% if iconPath[:18] != '/custom-projects-ui' %}
+                                    {% if iconPath[0] == '/' %}
+                                        {% set iconPath = '/custom-projects-ui' + iconPath %}
+                                    {% else %}
+                                        {% set iconPath = '/custom-projects-ui/' + iconPath %}
+                                    {% endif %}
+                                {% endif %}
+                                <img src="{{ iconPath }}" alt="Loss of trust" class="icon" />
                             {% else %}
-                                <img src="/lossOfTrust.png" alt="Loss of trust" class="icon" />
+                                <img src="/custom-projects-ui/lossOfTrust.png" alt="Loss of trust" class="icon" />
                             {% endif %}
                         </div>
 
