@@ -33,7 +33,7 @@ const CommentsForGeneratedProduct = ({
   }, [filterDropdownOpen]);
 
   return (
-    <div className="flex-1 flex flex-col p-4 lg:rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
+    <div className="flex-1 flex flex-col px-3 pt-3 pb-0 lg:px-4 lg:pt-4 lg:pb-4 lg:rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
       {isAuthorized ? (
         <>
           {/* Search bar and Filter button */}
@@ -169,13 +169,15 @@ const CommentsForGeneratedProduct = ({
           </div>
           
           {/* Text */}
-          <p className="text-center text-[#171718] text-base font-medium leading-tight">
-            Comments are only available for<br />workspace members
+          <p className="text-center text-[#171718] text-base lg:font-medium leading-tight">
+            Comments are only available for
+            <span className="lg:hidden"> workspace members</span>
+            <span className="hidden lg:inline"> <br />workspace members</span>
           </p>
           
           {/* Sign up button */}
           <button
-            className="flex items-center gap-1.5 mt-2 px-4 py-2 rounded-md text-white text-sm cursor-pointer hover:opacity-90 transition-opacity"
+            className="flex w-full justify-center items-center gap-1.5 mt-1 lg:mt-2 px-4 py-2 rounded-md text-white text-sm cursor-pointer hover:opacity-90 transition-opacity lg:w-auto"
             style={{ backgroundColor: '#0F58F9', height: '40px' }}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
