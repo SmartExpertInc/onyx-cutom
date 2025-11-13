@@ -328,11 +328,39 @@ export default function UploadFilesPage() {
       connectorSources: string[];
       connectorIds: number[];
     }) => {
-      saveKnowledgeBaseSelection(payload.selection, { track: true });
+      // Merge new selection with existing selection
+      const existingFilePaths = knowledgeBaseSelection?.filePaths || [];
+      const newFilePaths = payload.selection.filePaths || [];
+      
+      // Deduplicate file paths
+      const allFilePaths = [...existingFilePaths, ...newFilePaths];
+      const uniqueFilePaths = Array.from(new Set(allFilePaths));
+      
+      // Deduplicate connectors by ID
+      const existingConnectors = knowledgeBaseSelection?.connectors || [];
+      const newConnectors = payload.selection.connectors || [];
+      const allConnectors = [...existingConnectors, ...newConnectors];
+      
+      // Create a map by connector ID to deduplicate
+      const connectorMap = new Map<number, KnowledgeBaseConnector>();
+      allConnectors.forEach(connector => {
+        if (connector && typeof connector.id === 'number') {
+          connectorMap.set(connector.id, connector);
+        }
+      });
+      const uniqueConnectors = Array.from(connectorMap.values());
+      
+      const mergedSelection: KnowledgeBaseSelection = {
+        filePaths: uniqueFilePaths,
+        connectors: uniqueConnectors
+      };
+      
+      saveKnowledgeBaseSelection(mergedSelection, { track: true });
       setShowImportOptions(false);
       setIsSmartDriveModalOpen(false);
+      setIsUrlModalOpen(false);
     },
-    [saveKnowledgeBaseSelection]
+    [saveKnowledgeBaseSelection, knowledgeBaseSelection]
   );
 
   const handleDeleteItem = (item: ReviewItem) => {
