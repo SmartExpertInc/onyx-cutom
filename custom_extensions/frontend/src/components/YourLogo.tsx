@@ -43,12 +43,43 @@ export const YourLogo: React.FC<YourLogoProps> = ({
   return (
     <>
       <div
-        style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: isEditable ? 'pointer' : 'default', ...style }}
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          gap: '10px', 
+          cursor: isEditable ? 'pointer' : 'default', 
+          width: '100%',
+          ...style 
+        }}
         onClick={() => isEditable && setOpen(true)}
       >
-        <div style={{ width: '30px', height: '30px', border: `2px solid ${color}`, borderRadius: '50%', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '12px', height: '2px', backgroundColor: color, position: 'absolute' }} />
-          <div style={{ width: '2px', height: '12px', backgroundColor: color, position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }} />
+        <div style={{ 
+          width: '30px', 
+          height: '30px', 
+          border: `2px solid ${color}`, 
+          borderRadius: '50%', 
+          position: 'relative', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          <div style={{ 
+            width: '12px', 
+            height: '2px', 
+            backgroundColor: color, 
+            position: 'absolute' 
+          }} />
+          <div style={{ 
+            width: '2px', 
+            height: '12px', 
+            backgroundColor: color, 
+            position: 'absolute', 
+            left: '50%', 
+            top: '50%', 
+            transform: 'translate(-50%, -50%)' 
+          }} />
         </div>
         <span style={{ fontSize, fontWeight: 400, color }}>{text}</span>
       </div>

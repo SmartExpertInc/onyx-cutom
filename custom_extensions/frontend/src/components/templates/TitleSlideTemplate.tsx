@@ -65,14 +65,14 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
   };
 
   const logoStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: '40px',
-    left: '50%',
-    transform: 'translateX(-50%)',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: '10px',
-    cursor: isEditable ? 'pointer' : 'default'
+    cursor: isEditable ? 'pointer' : 'default',
+    marginBottom: '90px', // Space to position logo at top (40px top + 50px spacing)
+    width: '100%',
+    maxWidth: '100%'
   };
 
   const logoIconStyles: React.CSSProperties = {
