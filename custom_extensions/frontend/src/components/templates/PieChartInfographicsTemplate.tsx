@@ -413,7 +413,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                 </div>
                 
                 {/* Description */}
-                <div data-draggable="true" style={{ display: 'inline-block', marginTop: '8px' }}>
+                <div data-draggable="true">
                   <div className="text-gray-600 text-sm leading-relaxed">
                     {editingSegmentDesc === index && isEditable ? (
                       <WysiwygEditor
@@ -587,7 +587,7 @@ export const PieChartInfographicsTemplate: React.FC<PieChartInfographicsTemplate
                   </div>
                   
                   {/* Description */}
-                  <div data-draggable="true" style={{ display: 'inline-block', marginTop: '8px' }}>
+                  <div data-draggable="true">
                     <div className="text-gray-600 text-sm leading-relaxed">
                       {editingSegmentDesc === actualIndex && isEditable ? (
                         <WysiwygEditor
