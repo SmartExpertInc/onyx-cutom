@@ -172,7 +172,8 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
     position: 'relative',
     height: '400px',
     width: '100%',
-    overflow: 'visible'
+    overflow: 'visible',
+    padding: '0 60px'
   };
 
   const imageContainerStyles: React.CSSProperties = {
@@ -185,7 +186,8 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1
+    zIndex: 1,
+    pointerEvents: 'none'
   };
 
   return (
@@ -278,9 +280,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {challengeItems.map((item: string, index: number) => {
           // Position each challenge next to its icon
           const positions = [
-            { top: '15%', left: '20px' },   // Top icon
-            { top: '48%', left: '20px' },   // Middle icon
-            { top: '75%', left: '20px' }    // Bottom icon
+            { top: '15%', left: '0px' },   // Top icon
+            { top: '48%', left: '0px' },   // Middle icon
+            { top: '75%', left: '0px' }    // Bottom icon
           ];
           const pos = positions[index] || positions[0];
           
@@ -288,7 +290,8 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
             <div key={index} data-draggable="true" style={{
               position: 'absolute',
               ...pos,
-              width: '280px',
+              width: '220px',
+              maxWidth: '220px',
               zIndex: 10
             }}>
               {editingChallengeItems[index] ? (
@@ -351,9 +354,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
         {solutionItems.map((item: string, index: number) => {
           // Position each solution next to its icon
           const positions = [
-            { top: '15%', right: '10px' },   // Top icon
-            { top: '48%', right: '10px' },   // Middle icon
-            { top: '75%', right: '10px' }    // Bottom icon
+            { top: '15%', right: '0px' },   // Top icon
+            { top: '48%', right: '0px' },   // Middle icon
+            { top: '75%', right: '0px' }    // Bottom icon
           ];
           const pos = positions[index] || positions[0];
           
@@ -361,7 +364,8 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
             <div key={index} data-draggable="true" style={{
               position: 'absolute',
               ...pos,
-              width: '280px',
+              width: '220px',
+              maxWidth: '220px',
               zIndex: 10
             }}>
               {editingSolutionItems[index] ? (
