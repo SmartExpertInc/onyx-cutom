@@ -3,6 +3,7 @@ import { SlideTheme, getSlideTheme, DEFAULT_SLIDE_THEME } from '@/types/slideThe
 import { ChallengesSolutionsProps } from '@/types/slideTemplates';
 import Image from 'next/image';
 import groupImg from './group_img.png';
+import { WysiwygEditor } from '@/components/editors/WysiwygEditor';
 
 export interface ChallengesSolutionsTemplateProps {
   title?: string;
@@ -11,107 +12,6 @@ export interface ChallengesSolutionsTemplateProps {
   isEditable?: boolean;
   slideId?: string;
   onUpdate?: (data: Partial<ChallengesSolutionsTemplateProps>) => void;
-}
-
-interface InlineEditorProps {
-  initialValue: string;
-  onSave: (value: string) => void;
-  onCancel: () => void;
-  multiline?: boolean;
-  placeholder?: string;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-function InlineEditor({ 
-  initialValue, 
-  onSave, 
-  onCancel, 
-  multiline = false, 
-  placeholder = "",
-  className = "",
-  style = {}
-}: InlineEditorProps) {
-  const [value, setValue] = useState(initialValue);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Enter' && e.ctrlKey && multiline) {
-      e.preventDefault();
-      onSave(value);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  const handleBlur = () => {
-    onSave(value);
-  };
-
-  if (multiline) {
-    return (
-      <textarea
-        ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-        value={value}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={className}
-        style={{
-          ...style,
-          border: 'none',
-          outline: 'none',
-          background: 'transparent',
-          resize: 'none',
-          fontFamily: 'inherit',
-          fontSize: 'inherit',
-          fontWeight: 'inherit',
-          color: 'inherit',
-          textAlign: 'inherit',
-          lineHeight: 'inherit',
-          width: '100%',
-          minHeight: '60px'
-        }}
-      />
-    );
-  }
-
-  return (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      type="text"
-      value={value}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={className}
-        style={{
-          ...style,
-          border: 'none',
-          outline: 'none',
-          background: 'transparent',
-          fontFamily: 'inherit',
-          fontSize: 'inherit',
-          fontWeight: 'inherit',
-          color: 'inherit',
-          textAlign: 'inherit',
-          width: '100%'
-        }}
-    />
-  );
 }
 
 const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & Partial<ChallengesSolutionsProps>> = ({
@@ -195,6 +95,10 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
     const newEditingStates = [...editingChallengeItems];
     newEditingStates[index] = false;
     setEditingChallengeItems(newEditingStates);
+    
+    if (onUpdate) {
+      onUpdate({ challenges: newItems });
+    }
   };
 
   const handleSolutionItemSave = (index: number, value: string) => {
@@ -205,6 +109,10 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
     const newEditingStates = [...editingSolutionItems];
     newEditingStates[index] = false;
     setEditingSolutionItems(newEditingStates);
+    
+    if (onUpdate) {
+      onUpdate({ solutions: newItems });
+    }
   };
 
   const handleChallengeItemEdit = (index: number) => {
@@ -281,45 +189,85 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
   return (
     <div style={slideStyles} ref={slideContainerRef}>
       {/* Title */}
-      {isEditingTitle ? (
-        <InlineEditor
-          initialValue={currentTitle}
-          onSave={handleTitleSave}
-          onCancel={() => setIsEditingTitle(false)}
-          placeholder="Enter title"
-          style={titleStyles}
-        />
-      ) : (
-        <h1
-          style={titleStyles}
-          onClick={() => isEditable && setIsEditingTitle(true)}
-          data-draggable={isEditable}
-        >
-          {currentTitle}
-        </h1>
-      )}
+      <div data-draggable="true">
+        {isEditable && isEditingTitle ? (
+          <WysiwygEditor
+            initialValue={currentTitle}
+            onSave={handleTitleSave}
+            onCancel={() => setIsEditingTitle(false)}
+            placeholder="Enter title"
+            className="inline-editor-title"
+            style={{
+              ...titleStyles,
+              padding: '8px',
+              border: '1px solid #e5e7eb',
+              borderRadius: '4px',
+              wordWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              display: 'block'
+            }}
+          />
+        ) : (
+          <h1
+            style={titleStyles}
+            onClick={(e) => {
+              const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+              if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              if (isEditable) {
+                setIsEditingTitle(true);
+              }
+            }}
+            className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+            dangerouslySetInnerHTML={{ __html: currentTitle }}
+          />
+        )}
+      </div>
 
       {/* Subtitle - only show if subtitle exists */}
       {currentSubtitle && (
-        <>
-          {isEditingSubtitle ? (
-            <InlineEditor
+        <div data-draggable="true">
+          {isEditable && isEditingSubtitle ? (
+            <WysiwygEditor
               initialValue={currentSubtitle}
               onSave={handleSubtitleSave}
               onCancel={() => setIsEditingSubtitle(false)}
               placeholder="Enter subtitle"
-              style={subtitleStyles}
+              className="inline-editor-subtitle"
+              style={{
+                ...subtitleStyles,
+                padding: '8px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap',
+                boxSizing: 'border-box',
+                display: 'block'
+              }}
             />
           ) : (
             <h2
               style={subtitleStyles}
-              onClick={() => isEditable && setIsEditingSubtitle(true)}
-              data-draggable={isEditable}
-            >
-              {currentSubtitle}
-            </h2>
+              onClick={(e) => {
+                const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+                if (isEditable) {
+                  setIsEditingSubtitle(true);
+                }
+              }}
+              className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+              dangerouslySetInnerHTML={{ __html: currentSubtitle }}
+            />
           )}
-        </>
+        </div>
       )}
 
       {/* Main Content with Image */}
@@ -335,14 +283,14 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           const pos = positions[index] || positions[0];
           
           return (
-            <div key={index} style={{
+            <div key={index} data-draggable="true" style={{
               position: 'absolute',
               ...pos,
               width: '280px',
               zIndex: 10
             }}>
               {editingChallengeItems[index] ? (
-                <InlineEditor
+                <WysiwygEditor
                   initialValue={challengeItems[index]}
                   onSave={(value) => handleChallengeItemSave(index, value)}
                   onCancel={() => {
@@ -351,13 +299,21 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     setEditingChallengeItems(newEditingStates);
                   }}
                   placeholder="Enter challenge"
+                  className="inline-editor-challenge"
                   style={{
                     fontSize: '17px',
                     color: '#000000',
                     fontFamily: 'Arial, sans-serif',
                     fontWeight: 'normal',
                     width: '100%',
-                    minWidth: '200px'
+                    minWidth: '200px',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
                   }}
                 />
               ) : (
@@ -372,11 +328,18 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     width: '100%',
                     wordWrap: 'break-word'
                   }}
-                  onClick={() => handleChallengeItemEdit(index)}
-                  data-draggable={isEditable}
-                >
-                  {item}
-                </div>
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    handleChallengeItemEdit(index);
+                  }}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  dangerouslySetInnerHTML={{ __html: item }}
+                />
               )}
             </div>
           );
@@ -393,14 +356,14 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           const pos = positions[index] || positions[0];
           
           return (
-            <div key={index} style={{
+            <div key={index} data-draggable="true" style={{
               position: 'absolute',
               ...pos,
               width: '280px',
               zIndex: 10
             }}>
               {editingSolutionItems[index] ? (
-                <InlineEditor
+                <WysiwygEditor
                   initialValue={solutionItems[index]}
                   onSave={(value) => handleSolutionItemSave(index, value)}
                   onCancel={() => {
@@ -409,6 +372,7 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     setEditingSolutionItems(newEditingStates);
                   }}
                   placeholder="Enter solution"
+                  className="inline-editor-solution"
                   style={{
                     fontSize: '17px',
                     color: '#000000',
@@ -416,7 +380,14 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     fontWeight: 'normal',
                     textAlign: 'left',
                     width: '100%',
-                    minWidth: '200px'
+                    minWidth: '200px',
+                    padding: '8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '4px',
+                    wordWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    boxSizing: 'border-box',
+                    display: 'block'
                   }}
                 />
               ) : (
@@ -431,11 +402,18 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                     width: '100%',
                     wordWrap: 'break-word'
                   }}
-                  onClick={() => handleSolutionItemEdit(index)}
-                  data-draggable={isEditable}
-                >
-                  {item}
-                </div>
+                  onClick={(e) => {
+                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    handleSolutionItemEdit(index);
+                  }}
+                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                  dangerouslySetInnerHTML={{ __html: item }}
+                />
               )}
             </div>
           );
@@ -461,17 +439,25 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           {/* Challenges Title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
             {isEditable && isEditingChallengesTitle ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={currentChallengesTitle}
                 onSave={handleChallengesTitleSave}
                 onCancel={() => setIsEditingChallengesTitle(false)}
                 placeholder="Challenges"
+                className="inline-editor-challenges-title"
                 style={{
                   fontSize: '19px',
                   color: '#000000',
                   fontFamily: 'Arial, sans-serif',
                   fontWeight: '500',
                   textAlign: 'center',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
                 }}
               />
             ) : (
@@ -484,28 +470,45 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   textAlign: 'center',
                   cursor: isEditable ? 'pointer' : 'default',
                 }}
-                onClick={() => isEditable && setIsEditingChallengesTitle(true)}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setIsEditingChallengesTitle(true);
+                  }
+                }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {currentChallengesTitle}
-              </div>
+                dangerouslySetInnerHTML={{ __html: currentChallengesTitle }}
+              />
             )}
           </div>
           
           {/* Solutions Title */}
           <div data-draggable="true" style={{ display: 'inline-block' }}>
             {isEditable && isEditingSolutionsTitle ? (
-              <InlineEditor
+              <WysiwygEditor
                 initialValue={currentSolutionsTitle}
                 onSave={handleSolutionsTitleSave}
                 onCancel={() => setIsEditingSolutionsTitle(false)}
                 placeholder="Solutions"
+                className="inline-editor-solutions-title"
                 style={{
                   fontSize: '19px',
                   color: '#000000',
                   fontFamily: 'Arial, sans-serif',
                   fontWeight: '500',
                   textAlign: 'left',
+                  padding: '8px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  wordWrap: 'break-word',
+                  whiteSpace: 'pre-wrap',
+                  boxSizing: 'border-box',
+                  display: 'block'
                 }}
               />
             ) : (
@@ -518,11 +521,20 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   textAlign: 'left',
                   cursor: isEditable ? 'pointer' : 'default',
                 }}
-                onClick={() => isEditable && setIsEditingSolutionsTitle(true)}
+                onClick={(e) => {
+                  const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                  if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  if (isEditable) {
+                    setIsEditingSolutionsTitle(true);
+                  }
+                }}
                 className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-              >
-                {currentSolutionsTitle}
-              </div>
+                dangerouslySetInnerHTML={{ __html: currentSolutionsTitle }}
+              />
             )}
           </div>
         </div>
