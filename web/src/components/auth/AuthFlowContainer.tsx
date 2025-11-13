@@ -9,14 +9,14 @@ export default function AuthFlowContainer({
   authState?: "signup" | "login" | "join";
 }) {
   return (
-    <div className="min-h-screen flex" style={{ background: 'white' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: 'white' }}>
       {/* Left side - Feature Highlights */}
-      <div className="flex-1 flex items-center justify-center">
+      <div className="hidden lg:flex lg:flex-1 items-center justify-center">
         <FeatureHighlights />
       </div>
       
       {/* Right side - Auth Form */}
-      <div className="flex-1 flex flex-col pr-[120px] py-8">
+      <div className="flex flex-col w-full py-8 px-6 lg:px-0 lg:flex-1 lg:pr-[120px]">
         <div className="flex justify-end mb-6">
           {authState === "login" && (
             <Link href="/auth/signup" className="px-3 py-1 text-[#0F58F9] border border-[#0F58F9] rounded-md">Sign up</Link>
