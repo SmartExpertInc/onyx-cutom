@@ -15,6 +15,7 @@ export interface WysiwygEditorProps {
   placeholder?: string;
   className?: string;
   style?: React.CSSProperties;
+  toolbarAbove?: boolean; // If true, toolbar appears above the editor; if false, below
 }
 
 export function WysiwygEditor({
@@ -23,13 +24,15 @@ export function WysiwygEditor({
   onCancel,
   placeholder = '',
   className = '',
-  style = {}
+  style = {},
+  toolbarAbove = true // Default to above for backward compatibility
 }: WysiwygEditorProps) {
   const [showToolbar, setShowToolbar] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showTextStyleDropdown, setShowTextStyleDropdown] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#000000');
   const [currentTextStyle, setCurrentTextStyle] = useState('Normal text');
+  const [toolbarPosition, setToolbarPosition] = useState<{ top: number; left: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
   const textStyleDropdownRef = useRef<HTMLDivElement>(null);
@@ -118,6 +121,19 @@ export function WysiwygEditor({
       const { empty } = editor.state.selection;
       setShowToolbar(!empty);
       
+      // Update toolbar position when selection changes
+      if (!empty && containerRef.current) {
+        const editorElement = editor.view.dom;
+        if (editorElement) {
+          const editorRect = editorElement.getBoundingClientRect();
+          const left = editorRect.left + (editorRect.width / 2);
+          const top = toolbarAbove 
+            ? editorRect.top - 60
+            : editorRect.bottom + 60;
+          setToolbarPosition({ top, left });
+        }
+      }
+      
       // Отримати поточний колір
       const currentColor = getCurrentTextColor();
       setSelectedColor(currentColor);
@@ -148,6 +164,43 @@ export function WysiwygEditor({
       setShowTextStyleDropdown(false);
     },
   });
+
+  // Calculate toolbar position based on editor's position in viewport
+  useEffect(() => {
+    if (showToolbar && containerRef.current && editor) {
+      const updateToolbarPosition = () => {
+        const editorElement = editor.view.dom;
+        if (editorElement && containerRef.current) {
+          const editorRect = editorElement.getBoundingClientRect();
+          const containerRect = containerRef.current.getBoundingClientRect();
+          
+          // Calculate center position
+          const left = editorRect.left + (editorRect.width / 2);
+          
+          // Position above or below based on toolbarAbove prop
+          const top = toolbarAbove 
+            ? editorRect.top - 60 // Above the editor
+            : editorRect.bottom + 60; // Below the editor
+          
+          setToolbarPosition({ top, left });
+        }
+      };
+      
+      // Update position immediately
+      updateToolbarPosition();
+      
+      // Update position on scroll and resize
+      window.addEventListener('scroll', updateToolbarPosition, true);
+      window.addEventListener('resize', updateToolbarPosition);
+      
+      return () => {
+        window.removeEventListener('scroll', updateToolbarPosition, true);
+        window.removeEventListener('resize', updateToolbarPosition);
+      };
+    } else {
+      setToolbarPosition(null);
+    }
+  }, [showToolbar, editor, toolbarAbove]);
 
   useEffect(() => {
     if (editor && !hasInitiallySelectedRef.current) {
@@ -239,12 +292,12 @@ export function WysiwygEditor({
         width: '100%'
       }}
     >
-      {showToolbar && (
+      {showToolbar && toolbarPosition && (
         <div
           style={{
-            position: 'absolute',
-            top: '-60px',
-            left: '50%',
+            position: 'fixed',
+            top: `${toolbarPosition.top}px`,
+            left: `${toolbarPosition.left}px`,
             transform: 'translateX(-50%)',
             display: 'flex',
             gap: '4px',
@@ -298,7 +351,7 @@ export function WysiwygEditor({
                 ref={colorPickerRef}
                 style={{
                   position: 'absolute',
-                  top: '38px',
+                  ...(toolbarAbove ? { top: '38px' } : { bottom: '38px' }),
                   left: '50%',
                   transform: 'translateX(-50%)',
                   backgroundColor: 'white',
@@ -406,7 +459,7 @@ export function WysiwygEditor({
                 ref={textStyleDropdownRef}
                 style={{
                   position: 'absolute',
-                  top: '38px',
+                  ...(toolbarAbove ? { top: '38px' } : { bottom: '38px' }),
                   left: '0',
                   backgroundColor: 'white',
                   border: '1px solid #e5e7eb',
