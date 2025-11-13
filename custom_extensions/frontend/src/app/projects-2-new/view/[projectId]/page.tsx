@@ -47,6 +47,7 @@ import AnimateButton from '@/components/ui/animate-button';
 import { toast } from 'sonner';
 import { CheckCircle2 } from 'lucide-react';
 import { Toaster } from '@/components/ui/sonner';
+import { FeedbackButton } from '@/components/ui/feedback-button';
 
 const CUSTOM_BACKEND_URL = process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || '/api/custom-projects-backend';
 
@@ -744,7 +745,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
       toast.success(
         t('videoEditor.toast.sceneLayoutSavedTitle', 'Scene layout saved.'),
         {
-          description: <span style={{ color: '#878787' }}>{descriptionText}</span>,
+          description: <span style={{ color: '#878787', paddingLeft: '15px' }}>{descriptionText}</span>,
           icon: <CheckCircle2 className="w-5 h-5" style={{ color: '#74C643' }} />,
           position: 'top-center',
           duration: 4000,
@@ -1778,6 +1779,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
         onRecentColorChange={setTextRecentColors}
       />
       */}
+      <FeedbackButton />
       </div>
       
         </div>
