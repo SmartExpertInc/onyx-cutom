@@ -219,6 +219,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const canShowDraftButton = shouldShowLinkButtons && currentIsAuthorized && (isPresentation || isVideoProduct);
   const actionButtonFontSize = '14px';
   const actionButtonHeight = useMobileLinkViewLayout ? 44 : 36;
+  const actionButtonWidth = useMobileLinkViewLayout ? 138 : undefined;
+  const actionButtonPadding = {
+    paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
+    paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+  };
   const homeButtonHeight = useMobileLinkViewLayout ? 44 : 36;
   const homeButtonPaddingX = useMobileLinkViewLayout ? 16 : 12;
 
@@ -360,8 +365,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         lineHeight: '140%',
         letterSpacing: '0.05em',
         height: `${actionButtonHeight}px`,
-        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
-        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+        width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
+        ...actionButtonPadding
       }}
     >
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -389,8 +394,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             lineHeight: '140%',
             letterSpacing: '0.05em',
             height: `${actionButtonHeight}px`,
-            paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
-            paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+            width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
+            ...actionButtonPadding
           }}
         >
           <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -432,8 +437,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         lineHeight: '140%',
         letterSpacing: '0.05em',
         height: `${actionButtonHeight}px`,
-        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
-        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+        width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
+        ...actionButtonPadding
       }}
     >
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -454,8 +459,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         lineHeight: '140%',
         letterSpacing: '0.05em',
         height: `${actionButtonHeight}px`,
-        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
-        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+        width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
+        ...actionButtonPadding
       }}
     >
       Sign up
@@ -474,8 +479,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         letterSpacing: '0.05em',
         border: '1px solid #171718',
         height: `${actionButtonHeight}px`,
-        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
-        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+        width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
+        ...actionButtonPadding
       }}
       title={t('actions.aiAgent', 'AI Improve')}
     >
@@ -506,8 +511,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         letterSpacing: '0.05em',
         border: '1px solid #0F58F9',
         height: `${actionButtonHeight}px`,
-        paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
-        paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+        width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
+        ...actionButtonPadding
       }}
       title="Export to PDF"
     >
@@ -548,7 +553,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   className="flex items-center"
                   style={useMobileLinkViewLayout ? { height: `${actionButtonHeight}px` } : undefined}
                 >
-                  <UserDropdown />
+                  <UserDropdown buttonSize={homeButtonHeight} />
                 </div>
               ) : (
                 <>
@@ -608,8 +613,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 letterSpacing: '0.05em',
                 border: isEditing ? '1px solid #10B981' : '1px solid #171718',
                 height: `${actionButtonHeight}px`,
-                paddingLeft: useMobileLinkViewLayout ? '20px' : '15px',
-                paddingRight: useMobileLinkViewLayout ? '24px' : '20px'
+                width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
+                ...actionButtonPadding
               }}
               title={isEditing ? 'Save' : 'Edit'}
             >
@@ -642,7 +647,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               className="flex items-center"
               style={useMobileLinkViewLayout ? { height: `${actionButtonHeight}px` } : undefined}
             >
-              <UserDropdown />
+              <UserDropdown buttonSize={homeButtonHeight} />
             </div>
           ) : (
             <div className="flex items-center gap-3">
