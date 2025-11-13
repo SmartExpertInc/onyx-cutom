@@ -2172,7 +2172,7 @@ export default function ProjectInstanceViewPage() {
     paddingRight: '16px'
   };
 
-  const handleMobileCopyLink = useCallback(() => {
+  const handleMobileCopyLink = () => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -2185,7 +2185,7 @@ export default function ProjectInstanceViewPage() {
     } else {
       console.warn('Clipboard API not available');
     }
-  }, []);
+  };
 
   const isVideoProductComponent = projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
   const videoProductData = isVideoProductComponent ? (editableData as any) : null;
@@ -2256,21 +2256,21 @@ export default function ProjectInstanceViewPage() {
       ]
     : undefined;
 
-  const handleMobileExportOptionSelect = useCallback((onSelect?: () => void) => {
+  const handleMobileExportOptionSelect = (onSelect?: () => void) => {
     if (onSelect) {
       onSelect();
     }
     setShowMobileExportMenu(false);
-  }, []);
+  };
 
-  const handleMobileExport = useCallback(() => {
+  const handleMobileExport = () => {
     if (exportOptions && exportOptions.length > 0) {
       setShowMobileExportMenu((prev) => !prev);
       return;
     }
 
     handlePdfDownload();
-  }, [exportOptions, handlePdfDownload]);
+  };
 
   useEffect(() => {
     if (!isMobileMidViewport) {
