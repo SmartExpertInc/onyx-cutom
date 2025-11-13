@@ -71,8 +71,7 @@ export const TitleSlideTemplate: React.FC<TitleSlideProps & {
     gap: '10px',
     cursor: isEditable ? 'pointer' : 'default',
     marginBottom: '90px', // Space to position logo at top (40px top + 50px spacing)
-    width: '100%',
-    maxWidth: '100%'
+    width: 'fit-content'
   };
 
   const logoIconStyles: React.CSSProperties = {
