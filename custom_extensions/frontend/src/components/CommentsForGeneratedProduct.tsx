@@ -37,7 +37,7 @@ const CommentsForGeneratedProduct = ({
       {isAuthorized ? (
         <>
           {/* Search bar and Filter button */}
-          <div className="flex items-center gap-2 lg:gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-4">
             {/* Search bar */}
             <div className="relative flex-1 min-w-0">
               <input
@@ -181,8 +181,8 @@ const CommentsForGeneratedProduct = ({
           
           {/* Sign up button */}
           <button
-            className="flex w-full justify-center items-center gap-1.5 mt-1 lg:mt-2 px-4 py-2 rounded-md text-white text-sm cursor-pointer hover:opacity-90 transition-opacity lg:w-auto"
-            style={{ backgroundColor: '#0F58F9', height: '40px' }}
+            className="flex w-full justify-center items-center gap-1.5 mt-1 lg:mt-2 px-4 h-[44px] lg:h-[40px] rounded-md text-white text-sm cursor-pointer hover:opacity-90 transition-opacity lg:w-auto"
+            style={{ backgroundColor: '#0F58F9' }}
           >
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9.33301 12.6654C9.33301 11.6045 8.91158 10.5871 8.16143 9.83694C7.41129 9.08679 6.39387 8.66536 5.33301 8.66536M5.33301 8.66536C4.27214 8.66536 3.25473 9.08679 2.50458 9.83694C1.75444 10.5871 1.33301 11.6045 1.33301 12.6654M5.33301 8.66536C6.80577 8.66536 7.99967 7.47146 7.99967 5.9987C7.99967 4.52594 6.80577 3.33203 5.33301 3.33203C3.86025 3.33203 2.66634 4.52594 2.66634 5.9987C2.66634 7.47146 3.86025 8.66536 5.33301 8.66536ZM12.6663 5.33203V9.33203M14.6663 7.33203H10.6663" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>

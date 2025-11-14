@@ -2303,7 +2303,7 @@ export default function ProjectInstanceViewPage() {
           </div>
           {showMobileAuthorizedActions && (
             <div className="lg:hidden my-2">
-              <div className="flex w-full gap-2">
+              <div className="flex w-full gap-3">
                 <div className="relative flex-1 min-w-0">
                   <button
                     ref={mobileExportButtonRef}
