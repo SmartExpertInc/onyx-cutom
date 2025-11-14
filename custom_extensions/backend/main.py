@@ -11720,6 +11720,128 @@ async def process_video(
         if file:
             await file.close()
 
+# NEW: Video Trimming Endpoint
+@app.post("/api/custom/presentation/trim_video", responses={
+    200: {"description": "Video trimmed successfully", "content": {"application/json": {"example": {"file_path": f"/{STATIC_DESIGN_IMAGES_DIR}/trimmed_video.mp4"}}}},
+    400: {"description": "Invalid request parameters", "model": ErrorDetail},
+    500: {"description": "Video trimming failed", "model": ErrorDetail}
+})
+async def trim_video(
+    file: Optional[UploadFile] = File(None),
+    video_path: Optional[str] = Form(None),
+    start_time: float = Form(...),
+    end_time: float = Form(...)
+):
+    """Trim video to specified time range using FFmpeg"""
+    try:
+        import subprocess
+        import json
+        
+        # Validate time parameters
+        if start_time < 0:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Start time cannot be negative")
+        if end_time <= start_time:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="End time must be greater than start time")
+        
+        # Determine input video path
+        input_video_path = None
+        temp_file = None
+        
+        if file:
+            # Save uploaded file temporarily
+            file_extension = os.path.splitext(file.filename)[1].lower() if file.filename else ".mp4"
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=file_extension)
+            try:
+                shutil.copyfileobj(file.file, temp_file)
+                temp_file.close()
+                input_video_path = temp_file.name
+            except Exception as e:
+                if temp_file:
+                    os.unlink(temp_file.name)
+                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                                  detail=f"Failed to save uploaded video: {str(e)}")
+        elif video_path:
+            # Use existing video path
+            video_path_clean = video_path.lstrip('/')
+            input_video_path = os.path.join(STATIC_DESIGN_IMAGES_DIR, os.path.basename(video_path_clean))
+            if not os.path.exists(input_video_path):
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Video file not found")
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Either file or video_path must be provided")
+        
+        # Calculate duration
+        duration = end_time - start_time
+        
+        # Generate output filename
+        safe_filename_base = str(uuid.uuid4())
+        output_filename = f"presentation_trimmed_{safe_filename_base}.mp4"
+        output_path = os.path.join(STATIC_DESIGN_IMAGES_DIR, output_filename)
+        
+        logger.info(f"🎬 [VIDEO_TRIMMING] Trimming video")
+        logger.info(f"🎬 [VIDEO_TRIMMING] Input: {input_video_path}")
+        logger.info(f"🎬 [VIDEO_TRIMMING] Start time: {start_time}s, End time: {end_time}s, Duration: {duration}s")
+        logger.info(f"🎬 [VIDEO_TRIMMING] Output: {output_path}")
+        
+        # Build FFmpeg command
+        ffmpeg_cmd = [
+            'ffmpeg', '-y',
+            '-i', input_video_path,
+            '-ss', str(start_time),      # Start time
+            '-t', str(duration),          # Duration
+            '-c:v', 'libx264',           # Video codec
+            '-c:a', 'aac',               # Audio codec (if present)
+            '-avoid_negative_ts', 'make_zero',  # Handle timing issues
+            '-preset', 'medium',
+            '-crf', '23',
+            '-pix_fmt', 'yuv420p',
+            output_path
+        ]
+        
+        logger.info(f"🎬 [VIDEO_TRIMMING] FFmpeg command: {' '.join(ffmpeg_cmd)}")
+        
+        # Execute FFmpeg
+        process = await asyncio.create_subprocess_exec(
+            *ffmpeg_cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        
+        stdout, stderr = await process.communicate()
+        
+        # Clean up temp file if we created one
+        if temp_file and os.path.exists(temp_file.name):
+            try:
+                os.unlink(temp_file.name)
+            except:
+                pass
+        
+        if process.returncode != 0:
+            error_msg = stderr.decode() if stderr else "Unknown FFmpeg error"
+            logger.error(f"🎬 [VIDEO_TRIMMING] FFmpeg failed: {error_msg}")
+            detail_msg = "Video trimming failed." if IS_PRODUCTION else f"Video trimming failed: {error_msg}"
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+        
+        # Verify output file exists
+        if not os.path.exists(output_path):
+            logger.error(f"🎬 [VIDEO_TRIMMING] Output file not created: {output_path}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Video trimming completed but output file not found")
+        
+        file_size = os.path.getsize(output_path)
+        logger.info(f"🎬 [VIDEO_TRIMMING] Video trimmed successfully: {output_path} ({file_size} bytes)")
+        
+        web_accessible_path = f"/{STATIC_DESIGN_IMAGES_DIR}/{output_filename}"
+        return {"file_path": web_accessible_path}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"🎬 [VIDEO_TRIMMING] Error trimming video: {e}", exc_info=not IS_PRODUCTION)
+        detail_msg = "Video trimming failed." if IS_PRODUCTION else f"Video trimming failed: {str(e)}"
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail_msg)
+    finally:
+        if file:
+            await file.close()
+
 # NEW: AI Image Generation Endpoint
 class AIImageGenerationRequest(BaseModel):
     prompt: str = Field(..., description="Text prompt for image generation")

@@ -140,6 +140,37 @@ export async function processVideo(
   return response.json();
 }
 
+// Video trimming function
+export async function trimVideo(
+  videoSource: File | string,
+  startTime: number,
+  endTime: number
+): Promise<ImageUploadResponse> {
+  const formData = new FormData();
+  
+  // If it's a File, append it; otherwise it's already uploaded and we'll send the path
+  if (videoSource instanceof File) {
+    formData.append('file', videoSource);
+  } else {
+    formData.append('video_path', videoSource);
+  }
+  
+  formData.append('start_time', startTime.toString());
+  formData.append('end_time', endTime.toString());
+
+  const response = await fetch(`${API_BASE_URL}/presentation/trim_video`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || 'Failed to trim video');
+  }
+
+  return response.json();
+}
+
 // NEW: AI Image Generation Types
 export interface AIImageGenerationRequest {
   prompt: string;
