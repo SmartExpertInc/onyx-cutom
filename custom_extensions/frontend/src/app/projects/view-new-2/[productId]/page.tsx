@@ -251,7 +251,9 @@ export default function ProductViewNewPage() {
       console.error('Error applying edit:', error);
       setSaveError(error instanceof Error ? error.message : 'Failed to apply edit');
     } finally {
-      trackProductEditorUsed();
+      if (!wasEdited) {
+        trackProductEditorUsed();
+      }
       setLoadingEdit(false);
       setWasEdited(true);
     }
