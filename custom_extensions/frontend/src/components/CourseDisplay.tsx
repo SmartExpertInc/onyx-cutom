@@ -278,7 +278,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                       >
                         <ChevronDown size={14} className={`text-white transition-transform duration-300 ${isCollapsed ? '-rotate-90' : ''}`} />
                       </button>
-                      <h2 className="text-[#0F58F9] font-semibold text-[20px] leading-[100%]">
+                      <h2 className="text-[#0F58F9] font-semibold text-[18px] leading-[130%] sm:text-[20px] sm:leading-[100%]">
                         {t('interface.viewNew.moduleTitle', 'Module')} {index + 1}: {section.title}
                       </h2>
                     </div>
@@ -357,7 +357,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                           return (
                             <div
                               key={lesson?.id || lessonIndex}
-                              className="flex flex-col gap-3 sm:grid sm:gap-4 sm:items-center px-2 sm:px-0 sm:pl-[24px] py-2 sm:py-[16px] rounded-md"
+                              className="flex flex-col gap-0 sm:grid sm:gap-4 sm:items-center px-2 sm:px-0 sm:pl-[24px] py-2 sm:py-[16px] rounded-md"
                               style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, border: '1px solid #CCCCCC' }}
                             >
                               <div className="flex flex-col gap-2">
@@ -369,7 +369,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                 </div>
                               </div>
 
-                              <div className="flex gap-3 sm:hidden pt-2 flex-nowrap w-full">
+                              <div className="flex gap-3 sm:hidden pt-0 flex-nowrap w-full">
                                 {contentColumnConfigs.map((config) =>
                                   renderContentCell(config, {
                                     keyPrefix: 'mobile-',
