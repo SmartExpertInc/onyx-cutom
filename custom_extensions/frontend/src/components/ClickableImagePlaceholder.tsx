@@ -98,6 +98,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   
   // ✅ NEW: Trim video modal state
   const [showTrimModal, setShowTrimModal] = useState(false);
+  
+  // ✅ NEW: Ref to track latest video path (bypasses React batching)
+  const latestVideoPathRef = useRef<string | undefined>(undefined);
 
   // ✅ NEW: AI Generation modal state
   const [showAIGenerationModal, setShowAIGenerationModal] = useState(false);
@@ -441,11 +444,15 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     
     if (videoFile) {
       // Store the file and path, then open the edit modal
+      // ✅ Update ref immediately (synchronous, bypasses React batching)
+      latestVideoPathRef.current = videoPath;
       setPendingVideoFile(videoFile);
       setPendingVideoPath(videoPath);
       setShowVideoEditModal(true);
     } else {
       // Direct upload without file (fallback - no editing)
+      // ✅ Update ref for consistency
+      latestVideoPathRef.current = videoPath;
       setDisplayedImage(videoPath);
       onImageUploaded(videoPath);
       setIsSelected(false);
@@ -726,12 +733,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
     onImageUploaded(processedVideoPath);
     setDisplayedImage(processedVideoPath);
-    setShowVideoEditModal(false);
-    // ✅ DON'T clear video source immediately - keep it for TrimVideoModal
-    // Update pendingVideoPath to the processed path so TrimVideoModal can use it
+    
+    // ✅ Update ref immediately (synchronous, bypasses React batching)
+    latestVideoPathRef.current = processedVideoPath;
+    
+    // ✅ Update state (may be batched)
     setPendingVideoPath(processedVideoPath);
+    
     // Keep pendingVideoFile if it exists (for trimming original file)
     // setPendingVideoFile(null); // ❌ Removed - keep for trim modal
+    
+    setShowVideoEditModal(false);
   }, [onImageUploaded, elementId, instanceId]);
 
   // ✅ NEW: Handle video edit modal do not crop
@@ -744,12 +756,17 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
 
     onImageUploaded(originalVideoPath);
     setDisplayedImage(originalVideoPath);
-    setShowVideoEditModal(false);
-    // ✅ DON'T clear video source immediately - keep it for TrimVideoModal
-    // Update pendingVideoPath to the original path so TrimVideoModal can use it
+    
+    // ✅ Update ref immediately (synchronous, bypasses React batching)
+    latestVideoPathRef.current = originalVideoPath;
+    
+    // ✅ Update state (may be batched)
     setPendingVideoPath(originalVideoPath);
+    
     // Keep pendingVideoFile if it exists (for trimming original file)
     // setPendingVideoFile(null); // ❌ Removed - keep for trim modal
+    
+    setShowVideoEditModal(false);
   }, [onImageUploaded, elementId, instanceId]);
 
   // ✅ NEW: Handle video edit modal cancel
@@ -765,18 +782,40 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     if (!showTrimModal) {
       setPendingVideoFile(null);
       setPendingVideoPath(undefined);
+      latestVideoPathRef.current = undefined; // ✅ Clear ref
     }
   }, [elementId, instanceId, showTrimModal]);
 
   // ✅ NEW: Handle opening trim modal from VideoEditModal
   const handleOpenTrimModal = useCallback(() => {
+    // ✅ Use ref value if state hasn't updated yet (bypasses React batching)
+    const currentVideoPath = pendingVideoPath || latestVideoPathRef.current || displayedImage;
+    const hasVideoSource = !!pendingVideoFile || !!currentVideoPath;
+    
     log('ClickableImagePlaceholder', 'openTrimModal', {
       elementId,
       instanceId,
       hasVideoFile: !!pendingVideoFile,
       hasVideoPath: !!pendingVideoPath,
-      displayedImage
+      refVideoPath: latestVideoPathRef.current,
+      displayedImage,
+      currentVideoPath,
+      hasVideoSource
     });
+    
+    // ✅ Validate before opening
+    if (!hasVideoSource) {
+      log('ClickableImagePlaceholder', 'openTrimModal_noSource', {
+        error: 'No video source available',
+        pendingVideoFile: !!pendingVideoFile,
+        pendingVideoPath,
+        refVideoPath: latestVideoPathRef.current,
+        displayedImage
+      });
+      alert('Please upload or process a video first');
+      return;
+    }
+    
     setShowTrimModal(true);
   }, [elementId, instanceId, pendingVideoFile, pendingVideoPath, displayedImage]);
 
@@ -796,6 +835,7 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     // ✅ NOW clear the video source since we're done with all editing
     setPendingVideoFile(null);
     setPendingVideoPath(undefined);
+    latestVideoPathRef.current = undefined; // ✅ Clear ref
   }, [elementId, instanceId, onImageUploaded]);
 
   // Finalize image upload
@@ -1048,10 +1088,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
             if (!showVideoEditModal) {
               setPendingVideoFile(null);
               setPendingVideoPath(undefined);
+              latestVideoPathRef.current = undefined; // ✅ Clear ref
             }
           }}
           videoFile={pendingVideoFile}
-          videoPath={pendingVideoPath || displayedImage}
+          videoPath={pendingVideoPath || latestVideoPathRef.current || displayedImage}
           onTrimConfirm={handleTrimComplete}
         />
 
@@ -1177,10 +1218,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           if (!showVideoEditModal) {
             setPendingVideoFile(null);
             setPendingVideoPath(undefined);
+            latestVideoPathRef.current = undefined; // ✅ Clear ref
           }
         }}
         videoFile={pendingVideoFile}
-        videoPath={pendingVideoPath || displayedImage}
+        videoPath={pendingVideoPath || latestVideoPathRef.current || displayedImage}
         onTrimConfirm={handleTrimComplete}
       />
 
