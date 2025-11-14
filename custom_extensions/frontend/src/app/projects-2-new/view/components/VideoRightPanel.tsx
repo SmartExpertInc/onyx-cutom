@@ -720,6 +720,12 @@ export default function VideoRightPanel({
       <TrimVideoModal
         isOpen={isTrimModalOpen}
         onClose={() => setIsTrimModalOpen(false)}
+        onTrimConfirm={(trimmedVideoPath) => {
+          // TODO: Handle trimmed video path update
+          // This should update the video in the slide deck
+          console.log('Video trimmed:', trimmedVideoPath);
+          setIsTrimModalOpen(false);
+        }}
       />
     </>
   );

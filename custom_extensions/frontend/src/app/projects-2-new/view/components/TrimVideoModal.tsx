@@ -16,7 +16,7 @@ interface TrimVideoModalProps {
   onClose: () => void;
   videoFile?: File | null;
   videoPath?: string;
-  onTrimConfirm: (trimmedVideoPath: string, trimSettings?: TrimSettings) => void;
+  onTrimConfirm?: (trimmedVideoPath: string, trimSettings?: TrimSettings) => void; // Optional: if not provided, just closes modal
   onCancel?: () => void;
   initialTrim?: { start: number; end: number }; // in seconds
 }
@@ -332,12 +332,17 @@ export default function TrimVideoModal({
       const result = await designTemplateApi.trimVideo(videoSource, startTime, endTime);
       
       if (result.file_path) {
-        // Call parent callback with trimmed video
-        onTrimConfirm(result.file_path, {
-          startTime,
-          endTime,
-          duration: endTime - startTime
-        });
+        // Call parent callback with trimmed video if provided
+        if (onTrimConfirm) {
+          onTrimConfirm(result.file_path, {
+            startTime,
+            endTime,
+            duration: endTime - startTime
+          });
+        } else {
+          // If no callback provided, just log and close
+          console.warn('TrimVideoModal: onTrimConfirm callback not provided. Trimmed video path:', result.file_path);
+        }
         
         // Close modal
         onClose();
