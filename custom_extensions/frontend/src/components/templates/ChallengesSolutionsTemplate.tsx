@@ -277,30 +277,24 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
         {/* Left side text items - positioned next to icons */}
-        <div style={{
-          position: 'absolute',
-          left: '0px',
-          top: 0,
-          width: '220px',
-          height: '100%',
-          zIndex: 10
-        }}>
-          {challengeItems.map((item: string, index: number) => {
-            // Position each challenge next to its icon
-            const positions = [
-              { top: '15%', left: '0px' },   // Top icon
-              { top: '48%', left: '0px' },   // Middle icon
-              { top: '75%', left: '0px' }    // Bottom icon
-            ];
-            const pos = positions[index] || positions[0];
-            
-            return (
-              <div key={index} data-draggable="true" style={{
-                position: 'absolute',
-                ...pos,
-                width: '100%',
-                display: 'inline-block'
-              }}>
+        {challengeItems.map((item: string, index: number) => {
+          // Position each challenge next to its icon
+          const positions = [
+            { top: '15%', left: '0px' },   // Top icon
+            { top: '48%', left: '0px' },   // Middle icon
+            { top: '75%', left: '0px' }    // Bottom icon
+          ];
+          const pos = positions[index] || positions[0];
+          
+          return (
+            <div key={index} style={{
+              position: 'absolute',
+              ...pos,
+              width: '220px',
+              maxWidth: '220px',
+              zIndex: 10
+            }}>
+              <div data-draggable="true" style={{ display: 'inline-block' }}>
                 {editingChallengeItems[index] ? (
                   <WysiwygEditor
                     initialValue={challengeItems[index]}
@@ -354,35 +348,29 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   />
                 )}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
 
         {/* Right side text items - positioned next to icons */}
-        <div style={{
-          position: 'absolute',
-          right: '0px',
-          top: 0,
-          width: '220px',
-          height: '100%',
-          zIndex: 10
-        }}>
-          {solutionItems.map((item: string, index: number) => {
-            // Position each solution next to its icon
-            const positions = [
-              { top: '15%', right: '0px' },   // Top icon
-              { top: '48%', right: '0px' },   // Middle icon
-              { top: '75%', right: '0px' }    // Bottom icon
-            ];
-            const pos = positions[index] || positions[0];
-            
-            return (
-              <div key={index} data-draggable="true" style={{
-                position: 'absolute',
-                ...pos,
-                width: '100%',
-                display: 'inline-block'
-              }}>
+        {solutionItems.map((item: string, index: number) => {
+          // Position each solution next to its icon
+          const positions = [
+            { top: '15%', right: '0px' },   // Top icon
+            { top: '48%', right: '0px' },   // Middle icon
+            { top: '75%', right: '0px' }    // Bottom icon
+          ];
+          const pos = positions[index] || positions[0];
+          
+          return (
+            <div key={index} style={{
+              position: 'absolute',
+              ...pos,
+              width: '220px',
+              maxWidth: '220px',
+              zIndex: 10
+            }}>
+              <div data-draggable="true" style={{ display: 'inline-block' }}>
                 {editingSolutionItems[index] ? (
                   <WysiwygEditor
                     initialValue={solutionItems[index]}
@@ -437,9 +425,9 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
                   />
                 )}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
 
         <div style={imageContainerStyles}>
           <Image src={groupImg} alt="Group" width={500} height={400} />
