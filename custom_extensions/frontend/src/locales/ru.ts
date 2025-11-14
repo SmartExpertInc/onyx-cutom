@@ -40,8 +40,8 @@ export const ru = {
       emptyStateTitle: "Добавьте первый комментарий",
       inputPlaceholder: "Оставьте комментарий или упомяните коллег через @",
       sendButton: "Отправить",
-      membersOnlyLine1: "Комментарии доступны только для участников рабочего",
-      membersOnlyLine2: "пространства",
+      membersOnlyLine1: "Комментарии доступны только для участников",
+      membersOnlyLine2: "рабочего пространства",
       signUp: "Зарегистрироваться",
     },
     productQualityRating: {

@@ -40,8 +40,8 @@ export const uk = {
       emptyStateTitle: "Додайте перший коментар",
       inputPlaceholder: "Залиште коментар або згадайте колег через @",
       sendButton: "Надіслати",
-      membersOnlyLine1: "Коментарі доступні лише для учасників робочого",
-      membersOnlyLine2: "простору",
+      membersOnlyLine1: "Коментарі доступні лише для учасників",
+      membersOnlyLine2: "робочого простору",
       signUp: "Зареєструватися",
     },
     productQualityRating: {
