@@ -114,12 +114,6 @@ const VideoProductDisplay = ({
     <div className={`flex flex-col gap-6 ${className}`}>
       <div className="relative w-full overflow-hidden rounded-lg shadow-2xl border border-gray-800" style={{ aspectRatio: '16 / 9' }}>
         <div className="absolute inset-0">
-          <div className="absolute top-4 left-4 z-10">
-            <div className="px-3 py-1 rounded-full bg-[#CCDBFC] text-[#0F58F9] text-xs font-semibold uppercase tracking-widest">
-              {t('videoProductDisplay.generatedVideo', 'Generated Video')}
-            </div>
-          </div>
-
           {(dataToDisplay as any)?.videoUrl ? (
             <video
               className="absolute inset-0 w-full h-full object-contain bg-black"

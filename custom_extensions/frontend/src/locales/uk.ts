@@ -1063,6 +1063,16 @@ export const uk = {
       anonymous: "Анонімний",
       noErrorMessage: "Немає повідомлення про помилку",
     },
+    projectViewHeader: {
+      export: "Експорт",
+      copyLink: "Скопіювати посилання",
+      draft: "Чернетка",
+      signUp: "Зареєструватися",
+      edit: "Редагувати",
+      save: "Зберегти",
+      unknownDate: "Невідома дата",
+      exportToPdf: "Експорт у PDF",
+    },
     // Project View Page
     projectView: {
       loadingProjectDetails: "Завантаження деталей проекту...",

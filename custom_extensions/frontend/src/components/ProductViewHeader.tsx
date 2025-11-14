@@ -1,7 +1,7 @@
 // custom_extensions/frontend/src/components/ProductViewHeader.tsx
 "use client";
 
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
@@ -112,6 +112,21 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const isMobileMidViewport = viewportWidth !== null && viewportWidth >= 390 && viewportWidth < 640;
   const useMobileLinkViewLayout = isMobileMidViewport && enableLinkViewButtons && shouldShowLinkButtons;
 
+  const headerLabels = {
+    export: t('interface.projectViewHeader.export', 'Export'),
+    copyLink: t('interface.projectViewHeader.copyLink', 'Copy Link'),
+    draft: t('interface.projectViewHeader.draft', 'Draft'),
+    signUp: t('interface.projectViewHeader.signUp', 'Sign Up'),
+    edit: t('interface.projectViewHeader.edit', 'Edit'),
+    save: t('interface.projectViewHeader.save', 'Save'),
+    unknownDate: t('interface.projectViewHeader.unknownDate', 'Unknown date'),
+    exportToPdf: t('interface.projectViewHeader.exportToPdf', 'Export to PDF')
+  };
+  const authToggleLabels = {
+    auth: 'Auth',
+    unauth: 'Unauth'
+  };
+
   const getOrdinalSuffix = (day: number) => {
     const j = day % 10;
     const k = day % 100;
@@ -121,7 +136,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
     return 'th';
   };
 
-  const formattedCreatedAt = useMemo(() => {
+  const formattedCreatedAt = (() => {
     if (!createdAt) return null;
     const dateObj = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
     if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return null;
@@ -129,7 +144,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
     const month = dateObj.toLocaleString('en-US', { month: 'short' });
     const year = dateObj.getFullYear();
     return `${day}${getOrdinalSuffix(day)} ${month}, ${year}`;
-  }, [createdAt]);
+  })();
 
   // Debug logging for PDF export
   console.log('🔍 ProductViewHeader Debug:', {
@@ -325,7 +340,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   </svg>
                   <span>username@app.contentbuilder.ai</span>
                   <span aria-hidden="true">•</span>
-                  <span>{formattedCreatedAt ?? 'Unknown date'}</span>
+                  <span>{formattedCreatedAt ?? headerLabels.unknownDate}</span>
                 </div>
             )}
           </div>
@@ -341,7 +356,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Auth
+              {authToggleLabels.auth}
             </button>
             <button
               onClick={() => handleAuthToggle(false)}
@@ -351,7 +366,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Unauth
+              {authToggleLabels.unauth}
             </button>
           </div>
   );
@@ -375,7 +390,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M6.5 11.9142H12.5M9.5 0.914214C9.76522 0.648997 10.1249 0.5 10.5 0.5C10.6857 0.5 10.8696 0.53658 11.0412 0.607651C11.2128 0.678721 11.3687 0.782892 11.5 0.914214C11.6313 1.04554 11.7355 1.20144 11.8066 1.37302C11.8776 1.5446 11.9142 1.7285 11.9142 1.91421C11.9142 2.09993 11.8776 2.28383 11.8066 2.45541C11.7355 2.62699 11.6313 2.78289 11.5 2.91421L3.16667 11.2475L0.5 11.9142L1.16667 9.24755L9.5 0.914214Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      Draft
+      {headerLabels.draft}
     </button>
   );
 
@@ -404,7 +419,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="#0F58F9" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          Export
+          {headerLabels.export}
         </button>
         {exportOptions && exportOptions.length > 0 && showExportMenu && (
           <div
@@ -447,7 +462,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M5.29319 7.10401C5.55232 7.45079 5.88293 7.73773 6.26259 7.94537C6.64225 8.153 7.06208 8.27647 7.4936 8.30741C7.92512 8.33834 8.35824 8.27602 8.76358 8.12466C9.16893 7.97331 9.53701 7.73646 9.84287 7.43018L11.6531 5.61814C12.2027 5.04855 12.5068 4.28567 12.4999 3.49382C12.493 2.70197 12.1757 1.9445 11.6163 1.38456C11.057 0.824612 10.3002 0.506995 9.50919 0.500114C8.71813 0.493233 7.95602 0.797639 7.38701 1.34777L6.34915 2.38063M7.70681 5.89599C7.44768 5.54921 7.11707 5.26227 6.73741 5.05463C6.35775 4.847 5.93792 4.72353 5.5064 4.69259C5.07488 4.66166 4.64176 4.72398 4.23642 4.87534C3.83107 5.02669 3.46299 5.26354 3.15713 5.56982L1.34692 7.38186C0.797339 7.95145 0.49324 8.71433 0.500114 9.50618C0.506988 10.298 0.824286 11.0555 1.38367 11.6154C1.94305 12.1754 2.69976 12.493 3.49081 12.4999C4.28187 12.5068 5.04397 12.2024 5.61299 11.6522L6.64482 10.6194" stroke={currentIsAuthorized ? 'white' : '#0F58F9'} strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      Copy Link
+      {headerLabels.copyLink}
     </button>
   );
 
@@ -466,7 +481,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         ...actionButtonPadding
       }}
     >
-      Sign up
+      {headerLabels.signUp}
     </button>
   );
 
@@ -517,12 +532,12 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
         ...actionButtonPadding
       }}
-      title="Export to PDF"
+      title={headerLabels.exportToPdf}
     >
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M7 1V9M7 9L4 6M7 9L10 6M2 12V13H12V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      Export
+      {headerLabels.export}
     </button>
   );
 
@@ -619,21 +634,21 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 width: actionButtonWidth ? `${actionButtonWidth}px` : undefined,
                 ...actionButtonPadding
               }}
-              title={isEditing ? 'Save' : 'Edit'}
+              title={isEditing ? headerLabels.save : headerLabels.edit}
             >
               {isEditing ? (
                 <>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Save
+                  {headerLabels.save}
                 </>
               ) : (
                 <>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Edit
+                  {headerLabels.edit}
                 </>
               )}
             </button>

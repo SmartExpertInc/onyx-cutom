@@ -1498,6 +1498,17 @@ export const en = {
         'Are you sure you want to delete the product "{name}"? This action cannot be undone.',
     },
 
+    projectViewHeader: {
+      export: "Export",
+      copyLink: "Copy Link",
+      draft: "Draft",
+      signUp: "Sign Up",
+      edit: "Edit",
+      save: "Save",
+      unknownDate: "Unknown date",
+      exportToPdf: "Export to PDF",
+    },
+
     // Project View Page
     projectView: {
       loadingProjectDetails: "Loading project details...",

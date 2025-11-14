@@ -1078,6 +1078,16 @@ export const ru = {
       anonymous: "Анонимный",
       noErrorMessage: "Нет сообщения об ошибке",
     },
+    projectViewHeader: {
+      export: "Экспорт",
+      copyLink: "Скопировать ссылку",
+      draft: "Черновик",
+      signUp: "Зарегистрироваться",
+      edit: "Редактировать",
+      save: "Сохранить",
+      unknownDate: "Неизвестная дата",
+      exportToPdf: "Экспорт в PDF",
+    },
     // Project View Page
     projectView: {
       loadingProjectDetails: "Загрузка деталей проекта...",

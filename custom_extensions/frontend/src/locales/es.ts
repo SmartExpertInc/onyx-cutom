@@ -1054,6 +1054,16 @@ export const es = {
       anonymous: "Anónimo",
       noErrorMessage: "Sin mensaje de error",
     },
+    projectViewHeader: {
+      export: "Exportar",
+      copyLink: "Copiar enlace",
+      draft: "Borrador",
+      signUp: "Regístrate",
+      edit: "Editar",
+      save: "Guardar",
+      unknownDate: "Fecha desconocida",
+      exportToPdf: "Exportar a PDF",
+    },
     // Project View Page
     projectView: {
       loadingProjectDetails: "Cargando detalles del proyecto...",
