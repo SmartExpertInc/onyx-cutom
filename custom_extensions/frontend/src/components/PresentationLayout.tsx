@@ -359,10 +359,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       style={
         isViewMode
           ? ({
-              '--slide-width': `${viewModeSlideWidth}px`,
-              '--slide-scale': `${viewModeScale}`,
-              '--slide-canvas-width': `${VIEW_MODE_CANVAS_WIDTH}px`,
-              '--slide-canvas-height': `${VIEW_MODE_CANVAS_HEIGHT}px`
+              '--slide-width': `${viewModeSlideWidth}px`
             } as React.CSSProperties)
           : undefined
       }
@@ -585,10 +582,32 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                        {isViewMode ? (
-                          <div className="presentation-viewer-slide rounded-lg">
-                            <div className="slide-scaling-wrapper">
-                              <div className="slide-scaling-inner">
+                        {isViewMode ? (() => {
+                          const scaledWidth = viewModeSlideWidth;
+                          const scaledHeight = VIEW_MODE_CANVAS_HEIGHT * viewModeScale;
+                          return (
+                          <div
+                            className="presentation-viewer-slide rounded-lg"
+                            style={{
+                              height: scaledHeight
+                            }}
+                          >
+                            <div
+                              className="slide-scaling-wrapper"
+                              style={{
+                                width: scaledWidth,
+                                height: scaledHeight
+                              }}
+                            >
+                              <div
+                                className="slide-scaling-inner"
+                                style={{
+                                  width: VIEW_MODE_CANVAS_WIDTH,
+                                  height: VIEW_MODE_CANVAS_HEIGHT,
+                                  transform: `scale(${viewModeScale})`,
+                                  transformOrigin: 'top left'
+                                }}
+                              >
                                 <ComponentBasedSlideRenderer
                                   slide={slide}
                                   isEditable={false}
@@ -598,7 +617,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                               </div>
                             </div>
                           </div>
-                        ) : (
+                          );
+                        })() : (
                           <ComponentBasedSlideRenderer
                             slide={slide}
                             isEditable={editingEnabled}
