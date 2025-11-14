@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
 import { Badge } from "./badge";
 import { Button } from "./button";
@@ -149,6 +150,16 @@ const redirectToMainAuth = (path: string) => {
 };
 
 
+interface SlidePreviewCacheEntry {
+  slide: ComponentBasedSlide;
+  theme?: string;
+  deckTemplateVersion?: string;
+  timestamp: number;
+}
+
+const PREVIEW_CACHE_TTL_MS = 1000 * 60 * 5; // 5 minutes
+const slidePreviewCache = new Map<number, SlidePreviewCacheEntry>();
+
 // Generate color from string
 const stringToColor = (str: string): string => {
   let hash = 0;
@@ -196,6 +207,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   language = "en",
   onTierChange,
 }) => {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
   const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
@@ -235,23 +247,73 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const avatarColor = stringToColor(project.createdBy);
   const supportsSlidePreview = isSlidePreviewEligibleType(project.designMicroproductType);
 
+  const cachedPreview = slidePreviewCache.get(project.id);
   const [previewSlide, setPreviewSlide] = useState<ComponentBasedSlide | null>(
-    project.previewSlide || null
+    project.previewSlide || cachedPreview?.slide || null
   );
   const [previewTheme, setPreviewTheme] = useState<string | undefined>(
-    project.previewTheme
+    project.previewTheme || cachedPreview?.theme
   );
   const [previewDeckVersion, setPreviewDeckVersion] = useState<string | undefined>(
-    project.previewDeckTemplateVersion
+    project.previewDeckTemplateVersion || cachedPreview?.deckTemplateVersion
   );
 
   const loadSlidesFromBackend = supportsSlidePreview;
+
   useEffect(() => {
-    if (previewSlide || !loadSlidesFromBackend) {
+    if (!loadSlidesFromBackend) {
       return;
     }
+
+    setPreviewSlide((prev) => {
+      if (project.previewSlide && project.previewSlide !== prev) {
+        return project.previewSlide;
+      }
+      return prev;
+    });
+
+    setPreviewTheme((prev) => {
+      if (project.previewTheme && project.previewTheme !== prev) {
+        return project.previewTheme;
+      }
+      return prev;
+    });
+
+    setPreviewDeckVersion((prev) => {
+      if (project.previewDeckTemplateVersion && project.previewDeckTemplateVersion !== prev) {
+        return project.previewDeckTemplateVersion;
+      }
+      return prev;
+    });
+  }, [
+    loadSlidesFromBackend,
+    project.id,
+    project.previewSlide,
+    project.previewTheme,
+    project.previewDeckTemplateVersion,
+  ]);
+  useEffect(() => {
+    if (!loadSlidesFromBackend) {
+      return;
+    }
+
     let isMounted = true;
     const controller = new AbortController();
+    const cachedEntry = slidePreviewCache.get(project.id);
+
+    if (cachedEntry) {
+      setPreviewSlide((prev) => prev || cachedEntry.slide);
+      setPreviewTheme((prev) => prev || cachedEntry.theme);
+      setPreviewDeckVersion((prev) => prev || cachedEntry.deckTemplateVersion);
+      const isCacheFresh = Date.now() - cachedEntry.timestamp < PREVIEW_CACHE_TTL_MS;
+      if (isCacheFresh) {
+        return () => {
+          isMounted = false;
+          controller.abort();
+        };
+      }
+    }
+
     const fetchSlidePreview = async () => {
       try {
         const CUSTOM_BACKEND_URL =
@@ -265,9 +327,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         const data = await response.json();
         const slides = data?.details?.slides;
         if (isMounted && Array.isArray(slides) && slides.length > 0) {
-          setPreviewSlide(slides[0]);
-          setPreviewTheme(data?.details?.theme);
-          setPreviewDeckVersion(data?.details?.templateVersion || data?.details?.deckTemplateVersion);
+          const nextSlide = slides[0] as ComponentBasedSlide;
+          const nextTheme = data?.details?.theme;
+          const nextDeckVersion = data?.details?.templateVersion || data?.details?.deckTemplateVersion;
+
+          slidePreviewCache.set(project.id, {
+            slide: nextSlide,
+            theme: nextTheme,
+            deckTemplateVersion: nextDeckVersion,
+            timestamp: Date.now(),
+          });
+
+          setPreviewSlide(nextSlide);
+          setPreviewTheme(nextTheme);
+          setPreviewDeckVersion(nextDeckVersion);
         }
       } catch (error: any) {
         if (error?.name !== "AbortError") {
@@ -275,12 +348,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         }
       }
     };
+
     fetchSlidePreview();
+
     return () => {
       isMounted = false;
       controller.abort();
     };
-  }, [previewSlide, loadSlidesFromBackend, project.id]);
+  }, [loadSlidesFromBackend, project.id]);
 
   const hasSlidePreview = !!previewSlide && supportsSlidePreview;
 
@@ -426,11 +501,30 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     onRestore(project.id);
   };
 
+  const projectHref = useMemo(() => {
+    if (isTrashMode) return "#";
+    if (project.designMicroproductType === "Video Lesson Presentation") {
+      return `/projects-2/view/${project.id}`;
+    }
+    if (project.designMicroproductType === "Training Plan") {
+      return courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new-2/${project.id}`;
+    }
+    return `/projects/view/${project.id}`;
+  }, [courseTableEnabled, isTrashMode, project.designMicroproductType, project.id]);
+
   const handleCardClick = (e: React.MouseEvent) => {
     if (isTrashMode) {
       e.preventDefault();
       setShowRestorePrompt(true);
+      return;
     }
+
+    if (!projectHref || projectHref === "#" || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
+      return;
+    }
+
+    e.preventDefault();
+    router.push(projectHref);
   };
 
   const handleDuplicateProject = async (e: React.MouseEvent) => {
@@ -581,13 +675,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         : "cursor-default"
     }`}>
       <Link
-        href={isTrashMode ? "#" : (
-          project.designMicroproductType === "Video Lesson Presentation" 
-            ? `/projects-2/view/${project.id}`
-            : (project.designMicroproductType === "Training Plan"
-              ? (courseTableEnabled ? `/projects/view/${project.id}` : `/projects/view-new-2/${project.id}`)
-              : `/projects/view/${project.id}`)
-        )}
+        href={projectHref}
         onClick={handleCardClick}
         className="block h-full"
       >

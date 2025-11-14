@@ -637,7 +637,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     }
 
     return (
-      <div className="space-y-2 md:space-y-4">
+      <div className="space-y-3 md:space-y-4">
         <div className="overflow-hidden">
           <div className="p-0">
             {question.prompts.map((prompt, promptIndex) => {

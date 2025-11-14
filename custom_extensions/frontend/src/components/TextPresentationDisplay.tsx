@@ -2676,7 +2676,7 @@ const TextPresentationDisplay = ({
       {onToggleEditMode && (
           <button
             onClick={onToggleEditMode}
-            className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+            className="md:hidden flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
             style={{
               backgroundColor: isEditing ? '#10B981' : '#FFFFFF',
               color: isEditing ? '#FFFFFF' : '#171718',
