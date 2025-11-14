@@ -2406,6 +2406,8 @@ export interface TextPresentationDisplayProps {
     onTextChange?: (path: (string | number)[], newValue: any) => void;
     parentProjectName?: string;
     onToggleEditMode?: () => void;
+    isAuthorized?: boolean;
+    onAuthorizationChange?: (value: boolean) => void;
   }
 
 // Image Upload Component
@@ -2534,7 +2536,15 @@ const ImageUploadModal: React.FC<{
   );
 };
 
-const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, onToggleEditMode }: TextPresentationDisplayProps): React.JSX.Element | null => {
+const TextPresentationDisplay = ({
+  dataToDisplay,
+  isEditing,
+  onTextChange,
+  parentProjectName,
+  onToggleEditMode,
+  isAuthorized = true,
+  onAuthorizationChange
+}: TextPresentationDisplayProps): React.JSX.Element | null => {
   // Default purpleBoxSection to true if not specified
   const purpleBoxSection = (dataToDisplay as any)?.purpleBoxSection !== undefined 
     ? (dataToDisplay as any)?.purpleBoxSection 
@@ -2571,6 +2581,44 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
+  const [localIsAuthorized, setLocalIsAuthorized] = useState<boolean>(isAuthorized);
+
+  useEffect(() => {
+    setLocalIsAuthorized(isAuthorized);
+  }, [isAuthorized]);
+
+  const currentIsAuthorized = localIsAuthorized;
+
+  const handleAuthToggle = (value: boolean) => {
+    if (value === currentIsAuthorized) return;
+    setLocalIsAuthorized(value);
+    onAuthorizationChange?.(value);
+  };
+
+  const renderAuthToggle = () => (
+    <div className="flex items-center gap-1 bg-gray-100 rounded-md p-0.5">
+      <button
+        onClick={() => handleAuthToggle(true)}
+        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+          currentIsAuthorized
+            ? 'bg-white text-gray-900 shadow-sm'
+            : 'text-gray-600 hover:text-gray-900'
+        }`}
+      >
+        Auth
+      </button>
+      <button
+        onClick={() => handleAuthToggle(false)}
+        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+          !currentIsAuthorized
+            ? 'bg-white text-gray-900 shadow-sm'
+            : 'text-gray-600 hover:text-gray-900'
+        }`}
+      >
+        Unauth
+      </button>
+    </div>
+  );
 
   const getFieldKey = (path: (string | number)[]): string => {
     return path.join('-');
@@ -3131,24 +3179,33 @@ const TextPresentationDisplay = ({ dataToDisplay, isEditing, onTextChange, paren
 
   return (<>
     <div className="border-2 border-[#CCCCCC] shadow-lg rounded-[10px] max-w-5xl mx-auto my-6">
-      {dataToDisplay.textTitle && (
+      {dataToDisplay.textTitle ? (
         <header className="bg-white text-left rounded-t-[10px] border-b border-[#CCCCCC]">
-          {/* {parentProjectName && <p className="text-xs uppercase font-semibold tracking-wider text-gray-500 mb-1 text-left">{parentProjectName}</p>} */}
-          
-          {isEditing && onTextChange ? (
-              <input 
+          <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+            <div className="flex-1 w-full">
+              {isEditing && onTextChange ? (
+                <input 
                   type="text" 
                   value={getInputValue(['textTitle'], dataToDisplay.textTitle || '')} 
                   onChange={(e) => handleInputChange(['textTitle'], e.target.value)} 
                   onBlur={(e) => handleBlur(['textTitle'], e.target.value)} 
-                  className={`${editingInputClass} p-4 text-2xl lg:text-3xl font-bold text-[#0F58F9] text-left`}
-              />
-          ) : (
-              <h1 className={`text-2xl py-4 px-10 font-bold text-[#0F58F9] mb-2 text-left`}>{dataToDisplay.textTitle}</h1>
-          )}
-
-          {/* <hr className={`mt-2 mb-0 border-t-2 ${THEME_COLORS.underlineAccent}`} /> */}
+                  className={`${editingInputClass} w-full text-2xl lg:text-3xl font-bold text-[#0F58F9] text-left`}
+                />
+              ) : (
+                <h1 className="text-2xl font-bold text-[#0F58F9] mb-0 text-left">{dataToDisplay.textTitle}</h1>
+              )}
+            </div>
+            <div className="flex items-center justify-start sm:justify-end">
+              {renderAuthToggle()}
+            </div>
+          </div>
         </header>
+      ) : (
+        <div className="bg-white text-left rounded-t-[10px] border-b border-[#CCCCCC] px-4 py-4 sm:px-10">
+          <div className="flex justify-start sm:justify-end">
+            {renderAuthToggle()}
+          </div>
+        </div>
       )}
       <div className="bg-[#FFFFFF] rounded-[10px] px-4 sm:px-6 md:px-8 py-4">
           <main className="text-left">

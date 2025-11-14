@@ -103,6 +103,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   // Check if current component is a quiz to show Export button
   const isQuiz = projectData?.component_name === 'QuizDisplay';
   const isOnePager = projectData?.component_name === 'TextPresentationDisplay';
+  const shouldShowAuthToggle = !isOnePager;
   const isVideoLesson = projectData?.component_name === 'VideoLessonDisplay' || 
                         projectData?.component_name === 'VideoLessonPresentationDisplay';
   const isCourse = projectData?.component_name === 'TrainingPlanTable';
@@ -251,7 +252,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <h1
-                className={`text-[#191D30] text-[16px] leading-none ${
+                className={`text-[#191D30] text-[16px] line-clamp-1 leading-none ${
                   enableLinkViewButtons ? 'font-medium' : 'font-semibold'
                 }`}
               >
@@ -312,7 +313,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               )}
             </div>
             {enableLinkViewButtons && (
-                <div className="flex items-center gap-1.5 text-[12px] text-[#878787]">
+                <div className="flex items-center gap-1.5 text-[10px] text-[#878787]">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g clipPath="url(#clip0_4291_33172)">
                       <path d="M10.6 11.8C10.6 10.8452 10.2207 9.92955 9.54559 9.25442C8.87045 8.57929 7.95478 8.2 7 8.2M7 8.2C6.04522 8.2 5.12955 8.57929 4.45442 9.25442C3.77928 9.92955 3.4 10.8452 3.4 11.8M7 8.2C8.32548 8.2 9.4 7.12548 9.4 5.8C9.4 4.47452 8.32548 3.4 7 3.4C5.67452 3.4 4.6 4.47452 4.6 5.8C4.6 7.12548 5.67452 8.2 7 8.2ZM13 7C13 10.3137 10.3137 13 7 13C3.68629 13 1 10.3137 1 7C1 3.68629 3.68629 1 7 1C10.3137 1 13 3.68629 13 7Z" stroke="#878787" strokeLinecap="round" strokeLinejoin="round"/>
@@ -569,9 +570,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           <div className="space-y-2">
             {renderTitleSection()}
           </div>
-          <div className="flex items-center">
-            {renderAuthToggle()}
-          </div>
+          {shouldShowAuthToggle && (
+            <div className="flex items-center">
+              {renderAuthToggle()}
+            </div>
+          )}
           {(showDraftButton || canShowAiImproveButton || canShowPdfExportButton || canShowScormButton) && (
             <div className="flex flex-wrap items-center gap-2">
               {showDraftButton && renderDraftButton()}
@@ -587,14 +590,14 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
-      <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
-        <div className="flex items-center gap-x-4">
+        <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-y-2 gap-x-4 text-left">
           {renderHomeButton()}
           {renderTitleSection()}
         </div>
 
         <div className="flex items-center space-x-3">
-          {renderAuthToggle()}
+          {shouldShowAuthToggle && renderAuthToggle()}
 
           {shouldShowLinkButtons && (
             <div className="flex items-center space-x-2">

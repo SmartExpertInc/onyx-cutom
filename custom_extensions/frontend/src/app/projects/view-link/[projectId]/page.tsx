@@ -2053,6 +2053,8 @@ export default function ProjectInstanceViewPage() {
             isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
+            isAuthorized={isAuthorized}
+            onAuthorizationChange={setIsAuthorized}
           />
         );
       case COMPONENT_NAME_VIDEO_LESSON:
