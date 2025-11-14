@@ -114,6 +114,11 @@
   height: 100%;
 }
 
+.presentation-view .presentation-viewer-slide-inner {
+  transform-origin: top center;
+  will-change: transform;
+}
+
 .presentation-view .presentation-viewer-slide {
   width: min(100%, var(--slide-width, 1152px));
   max-width: min(1152px, var(--available-width, 1152px));
