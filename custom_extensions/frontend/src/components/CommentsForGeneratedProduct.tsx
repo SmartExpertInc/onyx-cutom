@@ -2,16 +2,22 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CommentsForGeneratedProductProps {
   isAuthorized?: boolean;
 }
 
+type CommentFilterOption = 'all' | 'assigned' | 'new';
+
+const filterOptionOrder: CommentFilterOption[] = ['all', 'assigned', 'new'];
+
 const CommentsForGeneratedProduct = ({
   isAuthorized = true,
 }: CommentsForGeneratedProductProps): React.JSX.Element => {
+  const { t } = useLanguage();
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<'All' | 'Assigned to me' | 'New'>('All');
+  const [selectedFilter, setSelectedFilter] = useState<CommentFilterOption>('all');
   const [commentText, setCommentText] = useState('');
   const filterDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +38,12 @@ const CommentsForGeneratedProduct = ({
     };
   }, [filterDropdownOpen]);
 
+  const filterLabels: Record<CommentFilterOption, string> = {
+    all: t('components.comments.filters.all', 'All'),
+    assigned: t('components.comments.filters.assigned', 'Assigned to me'),
+    new: t('components.comments.filters.new', 'New'),
+  };
+
   return (
     <div className="flex-1 flex flex-col px-3 pt-3 pb-0 lg:px-4 lg:pt-4 lg:pb-4 lg:rounded-lg bg-[#F9F9F9] border border-[#E0E0E0]">
       {isAuthorized ? (
@@ -42,7 +54,7 @@ const CommentsForGeneratedProduct = ({
             <div className="relative flex-1 min-w-0">
               <input
                 type="text"
-                placeholder="Search comments"
+                placeholder={t('components.comments.searchPlaceholder', 'Search comments')}
                 className="w-full h-[44px] lg:h-[38px] pl-8 pr-3 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-md focus:outline-none focus:border-[#CCCCCC]"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -61,17 +73,17 @@ const CommentsForGeneratedProduct = ({
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10.1328 9.0332C11.1811 9.0332 12.0569 9.77787 12.2568 10.7676L12.3438 11.1992L12.2568 11.6309C12.0569 12.6206 11.1812 13.3662 10.1328 13.3662C9.08455 13.3661 8.20964 12.6206 8.00977 11.6309L7.92188 11.1992L8.00977 10.7676C8.20972 9.77798 9.08462 9.03333 10.1328 9.0332ZM10.1328 9.09961C8.97322 9.09975 8.03334 10.0396 8.0332 11.1992C8.0332 12.3589 8.97312 13.2997 10.1328 13.2998C11.2926 13.2998 12.2334 12.359 12.2334 11.1992C12.2333 10.0395 11.2925 9.09961 10.1328 9.09961ZM1.59961 11.166H7.4707L7.80566 11.1992L7.4707 11.2324H1.59961C1.58129 11.2324 1.56641 11.2176 1.56641 11.1992C1.56655 11.181 1.58138 11.1661 1.59961 11.166ZM12.7959 11.166H14.3994C14.4177 11.166 14.4325 11.181 14.4326 11.1992C14.4326 11.2176 14.4178 11.2324 14.3994 11.2324H12.7959L12.46 11.1992L12.7959 11.166ZM5.86621 2.63281C6.91458 2.63281 7.79034 3.37836 7.99023 4.36816L8.07617 4.79883L7.99023 5.23145C7.79027 6.22116 6.91452 6.96582 5.86621 6.96582C4.81796 6.96573 3.94211 6.22113 3.74219 5.23145L3.65527 4.79883L3.74219 4.36816C3.94207 3.37842 4.81792 2.63291 5.86621 2.63281ZM5.86621 2.69922C4.7065 2.69932 3.7666 3.64007 3.7666 4.7998C3.76678 5.95939 4.70661 6.89931 5.86621 6.89941C7.0259 6.89941 7.96662 5.95946 7.9668 4.7998C7.9668 3.64 7.02601 2.69922 5.86621 2.69922ZM1.59961 4.7666H3.2041L3.53906 4.79883L3.2041 4.83301H1.59961C1.58137 4.83294 1.56658 4.81802 1.56641 4.7998C1.56641 4.78144 1.58126 4.76667 1.59961 4.7666ZM8.5293 4.7666H14.3994C14.4178 4.7666 14.4326 4.78142 14.4326 4.7998C14.4324 4.81803 14.4177 4.83301 14.3994 4.83301H8.5293L8.19238 4.79883L8.5293 4.7666Z" fill="#878787" stroke="#878787"/>
                 </svg>
-                <span>{selectedFilter}</span>
+                <span>{filterLabels[selectedFilter]}</span>
               </button>
 
               {/* Dropdown */}
               {filterDropdownOpen && (
                 <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-[#E6E6E6] rounded-md shadow-lg z-10">
                   <div className="px-3 py-2 text-xs font-semibold text-[#171718] border-b border-[#E6E6E6]">
-                    Filter by
+                    {t('components.comments.filterBy', 'Filter by')}
                   </div>
                   <div className="py-1 px-1">
-                    {(['All', 'Assigned to me', 'New'] as const).map((option) => (
+                    {filterOptionOrder.map((option) => (
                       <button
                         key={option}
                         onClick={() => {
@@ -83,7 +95,7 @@ const CommentsForGeneratedProduct = ({
                         }`}
                         style={selectedFilter === option ? { borderRadius: '4px' } : {}}
                       >
-                        <span>{option}</span>
+                        <span>{filterLabels[option]}</span>
                         {selectedFilter === option && (
                           <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M1 4.5L4.5 8L11 1" stroke="#0F58F9" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
@@ -103,7 +115,9 @@ const CommentsForGeneratedProduct = ({
               <path d="M4.5 31.5033L7.35 22.9533C5.9957 20.2455 5.64918 17.1441 6.37246 14.2041C7.09573 11.2642 8.84161 8.67753 11.2976 6.90711C13.7537 5.13669 16.7596 4.29803 19.7774 4.54121C22.7952 4.7844 25.628 6.09356 27.7689 8.23441C29.9097 10.3753 31.2189 13.2081 31.4621 16.2259C31.7053 19.2437 30.8666 22.2496 29.0962 24.7057C27.3258 27.1617 24.7391 28.9076 21.7992 29.6309C18.8592 30.3541 15.7578 30.0076 13.05 28.6533L4.5 31.5033Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M13.8994 17.5322C13.8993 17.9186 13.5865 18.2322 13.2002 18.2324C12.8137 18.2324 12.5001 17.9187 12.5 17.5322C12.5 17.1456 12.8136 16.832 13.2002 16.832C13.5866 16.8323 13.8994 17.1458 13.8994 17.5322ZM19.2334 17.5322C19.2333 17.9187 18.9197 18.2324 18.5332 18.2324C18.1467 18.2324 17.8331 17.9187 17.833 17.5322C17.833 17.1456 18.1466 16.832 18.5332 16.832C18.9197 16.8321 19.2334 17.1457 19.2334 17.5322ZM24.5664 17.5322C24.5663 17.9187 24.2527 18.2324 23.8662 18.2324C23.4798 18.2323 23.1661 17.9187 23.166 17.5322C23.166 17.1457 23.4797 16.8321 23.8662 16.832C24.2528 16.832 24.5664 17.1456 24.5664 17.5322Z" fill="#171718" stroke="#171718"/>
             </svg>
-            <p className="text-[#171718] text-base font-medium">Add your first comment</p>
+            <p className="text-[#171718] text-base font-medium">
+              {t('components.comments.emptyStateTitle', 'Add your first comment')}
+            </p>
           </div>
 
           {/* Comment input section */}
@@ -111,7 +125,7 @@ const CommentsForGeneratedProduct = ({
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Comment or add others with @"
+              placeholder={t('components.comments.inputPlaceholder', 'Comment or add others with @')}
               className="w-full h-[70px] p-3 pr-20 text-xs text-[#171718] placeholder-[#878787] shadow-xl bg-white border border-[#CCCCCC] rounded-lg resize-none focus:outline-none focus:border-[#CCCCCC]"
             />
             <button
@@ -127,7 +141,9 @@ const CommentsForGeneratedProduct = ({
                 commentText.trim() ? 'bg-[#0F58F9] hover:bg-[#0d4dd4] cursor-pointer' : 'bg-[#CCCCCC] cursor-not-allowed'
               }`}
             >
-              <span className="text-[10px] tracking-wide">Send</span>
+              <span className="text-[10px] tracking-wide">
+                {t('components.comments.sendButton', 'Send')}
+              </span>
               <svg width="10" height="10" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_1918_78539)">
                   <path d="M7.33366 0.667969L3.66699 4.33464M7.33366 0.667969L5.00033 7.33464L3.66699 4.33464M7.33366 0.667969L0.666992 3.0013L3.66699 4.33464" stroke="white" strokeWidth="0.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -170,12 +186,14 @@ const CommentsForGeneratedProduct = ({
           
           {/* Text */}
           <p className="text-center text-[#171718] text-base lg:font-medium leading-tight">
-            Comments are only available for workspace
+            {t('components.comments.membersOnlyLine1', 'Comments are only available for workspace')}
             <span className="lg:hidden">
-              <br />members
+              <br />
+              {t('components.comments.membersOnlyLine2', 'members')}
             </span>
             <span className="hidden lg:inline">
-              <br />members
+              <br />
+              {t('components.comments.membersOnlyLine2', 'members')}
             </span>
           </p>
           
@@ -187,7 +205,7 @@ const CommentsForGeneratedProduct = ({
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M9.33301 12.6654C9.33301 11.6045 8.91158 10.5871 8.16143 9.83694C7.41129 9.08679 6.39387 8.66536 5.33301 8.66536M5.33301 8.66536C4.27214 8.66536 3.25473 9.08679 2.50458 9.83694C1.75444 10.5871 1.33301 11.6045 1.33301 12.6654M5.33301 8.66536C6.80577 8.66536 7.99967 7.47146 7.99967 5.9987C7.99967 4.52594 6.80577 3.33203 5.33301 3.33203C3.86025 3.33203 2.66634 4.52594 2.66634 5.9987C2.66634 7.47146 3.86025 8.66536 5.33301 8.66536ZM12.6663 5.33203V9.33203M14.6663 7.33203H10.6663" stroke="white" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Sign up
+            {t('components.comments.signUp', 'Sign up')}
           </button>
         </div>
       )}

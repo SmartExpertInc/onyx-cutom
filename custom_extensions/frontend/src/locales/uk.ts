@@ -28,6 +28,33 @@ export const uk = {
     advanced: "Просунутий",
     immersive: "Імерсивний",
   },
+  components: {
+    comments: {
+      searchPlaceholder: "Пошук коментарів",
+      filterBy: "Фільтрувати за",
+      filters: {
+        all: "Усі",
+        assigned: "Призначені мені",
+        new: "Нові",
+      },
+      emptyStateTitle: "Додайте перший коментар",
+      inputPlaceholder: "Залиште коментар або згадайте колег через @",
+      sendButton: "Надіслати",
+      membersOnlyLine1: "Коментарі доступні лише для учасників робочого",
+      membersOnlyLine2: "простору",
+      signUp: "Зареєструватися",
+    },
+    productQualityRating: {
+      rateQuality: "Оцініть якість відео та озвучення",
+      helpImprove: "Допоможіть нам покращити ContentBuilder",
+    },
+  },
+  productQuality: {
+    presentationQuestion: "Наскільки зрозумілою та захопливою є ця презентація?",
+    courseQuestion: "Наскільки ви задоволені цим курсом загалом?",
+    quizQuestion: "Наскільки ви задоволені цим тестом загалом?",
+    onePagerQuestion: "Наскільки ви задоволені цим односторінковим матеріалом?",
+  },
   // Action buttons and UI elements
   actions: {
     renameFolder: "Перейменувати папку",

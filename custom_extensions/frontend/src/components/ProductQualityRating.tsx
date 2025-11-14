@@ -18,7 +18,7 @@ const ProductQualityRating = ({
   const [_hoveredStar, setHoveredStar] = useState<number | null>(null);
 
   const displayQuestion =
-    questionText ?? t('modals.play.rateQuality', "How's the video and voice quality?");
+    questionText ?? t('components.productQualityRating.rateQuality', "How's the video and voice quality?");
 
   const containerClasses = [
     'flex flex-col gap-3 flex-shrink-0',
@@ -67,7 +67,7 @@ const ProductQualityRating = ({
         </div>
       </div>
       <span className="text-[#878787] text-xs text-center">
-        {t('modals.play.helpImprove', 'Help us improve ContentBuilder')}
+        {t('components.productQualityRating.helpImprove', 'Help us improve ContentBuilder')}
       </span>
     </div>
   );

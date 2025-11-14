@@ -28,6 +28,33 @@ export const ru = {
     advanced: "Продвинутый",
     immersive: "Иммерсивный",
   },
+  components: {
+    comments: {
+      searchPlaceholder: "Поиск комментариев",
+      filterBy: "Фильтр по",
+      filters: {
+        all: "Все",
+        assigned: "Назначенные мне",
+        new: "Новые",
+      },
+      emptyStateTitle: "Добавьте первый комментарий",
+      inputPlaceholder: "Оставьте комментарий или упомяните коллег через @",
+      sendButton: "Отправить",
+      membersOnlyLine1: "Комментарии доступны только для участников рабочего",
+      membersOnlyLine2: "пространства",
+      signUp: "Зарегистрироваться",
+    },
+    productQualityRating: {
+      rateQuality: "Оцените качество видео и озвучки",
+      helpImprove: "Помогите нам улучшить ContentBuilder",
+    },
+  },
+  productQuality: {
+    presentationQuestion: "Насколько понятной и вовлекающей является эта презентация?",
+    courseQuestion: "Насколько вы довольны этим курсом в целом?",
+    quizQuestion: "Насколько вы довольны этим тестом в целом?",
+    onePagerQuestion: "Насколько вы довольны этим одностраничным материалом?",
+  },
   // Action buttons and UI elements
   actions: {
     renameFolder: "Переименовать папку",

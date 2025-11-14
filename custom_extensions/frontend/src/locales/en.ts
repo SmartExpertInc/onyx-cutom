@@ -28,6 +28,33 @@ export const en = {
     advanced: "Advanced",
     immersive: "Immersive",
   },
+  components: {
+    comments: {
+      searchPlaceholder: "Search comments",
+      filterBy: "Filter by",
+      filters: {
+        all: "All",
+        assigned: "Assigned to me",
+        new: "New",
+      },
+      emptyStateTitle: "Add your first comment",
+      inputPlaceholder: "Comment or add others with @",
+      sendButton: "Send",
+      membersOnlyLine1: "Comments are only available for workspace",
+      membersOnlyLine2: "members",
+      signUp: "Sign up",
+    },
+    productQualityRating: {
+      rateQuality: "How's the video and voice quality?",
+      helpImprove: "Help us improve ContentBuilder",
+    },
+  },
+  productQuality: {
+    presentationQuestion: "How clear and engaging is this presentation?",
+    courseQuestion: "How satisfied are you with this course overall?",
+    quizQuestion: "How satisfied are you with this quiz overall?",
+    onePagerQuestion: "How satisfied are you with this one-pager overall?",
+  },
   // Action buttons and UI elements
   actions: {
     renameFolder: "Rename Folder",

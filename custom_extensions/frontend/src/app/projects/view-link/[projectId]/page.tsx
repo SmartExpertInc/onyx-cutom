@@ -2182,7 +2182,7 @@ export default function ProjectInstanceViewPage() {
   const qualityRatingQuestion = (() => {
     switch (projectInstanceData?.component_name) {
       case COMPONENT_NAME_VIDEO_PRODUCT:
-        return t('modals.play.rateQuality', "How's the video and voice quality?");
+        return t('components.productQualityRating.rateQuality', "How's the video and voice quality?");
       case COMPONENT_NAME_SLIDE_DECK:
       case COMPONENT_NAME_VIDEO_LESSON_PRESENTATION:
         return t('productQuality.presentationQuestion', 'How clear and engaging is this presentation?');
@@ -2193,7 +2193,7 @@ export default function ProjectInstanceViewPage() {
       case COMPONENT_NAME_TEXT_PRESENTATION:
         return t('productQuality.onePagerQuestion', 'How satisfied are you with this one-pager overall?');
       default:
-        return t('modals.play.rateQuality', "How's the video and voice quality?");
+        return t('components.productQualityRating.rateQuality', "How's the video and voice quality?");
     }
   })();
 

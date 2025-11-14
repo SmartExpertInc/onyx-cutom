@@ -28,6 +28,33 @@ export const es = {
     advanced: "Avanzado",
     immersive: "Inmersivo",
   },
+  components: {
+    comments: {
+      searchPlaceholder: "Buscar comentarios",
+      filterBy: "Filtrar por",
+      filters: {
+        all: "Todos",
+        assigned: "Asignados a mí",
+        new: "Nuevos",
+      },
+      emptyStateTitle: "Añade tu primer comentario",
+      inputPlaceholder: "Comenta o menciona a otros con @",
+      sendButton: "Enviar",
+      membersOnlyLine1: "Los comentarios solo están disponibles para los miembros del",
+      membersOnlyLine2: "espacio de trabajo",
+      signUp: "Regístrate",
+    },
+    productQualityRating: {
+      rateQuality: "¿Cómo percibes la calidad del video y la voz?",
+      helpImprove: "Ayúdanos a mejorar ContentBuilder",
+    },
+  },
+  productQuality: {
+    presentationQuestion: "¿Qué tan clara y atractiva es esta presentación?",
+    courseQuestion: "¿Qué tan satisfecho estás con este curso en general?",
+    quizQuestion: "¿Qué tan satisfecho estás con este cuestionario en general?",
+    onePagerQuestion: "¿Qué tan satisfecho estás con este documento de una página en general?",
+  },
   // Action buttons and UI elements
   actions: {
     renameFolder: "Renombrar carpeta",
