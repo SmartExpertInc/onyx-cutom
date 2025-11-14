@@ -2406,6 +2406,7 @@ export interface TextPresentationDisplayProps {
     onTextChange?: (path: (string | number)[], newValue: any) => void;
     parentProjectName?: string;
     onToggleEditMode?: () => void;
+    onExport?: () => void;
     isAuthorized?: boolean;
     onAuthorizationChange?: (value: boolean) => void;
   }
@@ -2542,6 +2543,7 @@ const TextPresentationDisplay = ({
   onTextChange,
   parentProjectName,
   onToggleEditMode,
+  onExport,
   isAuthorized = true,
   onAuthorizationChange
 }: TextPresentationDisplayProps): React.JSX.Element | null => {
@@ -2619,6 +2621,67 @@ const TextPresentationDisplay = ({
       </button>
     </div>
   );
+
+  const renderMobileOnePagerActions = () => {
+    if (!onToggleEditMode && !onExport) return null;
+    return (
+      <div className="sm:hidden border-t border-[#E4E4E7] pt-4 mt-6 flex flex-col gap-3">
+        {onToggleEditMode && (
+          <button
+            onClick={onToggleEditMode}
+            className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+            style={{
+              backgroundColor: isEditing ? '#10B981' : '#FFFFFF',
+              color: isEditing ? '#FFFFFF' : '#171718',
+              fontSize: '14px',
+              lineHeight: '140%',
+              letterSpacing: '0.05em',
+              border: isEditing ? '1px solid #10B981' : '1px solid #171718',
+              height: '44px',
+            }}
+            title={isEditing ? 'Save' : 'Edit'}
+          >
+            {isEditing ? (
+              <>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11.6667 3.5L5.25 9.91667L2.33333 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Save
+              </>
+            ) : (
+              <>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8.1986 3.99953L9.99843 5.79926M2.79912 3.39963V5.79926M11.1983 8.19888V10.5985M5.79883 1V2.19981M3.99901 4.59944H1.59924M12.3982 9.3987H9.99843M6.39877 1.59991H5.19889M12.7822 1.98385L12.0142 1.21597C11.9467 1.14777 11.8664 1.09363 11.7778 1.05668C11.6893 1.01973 11.5942 1.00071 11.4983 1.00071C11.4023 1.00071 11.3073 1.01973 11.2188 1.05668C11.1302 1.09363 11.0498 1.14777 10.9823 1.21597L1.21527 10.9825C1.14707 11.05 1.09293 11.1303 1.05598 11.2189C1.01903 11.3074 1 11.4024 1 11.4984C1 11.5943 1.01903 11.6893 1.05598 11.7779C1.09293 11.8664 1.14707 11.9468 1.21527 12.0143L1.9832 12.7822C2.05029 12.8511 2.13051 12.9059 2.21912 12.9433C2.30774 12.9807 2.40296 13 2.49915 13C2.59534 13 2.69056 12.9807 2.77918 12.9433C2.86779 12.9059 2.94801 12.8511 3.0151 12.7822L12.7822 3.01569C12.8511 2.94861 12.9059 2.86839 12.9433 2.77978C12.9807 2.69117 13 2.59595 13 2.49977C13 2.40358 12.9807 2.30837 12.9433 2.21976C12.9059 2.13115 12.8511 2.05093 12.7822 1.98385Z" stroke="#171718" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Edit
+              </>
+            )}
+          </button>
+        )}
+        {onExport && (
+          <button
+            onClick={onExport}
+            className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+            style={{
+              backgroundColor: '#0F58F9',
+              color: '#FFFFFF',
+              fontSize: '14px',
+              lineHeight: '140%',
+              letterSpacing: '0.05em',
+              border: '1px solid #0F58F9',
+              height: '44px',
+            }}
+            title="Export to PDF"
+          >
+            <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="currentColor" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Export
+          </button>
+        )}
+      </div>
+    );
+  };
 
   const getFieldKey = (path: (string | number)[]): string => {
     return path.join('-');
@@ -3629,8 +3692,9 @@ const TextPresentationDisplay = ({
               }
 
               return null;
-            })}
+            })} 
           </main>
+          {renderMobileOnePagerActions()}
         </div>
       {/* Floating add menu: one big plus -> expands into image and section buttons */}
       {isEditing && !!onTextChange && (

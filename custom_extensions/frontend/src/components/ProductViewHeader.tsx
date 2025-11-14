@@ -111,6 +111,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const isVideoProduct = projectData?.component_name === 'VideoProductDisplay';
   const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation || isVideoProduct);
   const isMobileMidViewport = viewportWidth !== null && viewportWidth >= 390 && viewportWidth < 640;
+  const isMobileViewport = viewportWidth !== null && viewportWidth < 640;
   const useMobileLinkViewLayout = isMobileMidViewport && enableLinkViewButtons && shouldShowLinkButtons;
 
   const getOrdinalSuffix = (day: number) => {
@@ -272,8 +273,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </>
               )}
               {isOnePager && (
-                <>
-                <div className="h-6 w-px bg-gray-300 mx-2"></div>
+                <div className="hidden sm:flex items-center">
+                  <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <div className="flex items-center gap-2">
                   <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="0.5" y="0.5" width="14" height="14" rx="2" stroke="#4D4D4D"/>
@@ -285,7 +286,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </svg>
                 <span className="text-[#4D4D4D] text-[15px] font-medium">A4</span>
                 </div>
-          </>
+          </div>
         )}
               {isSlideDeck && !hideAspectRatioBadge && (
                 <>
@@ -575,11 +576,11 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
               {renderAuthToggle()}
             </div>
           )}
-          {(showDraftButton || canShowAiImproveButton || canShowPdfExportButton || canShowScormButton) && (
+          {(showDraftButton || canShowAiImproveButton || (canShowPdfExportButton && !isOnePager) || canShowScormButton) && (
             <div className="flex flex-wrap items-center gap-2">
               {showDraftButton && renderDraftButton()}
               {canShowAiImproveButton && renderAiImproveButton()}
-              {canShowPdfExportButton && renderPdfExportButton()}
+              {canShowPdfExportButton && !isOnePager && renderPdfExportButton()}
               {canShowScormButton && renderScormButton()}
             </div>
           )}
@@ -589,7 +590,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   }
 
   return (
-    <header className="sticky top-0 z-50 h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
+    <header className="sticky top-0 z-50 h-[170px] md:h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
         <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-y-2 gap-x-4 text-left">
           {renderHomeButton()}
@@ -608,6 +609,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           )}
 
         {isOnePager && onEditOrSave && (
+          <div className="hidden sm:flex">
             <button
               onClick={onEditOrSave}
               className="flex items-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
@@ -640,11 +642,20 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </>
               )}
             </button>
+          </div>
           )}
 
           {canShowAiImproveButton && renderAiImproveButton()}
 
-          {canShowPdfExportButton && renderPdfExportButton()}
+          {canShowPdfExportButton && (
+            isOnePager ? (
+              <div className="hidden sm:flex">
+                {renderPdfExportButton()}
+              </div>
+            ) : (
+              renderPdfExportButton()
+            )
+          )}
 
           {canShowScormButton && renderScormButton()}
 
@@ -658,6 +669,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           ) : (
             <div className="flex items-center gap-3">
               <div className="w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
+              {isMobileViewport && renderCopyLinkButton()}
               {renderSignUpButton()}
             </div>
           )}

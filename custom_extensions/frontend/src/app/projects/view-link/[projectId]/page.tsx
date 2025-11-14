@@ -2053,6 +2053,8 @@ export default function ProjectInstanceViewPage() {
             isEditing={isEditing}
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
+            onToggleEditMode={handleToggleEdit}
+            onExport={handlePdfDownload}
             isAuthorized={isAuthorized}
             onAuthorizationChange={setIsAuthorized}
           />
