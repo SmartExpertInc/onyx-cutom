@@ -26,7 +26,7 @@ export function SignupFormContent({
         {cloud ? "Create an account" : "Sign Up for Contentbuilder"}
       </h2>
       {step === 1 && (
-        <p className="text-center mb-6 text-[15px] text-gray-900">
+        <p className="text-center mb-6 text-[16px] text-gray-900">
           Enter your email below to create your account
         </p>
       )}

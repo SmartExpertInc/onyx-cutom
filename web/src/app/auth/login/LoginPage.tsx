@@ -35,7 +35,7 @@ export default function LoginPage({
         // basic auth is handled below w/ the EmailPasswordForm
         authTypeMetadata.authType !== "basic" && (
           <>
-            <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
+            <h2 className="mb-3 md:mb-6 text-center text-3xl font-bold text-gray-900 md:text-[#0F58F9]">
               <LoginText />
             </h2>
             <SignInButton
@@ -47,10 +47,10 @@ export default function LoginPage({
 
       {authTypeMetadata?.authType === "cloud" && (
         <div className="w-full justify-center">
-          <h2 className="mb-6 text-center text-3xl font-bold text-gray-900">
+          <h2 className="mb-3 md:mb-6 text-center text-3xl font-bold text-gray-900 md:text-[#0F58F9]">
             <LoginText />
           </h2>
-          <p className="text-center mb-6 text-[15px] text-gray-900">
+          <p className="text-center mb-6 text-[16px] text-gray-900">
             Enter your email below to create your account
           </p>
           <EmailPasswordForm shouldVerify={true} nextUrl={nextUrl} />
