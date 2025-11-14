@@ -7,6 +7,7 @@ import PhishingDefinitionSlideTemplate_old from './PhishingDefinitionSlideTempla
 
 export const PhishingDefinitionSlideTemplate: React.FC<PhishingDefinitionSlideProps & {
   theme?: SlideTheme | string;
+  onVideoClick?: (videoPath: string, elementId?: string) => void; // ✅ NEW: Video click callback
 }> = (props) => {
   return <PhishingDefinitionSlideTemplate_old {...props} />;
 };

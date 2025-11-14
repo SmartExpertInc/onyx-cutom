@@ -54,6 +54,8 @@ export interface ClickableImagePlaceholderProps {
   aiGeneratedPrompt?: string; // Pre-filled prompt from AI
   isGenerating?: boolean; // Loading state for AI generation
   onGenerationStarted?: (elementId: string) => void; // NEW: Callback when generation starts
+  // ✅ NEW: Video click callback
+  onVideoClick?: (videoPath: string, elementId?: string) => void; // Callback when video is clicked
 }
 
   // ✅ REMOVED: Context Menu Component - replaced with inline buttons!
@@ -80,7 +82,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   templateId,
   aiGeneratedPrompt, // New prop
   isGenerating, // New prop
-  onGenerationStarted // New prop
+  onGenerationStarted, // New prop
+  onVideoClick // New prop
 }) => {
   const { t } = useLanguage();
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -369,39 +372,32 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     log('ClickableImagePlaceholder', 'rotateEnd', { elementId, instanceId });
   }, [elementId, instanceId]);
 
-  // ✅ NEW: Click handler for activating anchors and opening edit modals
+  // ✅ NEW: Click handler for activating anchors
   const handleImageClick = useCallback((e: React.MouseEvent) => {
     if (!isEditable) return;
     
     // Prevent event bubbling
     e.stopPropagation();
     
-    // ✅ NEW: If it's a video, open VideoEditModal
-    if (displayedImage && isVideoFile(displayedImage)) {
-      log('ClickableImagePlaceholder', 'videoClick_openEditModal', {
+    // ✅ NEW: If it's a video and onVideoClick callback is provided, call it
+    if (displayedImage && isVideoFile(displayedImage) && onVideoClick) {
+      log('ClickableImagePlaceholder', 'videoClick_triggerPanel', {
         elementId,
         instanceId,
         videoPath: displayedImage
       });
-      
-      // Set video path and open edit modal
-      latestVideoPathRef.current = displayedImage; // ✅ Update ref
-      setPendingVideoPath(displayedImage);
-      setPendingVideoFile(null); // We don't have the original file, only the path
-      setShowVideoEditModal(true);
-      
-      // Don't toggle selection when opening edit modal
-      return;
+      onVideoClick(displayedImage, elementId);
+      return; // Don't toggle selection for videos - panel handles it
     }
     
-    // ✅ For images, toggle selection (existing behavior)
+    // Toggle selection state for images
     setIsSelected(!isSelected);
     log('ClickableImagePlaceholder', 'imageClick', { 
       elementId, 
       instanceId,
       newSelectionState: !isSelected 
     });
-  }, [isEditable, isSelected, displayedImage, elementId, instanceId]);
+  }, [isEditable, isSelected, displayedImage, elementId, instanceId, onVideoClick]);
 
   // ✅ NEW: Inline button handlers for image controls
   const handleReplaceImage = useCallback(() => {
@@ -993,28 +989,8 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
               style={{
                 objectFit: cropMode
               }}
-              controls={!isEditable}
+              controls
               playsInline
-              onClick={(e) => {
-                // ✅ When editable, prevent default video behavior and let parent handle click
-                if (isEditable) {
-                  // Check if clicking on video controls (when they exist)
-                  const target = e.target as HTMLElement;
-                  const isControlElement = target.tagName === 'BUTTON' || 
-                                          target.tagName === 'INPUT' || 
-                                          target.closest('button') !== null ||
-                                          target.closest('input') !== null ||
-                                          target.closest('.video-controls') !== null;
-                  
-                  // If clicking on controls, don't open edit modal
-                  if (isControlElement) {
-                    e.stopPropagation();
-                    return;
-                  }
-                  // Otherwise, let the click bubble to parent container
-                  // Parent's handleImageClick will open the edit modal
-                }
-              }}
               onError={(e) => {
                 // If video fails to load, clear it
                 console.warn('Video failed to load:', displayedImage);

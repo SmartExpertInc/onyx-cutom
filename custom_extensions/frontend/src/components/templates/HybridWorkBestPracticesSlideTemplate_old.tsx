@@ -11,6 +11,7 @@ import YourLogo from '../YourLogo';
 export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPracticesSlideProps & {
   theme?: SlideTheme | string;
   onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+  onVideoClick?: (videoPath: string, elementId?: string) => void; // ✅ NEW: Video click callback
 }> = ({
   slideId,
   title = 'Hybrid work best practices',
@@ -53,7 +54,8 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
   onUpdate,
   theme,
   voiceoverText,
-  onEditorActive
+  onEditorActive,
+  onVideoClick // ✅ NEW: Video click callback
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingMainStatement, setEditingMainStatement] = useState(false);
@@ -524,6 +526,7 @@ export const HybridWorkBestPracticesSlideTemplate_old: React.FC<HybridWorkBestPr
                 height: '100%',
                 borderRadius: '6px',
               }}
+              onVideoClick={onVideoClick}
             />
           </div>
         </div>

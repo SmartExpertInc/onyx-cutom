@@ -16,6 +16,7 @@ interface ComponentBasedSlideRendererProps {
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
   isVideoMode?: boolean; // Flag for video editor mode
+  onVideoClick?: (videoPath: string, elementId?: string) => void; // ✅ NEW: Callback when video is clicked
 }
 
 export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererProps> = ({
@@ -27,7 +28,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
   theme,
   deckTemplateVersion,
   getPlaceholderGenerationState,
-  isVideoMode = false
+  isVideoMode = false,
+  onVideoClick
 }) => {
   const template = getTemplateResolved(slide.templateId, deckTemplateVersion);
   const currentTheme = getSlideTheme(theme || DEFAULT_SLIDE_THEME, deckTemplateVersion);
@@ -115,7 +117,8 @@ export const ComponentBasedSlideRenderer: React.FC<ComponentBasedSlideRendererPr
     onUpdate: handlePropsUpdate,
     onEditorActive,
     theme: currentTheme,
-    getPlaceholderGenerationState
+    getPlaceholderGenerationState,
+    onVideoClick // ✅ NEW: Pass video click callback to templates
   };
 
   // Debug theme information for specific templates
@@ -188,6 +191,7 @@ interface ComponentBasedSlideDeckRendererProps {
   deckTemplateVersion?: string;
   getPlaceholderGenerationState?: (elementId: string) => { isGenerating: boolean; hasImage: boolean; error?: string };
   isVideoMode?: boolean; // Flag for video editor mode
+  onVideoClick?: (videoPath: string, elementId?: string) => void; // ✅ NEW: Callback when video is clicked
 }
 
 export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRendererProps> = ({
@@ -200,7 +204,8 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
   theme,
   deckTemplateVersion,
   getPlaceholderGenerationState,
-  isVideoMode = false
+  isVideoMode = false,
+  onVideoClick
 }) => {
   // Safety check for slides array
   if (!slides || !Array.isArray(slides) || slides.length === 0) {
@@ -234,6 +239,7 @@ export const ComponentBasedSlideDeckRenderer: React.FC<ComponentBasedSlideDeckRe
             deckTemplateVersion={deckTemplateVersion}
             getPlaceholderGenerationState={getPlaceholderGenerationState}
             isVideoMode={isVideoMode}
+            onVideoClick={onVideoClick}
           />
         </div>
       ))}

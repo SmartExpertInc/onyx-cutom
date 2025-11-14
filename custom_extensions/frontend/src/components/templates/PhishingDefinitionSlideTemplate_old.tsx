@@ -128,6 +128,7 @@ function InlineEditor({
 export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSlideProps & {
   theme?: SlideTheme | string;
   onEditorActive?: (editor: any, field: string, computedStyles?: any) => void;
+  onVideoClick?: (videoPath: string, elementId?: string) => void; // ✅ NEW: Video click callback
 }> = ({
   slideId,
   title = 'What is phishing?',
@@ -152,7 +153,8 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
   voiceoverText,
   logoPath = '',
   pageNumber = '06',
-  onEditorActive
+  onEditorActive,
+  onVideoClick // ✅ NEW: Video click callback
 }) => {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editingDefinitions, setEditingDefinitions] = useState<number | null>(null);
@@ -436,6 +438,7 @@ export const PhishingDefinitionSlideTemplate_old: React.FC<PhishingDefinitionSli
             borderRadius: '0px',
             objectFit: 'cover'
           }}
+          onVideoClick={onVideoClick}
         />
 
         {/* Logo in bottom-right corner */}

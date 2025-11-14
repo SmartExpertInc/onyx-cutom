@@ -54,6 +54,11 @@ interface VideoRightPanelProps {
   
   // Right panel ref for positioning
   rightPanelRef?: React.RefObject<HTMLDivElement | null>;
+  
+  // ✅ NEW: Video props
+  videoPath?: string; // Current video path
+  elementId?: string; // Element ID for updating video
+  onVideoUpdate?: (updatedVideoPath: string) => void; // Callback when video is updated (e.g., after trimming)
 }
 
 export default function VideoRightPanel({
@@ -89,6 +94,9 @@ export default function VideoRightPanel({
   onColorPaletteContextChange,
   mediaType = 'image',
   rightPanelRef,
+  videoPath, // ✅ NEW: Video path
+  elementId, // ✅ NEW: Element ID
+  onVideoUpdate, // ✅ NEW: Video update callback
 }: VideoRightPanelProps) {
   const { t, language } = useLanguage();
   const [selectedAlignment, setSelectedAlignment] = useState<'left' | 'center' | 'right'>('center');
@@ -720,10 +728,19 @@ export default function VideoRightPanel({
       <TrimVideoModal
         isOpen={isTrimModalOpen}
         onClose={() => setIsTrimModalOpen(false)}
+        videoPath={videoPath}
         onTrimConfirm={(trimmedVideoPath) => {
-          // TODO: Handle trimmed video path update
-          // This should update the video in the slide deck
-          console.log('Video trimmed:', trimmedVideoPath);
+          console.log('🎬 [VideoRightPanel] Video trimmed:', {
+            originalPath: videoPath,
+            trimmedPath: trimmedVideoPath,
+            elementId
+          });
+          
+          // ✅ Update video via callback
+          if (onVideoUpdate) {
+            onVideoUpdate(trimmedVideoPath);
+          }
+          
           setIsTrimModalOpen(false);
         }}
       />

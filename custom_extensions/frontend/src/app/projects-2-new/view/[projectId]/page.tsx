@@ -83,6 +83,10 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
   // Selected element state for presentation
   const [selectedElement, setSelectedElement] = useState<string | null>(null);
   
+  // ✅ NEW: Selected video state for VideoRightPanel
+  const [selectedVideoPath, setSelectedVideoPath] = useState<string | null>(null);
+  const [selectedVideoElementId, setSelectedVideoElementId] = useState<string | undefined>(undefined);
+  
   // ProductViewHeader state
   const [showSmartEditor, setShowSmartEditor] = useState<boolean>(false);
   const [projectData, setProjectData] = useState<any>(null);
@@ -730,6 +734,27 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
   const handleElementSelect = (elementType: string | null) => {
     setSelectedElement(elementType);
   };
+  
+  // ✅ NEW: Handle video click - opens VideoRightPanel
+  const handleVideoClick = (videoPath: string, elementId?: string) => {
+    console.log('🎬 [VideoClick] Video clicked, opening VideoRightPanel', {
+      videoPath,
+      elementId,
+      timestamp: Date.now()
+    });
+    
+    // Store selected video info
+    setSelectedVideoPath(videoPath);
+    setSelectedVideoElementId(elementId);
+    
+    // Close other panels and open VideoRightPanel
+    setShowVideoRightPanel(true);
+    setShowImageRightPanel(false);
+    setShowShapeRightPanel(false);
+    setShowAvatarRightPanel(false);
+    setShowMusicRightPanel(false);
+    setShowTextRightPanel(false);
+  };
 
   // Function to handle right-click on presentation area
   const handleRightClick = (position: { x: number; y: number }) => {
@@ -1073,6 +1098,7 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
                       saveVideoLessonData(updatedDeck);
                     }
                   }}
+                  onVideoClick={handleVideoClick}
                   onEditorActive={(editor, field, computedStyles) => {
                     console.log('✏️ EDITOR ACTIVE:', { field, hasEditor: !!editor, computedStyles });
                     
@@ -1400,6 +1426,62 @@ const [isTariffPlanModalOpen, setIsTariffPlanModalOpen] = useState<boolean>(fals
               onColorPaletteContextChange={setColorPaletteContext}
               mediaType="video"
               rightPanelRef={rightPanelRef}
+              videoPath={selectedVideoPath || undefined}
+              elementId={selectedVideoElementId}
+              onVideoUpdate={(updatedVideoPath) => {
+                // ✅ NEW: Handle video update (e.g., after trimming)
+                if (selectedVideoElementId && componentBasedSlideDeck) {
+                  // Find the slide and element that contains this video
+                  const slideId = selectedVideoElementId.split('-')[0];
+                  const slide = componentBasedSlideDeck.slides.find(s => s.slideId === slideId);
+                  
+                  if (slide) {
+                    // Update the video path in slide props
+                    // The elementId format is like "slideId-image", so we need to find the prop key
+                    // Common prop keys: imagePath, imageUrl, rightImagePath, leftImagePath, etc.
+                    const propKey = Object.keys(slide.props).find(key => {
+                      const keyLower = key.toLowerCase();
+                      return (keyLower.includes('image') || keyLower.includes('video')) && 
+                             slide.props[key] === selectedVideoPath;
+                    });
+                    
+                    if (propKey) {
+                      const updatedSlide = {
+                        ...slide,
+                        props: {
+                          ...slide.props,
+                          [propKey]: updatedVideoPath
+                        }
+                      };
+                      
+                      const updatedSlides = componentBasedSlideDeck.slides.map(s =>
+                        s.slideId === slideId ? updatedSlide : s
+                      );
+                      const updatedDeck = { ...componentBasedSlideDeck, slides: updatedSlides };
+                      setComponentBasedSlideDeck(updatedDeck);
+                      saveVideoLessonData(updatedDeck);
+                      
+                      // Update selected video path
+                      setSelectedVideoPath(updatedVideoPath);
+                      
+                      console.log('🎬 [VideoUpdate] Video updated in slide deck', {
+                        slideId,
+                        elementId: selectedVideoElementId,
+                        propKey,
+                        oldPath: selectedVideoPath,
+                        newPath: updatedVideoPath
+                      });
+                    } else {
+                      console.warn('🎬 [VideoUpdate] Could not find prop key for video', {
+                        slideId,
+                        elementId: selectedVideoElementId,
+                        availableProps: Object.keys(slide.props),
+                        currentVideoPath: selectedVideoPath
+                      });
+                    }
+                  }
+                }
+              }}
             />
           ) : showImageRightPanel ? (
             <ImageRightPanel
