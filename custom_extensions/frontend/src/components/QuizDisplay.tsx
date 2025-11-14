@@ -53,6 +53,8 @@ interface QuizDisplayProps {
   lessonNumber?: number;
   isAuthorized?: boolean;
   onAuthorizationChange?: (value: boolean) => void;
+  onExport?: () => void;
+  onCopyLink?: () => void;
 }
 
 // Explanation Field Component
@@ -137,7 +139,7 @@ const ExplanationField: React.FC<ExplanationFieldProps> = ({
   );
 };
 
-const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber, isAuthorized = true, onAuthorizationChange }) => {
+const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber, isAuthorized = true, onAuthorizationChange, onExport, onCopyLink }) => {
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -157,6 +159,19 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     if (value === currentIsAuthorized) return;
     setLocalIsAuthorized(value);
     onAuthorizationChange?.(value);
+  };
+  const handleMobileCopyLink = () => {
+    if (onCopyLink) {
+      onCopyLink();
+      return;
+    }
+    if (typeof window === 'undefined') return;
+    const linkToCopy = window.location.href;
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(linkToCopy).catch((err) => {
+        console.error('Failed to copy link:', err);
+      });
+    }
   };
   const renderAuthToggle = () => (
     <div className="flex items-center gap-1 bg-gray-100 rounded-md p-0.5">
@@ -628,36 +643,28 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
     return (
       <div className="space-y-4">
-        <div className="rounded-[28px] border border-[#E5E7FB] shadow-[0_12px_40px_rgba(15,88,249,0.08)] bg-white overflow-hidden">
-          <div className="bg-gradient-to-b from-[#E6ECFF] to-[#DBE4FF] px-4 py-4 border-b border-[#CCD6FF]">
-            <p className="text-xs uppercase tracking-wide text-[#3A4FBA] font-semibold mb-1">
-              {t('quiz.matchingHeading', 'Items → Correct matches:')}
-            </p>
-            <p className="text-[#1F2471] text-base font-semibold leading-snug">
-              {question.question_text}
-            </p>
-          </div>
-          <div className="p-4 space-y-3">
+        <div className="overflow-hidden">
+          <div className="p-0">
             {question.prompts.map((prompt, promptIndex) => {
               const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
               return (
                 <div
                   key={prompt.id}
-                  className="rounded-2xl border border-[#EEF2FF] bg-white px-3 py-3 shadow-[0_8px_24px_rgba(15,88,249,0.08)] flex flex-col gap-3 sm:flex-row sm:items-start"
+                  className="py-3 flex flex-col gap-3 sm:flex-row sm:items-start"
                 >
                   <div className="flex items-start gap-2 flex-1">
-                    <span className="w-7 h-7 rounded-full bg-[#0F58F9] text-white text-sm font-semibold flex items-center justify-center">
+                    <span className="w-4 h-4 rounded-full bg-[#0F58F9] text-white text-xs font-semibold flex items-center justify-center">
                       {promptIndex + 1}
                     </span>
-                    <p className="text-[#1C1D2A] text-sm leading-relaxed">
+                    <p className="text-[#1C1D2A] text-regular leading-relaxed">
                       {prompt.text}
                     </p>
                   </div>
                   <div className="flex items-start gap-2 flex-1">
-                    <span className="w-7 h-7 rounded-full bg-[#D817FF] text-white text-sm font-semibold flex items-center justify-center">
+                    <span className="w-4 h-4 rounded-full bg-[#D817FF] text-white text-xs font-semibold flex items-center justify-center">
                       {matchedOption?.id}
                     </span>
-                    <p className="text-[#1C1D2A] text-sm leading-relaxed">
+                    <p className="text-[#1C1D2A] text-regular leading-relaxed">
                       {matchedOption?.text}
                     </p>
                   </div>
@@ -668,13 +675,32 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         </div>
 
         {question.explanation && (
-          <div className="rounded-2xl bg-[#E6FFF5] border border-[#BAF5DC] px-4 py-3 flex gap-3 items-start">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 text-[#0F5132]">
-              <path d="M10 1.66602C5.39998 1.66602 1.66665 5.39935 1.66665 9.99935C1.66665 14.5994 5.39998 18.3327 10 18.3327C14.6 18.3327 18.3333 14.5994 18.3333 9.99935C18.3333 5.39935 14.6 1.66602 10 1.66602ZM10.8333 14.5827H9.16665V12.916H10.8333V14.5827ZM10.8333 11.2494H9.16665V5.41602H10.8333V11.2494Z" fill="currentColor"/>
-            </svg>
-            <p className="text-sm leading-relaxed text-[#0F5132]">
-              {question.explanation}
-            </p>
+          <div className="mt-4 p-2 md:p-4 bg-[#D8FDF9] rounded-lg">
+            <div className="flex items-start gap-1 md:gap-3">
+              <div className='flex-shrink-0 mt-2 md:mt-0'>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clip-path="url(#clip0_4151_27664)">
+                  <path d="M14.5349 1.8677C13.3208 0.662148 11.7134 0 10.0035 0C9.98804 0 9.97222 3.90625e-05 9.95675 0.00015625C8.28746 0.0119141 6.70695 0.665938 5.50633 1.84176C4.30547 3.01781 3.6191 4.58437 3.57375 6.25277C3.52644 7.99141 4.16328 9.63809 5.36695 10.8895C6.3148 11.875 6.83679 13.1857 6.83679 14.5804V17.2633C6.83679 17.8145 7.21949 18.2777 7.733 18.402V18.7597C7.733 19.4436 8.28937 20 8.97324 20H11.024C11.7079 20 12.2643 19.4436 12.2643 18.7597V18.4041C12.7823 18.283 13.1694 17.8177 13.1694 17.2633V14.5805C13.1694 13.2041 13.7057 11.8782 14.6796 10.8471C15.8115 9.64875 16.4349 8.0807 16.4349 6.43176C16.4349 4.7052 15.7601 3.0843 14.5349 1.8677ZM11.483 18.7598C11.483 19.0129 11.2771 19.2188 11.0241 19.2188H8.97328C8.72019 19.2188 8.51429 19.0129 8.51429 18.7598V18.435H11.483V18.7598ZM12.3882 17.2633C12.3882 17.4786 12.213 17.6538 11.9977 17.6538H11.8737H8.12367H8.00859C7.79324 17.6538 7.61808 17.4786 7.61808 17.2633V15.0416H12.3882V17.2633ZM9.38949 14.2604V9.31945H10.6064V14.2603H9.38949V14.2604ZM14.1118 10.3106C13.0757 11.4075 12.4736 12.7994 12.3966 14.2603H11.3877V9.31945H11.7388C12.3632 9.31945 12.8712 8.81148 12.8712 8.18707V8.12652C12.8712 7.50211 12.3632 6.99414 11.7388 6.99414C11.1144 6.99414 10.6064 7.50211 10.6064 8.12652V8.5382H9.38949V8.12652C9.38949 7.50211 8.88152 6.99414 8.25715 6.99414H8.18019C7.55582 6.99414 7.04785 7.50211 7.04785 8.12652V8.18707C7.04785 8.81145 7.55582 9.31945 8.18019 9.31945H8.60824V14.2603H7.61004C7.53547 12.7829 6.94558 11.4037 5.93004 10.3479C4.87261 9.24855 4.31312 7.80172 4.35472 6.27402C4.43652 3.2666 6.95203 0.802617 9.96226 0.781367C11.4816 0.770703 12.9081 1.35336 13.9845 2.42207C15.0609 3.4909 15.6537 4.91492 15.6537 6.43176C15.6537 7.88043 15.1061 9.25793 14.1118 10.3106ZM11.3877 8.5382V8.12652C11.3877 7.93289 11.5452 7.77539 11.7388 7.77539C11.9324 7.77539 12.0899 7.93293 12.0899 8.12652V8.18707C12.0899 8.3807 11.9324 8.5382 11.7388 8.5382H11.3877ZM8.6082 8.12652V8.5382H8.18015C7.98656 8.5382 7.82906 8.3807 7.82906 8.18707V8.12652C7.82906 7.93289 7.98656 7.77539 8.18015 7.77539H8.25711C8.4507 7.77539 8.6082 7.93297 8.6082 8.12652Z" fill="#171718"/>
+                  <path d="M14.1918 4.74281C13.8563 3.90976 13.2856 3.20082 12.5415 2.69261C11.7787 2.17172 10.8847 1.89984 9.95821 1.90636C9.74247 1.90789 9.5688 2.08402 9.57032 2.29976C9.57185 2.51457 9.74646 2.68761 9.96087 2.68761C9.96181 2.68761 9.96278 2.68761 9.96368 2.68761C9.97286 2.68758 9.98181 2.68754 9.99095 2.68754C11.5292 2.68754 12.8918 3.60648 13.4672 5.03472C13.5285 5.18699 13.675 5.27949 13.8296 5.27949C13.8782 5.27949 13.9277 5.27039 13.9755 5.25109C14.1756 5.17047 14.2725 4.94289 14.1918 4.74281Z" fill="#171718"/>
+                  <path d="M14.4021 6.15352C14.3295 6.08086 14.2287 6.03906 14.126 6.03906C14.0232 6.03906 13.9225 6.08086 13.8498 6.15352C13.7768 6.22617 13.7354 6.32695 13.7354 6.42969C13.7354 6.53281 13.7768 6.6332 13.8498 6.70586C13.9225 6.77891 14.0229 6.82031 14.126 6.82031C14.2287 6.82031 14.3295 6.77891 14.4021 6.70586C14.4748 6.6332 14.5166 6.53281 14.5166 6.42969C14.5166 6.32695 14.4748 6.22617 14.4021 6.15352Z" fill="#171718"/>
+                  <path d="M18.1437 1.94253C17.9911 1.78999 17.7438 1.78999 17.5912 1.94253L16.8634 2.6703C16.7109 2.82284 16.7109 3.07019 16.8634 3.22276C16.9397 3.29905 17.0397 3.33718 17.1397 3.33718C17.2397 3.33718 17.3396 3.29905 17.4159 3.22276L18.1437 2.49499C18.2962 2.34245 18.2962 2.09511 18.1437 1.94253Z" fill="#171718"/>
+                  <path d="M18.1436 10.3656L17.4159 9.63784C17.2633 9.4853 17.0161 9.4853 16.8634 9.63784C16.7109 9.79038 16.7109 10.0377 16.8634 10.1903L17.5912 10.918C17.6675 10.9943 17.7675 11.0325 17.8674 11.0325C17.9674 11.0325 18.0673 10.9943 18.1436 10.918C18.2962 10.7655 18.2962 10.5182 18.1436 10.3656Z" fill="#171718"/>
+                  <path d="M19.6084 6.03906H18.5791C18.3634 6.03906 18.1885 6.21395 18.1885 6.42969C18.1885 6.64543 18.3634 6.82031 18.5791 6.82031H19.6084C19.8241 6.82031 19.999 6.64543 19.999 6.42969C19.999 6.21395 19.8241 6.03906 19.6084 6.03906Z" fill="#171718"/>
+                  <path d="M3.13776 2.6703L2.41003 1.94253C2.25745 1.78999 2.01019 1.78999 1.85757 1.94253C1.70503 2.09507 1.70503 2.34241 1.85757 2.49499L2.58534 3.22276C2.66163 3.29905 2.76159 3.33718 2.86155 3.33718C2.96151 3.33718 3.06147 3.29905 3.13776 3.22276C3.2903 3.07019 3.2903 2.82288 3.13776 2.6703Z" fill="#171718"/>
+                  <path d="M3.13776 9.63787C2.98522 9.48529 2.73792 9.48529 2.58534 9.63787L1.85757 10.3657C1.70503 10.5182 1.70503 10.7656 1.85757 10.9181C1.93386 10.9944 2.03382 11.0325 2.13378 11.0325C2.23374 11.0325 2.3337 10.9944 2.40999 10.9181L3.13776 10.1903C3.2903 10.0378 3.2903 9.79045 3.13776 9.63787Z" fill="#171718"/>
+                  <path d="M1.41988 6.03906H0.390625C0.174922 6.03906 0 6.21395 0 6.42969C0 6.64543 0.174922 6.82031 0.390625 6.82031H1.41988C1.63559 6.82031 1.81051 6.64543 1.81051 6.42969C1.81051 6.21395 1.63559 6.03906 1.41988 6.03906Z" fill="#171718"/>
+                  </g>
+                  <defs>
+                  <clipPath id="clip0_4151_27664">
+                  <rect width="20" height="20" fill="white"/>
+                  </clipPath>
+                  </defs>
+                </svg>
+              </div>
+              <p className="text-sm text-[#434343] flex-1 cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors">
+                {question.explanation}
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -1008,6 +1034,20 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
         {/* Question Content */}
         <div className="p-4 md:p-6">
+        {(questionType === 'multi-select' || questionType === 'matching') && (
+          <div className="sm:hidden mb-3">
+            {questionType === 'multi-select' && (
+              <p className="text-sm font-light text-[#878787] tracking-wide">
+                Select all that apply
+              </p>
+            )}
+            {questionType === 'matching' && (
+              <p className="text-sm font-light text-[#878787] tracking-wide">
+                Items ⭢ Correct matches:
+              </p>
+            )}
+          </div>
+        )}
         {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
         {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
         {questionType === 'matching' && renderMatching(question as MatchingQuestion, index)}
@@ -1017,6 +1057,51 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       </div>
     );
   };
+
+  const renderMobileActions = () => (
+    <div className="sm:hidden border-t border-[#E4E4E7] pt-4 mt-6">
+      <div className="flex flex-row-reverse gap-3">
+        <button
+          onClick={handleMobileCopyLink}
+          className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+          style={{
+            backgroundColor: '#0F58F9',
+            color: '#FFFFFF',
+            fontSize: '14px',
+            lineHeight: '140%',
+            letterSpacing: '0.05em',
+            border: '1px solid #0F58F9',
+            height: '44px',
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.8864 6.55695C5.12559 6.87705 5.43077 7.14192 5.78123 7.33359C6.13168 7.52524 6.51922 7.63922 6.91754 7.66778C7.31587 7.69633 7.71567 7.6388 8.08983 7.49908C8.464 7.35938 8.80377 7.14075 9.0861 6.85803L10.7571 5.18537C11.2644 4.6596 11.5451 3.9554 11.5387 3.22446C11.5324 2.49353 11.2395 1.79432 10.7231 1.27745C10.2068 0.760579 9.50825 0.467395 8.77809 0.461043C8.04788 0.454691 7.34439 0.735681 6.81915 1.24349L5.86113 2.1969M7.11435 5.44185C6.87516 5.12175 6.56998 4.85688 6.21952 4.66521C5.86907 4.47355 5.48153 4.35958 5.08321 4.33102C4.68488 4.30247 4.28508 4.36 3.91092 4.49971C3.53675 4.63942 3.19698 4.85805 2.91465 5.14077L1.24369 6.81342C0.736381 7.3392 0.455674 8.0434 0.462019 8.77433C0.468365 9.50524 0.761255 10.2045 1.27761 10.7213C1.79396 11.2382 2.49246 11.5314 3.22266 11.5378C3.95287 11.5441 4.65635 11.2632 5.1816 10.7553L6.13406 9.80192" stroke="white" strokeWidth="0.923077" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Copy Link
+        </button>
+        {onExport && (
+          <button
+            onClick={onExport}
+            className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+            style={{
+              backgroundColor: '#FFFFFF',
+              color: '#0F58F9',
+              fontSize: '14px',
+              lineHeight: '140%',
+              letterSpacing: '0.05em',
+              border: '1px solid #0F58F9',
+              height: '44px',
+            }}
+          >
+            <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="currentColor" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Export
+          </button>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#F2F2F4]">
@@ -1031,7 +1116,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           </div>
         </div>
 
-      <div className="space-y-6">
+      <div className="hidden md:block space-y-6">
         {questions.map((question, index) => renderQuestion(question, index))}
           
           {/* Add Question Button with Dropdown */}
@@ -1116,6 +1201,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           </div>
         </div>
       </div>
+      {renderMobileActions()}
     </div>
   );
 };

@@ -603,7 +603,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </div>
           ) : (
             <div className="block md:hidden flex items-center gap-3">
-              <div className="w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
+              <div className="hidden md:block w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
               {isMobileViewport && renderCopyLinkButton()}
               {renderSignUpButton()}
             </div>
@@ -683,7 +683,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-3">
-              <div className="w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
+              <div className="hidden md:block w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
               {isMobileViewport && renderCopyLinkButton()}
               {renderSignUpButton()}
             </div>
