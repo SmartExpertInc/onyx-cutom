@@ -257,9 +257,9 @@ export const trackSmartDrive = async (action: string) => {
   );
 };
 
-export const trackOpenProductEditor = async () => {
+export const trackProductEditorUsed = async () => {
   await track(
-    "Open Product Editor", 
+    "Product Editor Used", 
     {
       "Feature Category": "Products",
     },

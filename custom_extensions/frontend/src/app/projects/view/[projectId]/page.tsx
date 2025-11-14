@@ -46,7 +46,7 @@ import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
 import { generateTextPresentationHtml } from '@/lib/textPresentationHtmlExport';
-import { trackOpenProductEditor, trackSaveDraft } from '@/lib/mixpanelClient';
+import { trackProductEditorUsed, trackSaveDraft } from '@/lib/mixpanelClient';
 
 // Localization config for column labels based on product language
 const columnLabelLocalization = {
@@ -1108,6 +1108,11 @@ export default function ProjectInstanceViewPage() {
       return;
     }
 
+    // Track product editor used if this is the first save
+    if (!lastSavedDataRef.current) {
+      trackProductEditorUsed();
+    }
+
     setIsSaving(true);
     setSaveError(null);
 
@@ -1230,6 +1235,11 @@ export default function ProjectInstanceViewPage() {
     if (currentDataString === lastSavedDataString) {
       console.log('Auto-save: No changes detected, skipping save');
       return; // No changes, skip save
+    }
+
+    // Track product editor used if this is the first save
+    if (!lastSavedDataRef.current) {
+      trackProductEditorUsed();
     }
     
     const editableComponentTypes = [
@@ -1473,7 +1483,6 @@ export default function ProjectInstanceViewPage() {
       handleSave();
     } else {
       // Track open product editor event
-      trackOpenProductEditor();
       const lang = projectInstanceData.details?.detectedLanguage || 'en';
       if (projectInstanceData.details) {
         setEditableData(JSON.parse(JSON.stringify(projectInstanceData.details)));
