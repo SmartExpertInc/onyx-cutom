@@ -38,7 +38,7 @@ const GRID_CONFIG = {
   
   // Snapping behavior
   snapThreshold: 5, // pixels - distance at which snapping activates
-  snapStrength: 0.95, // 0-1, how strongly to snap (0.3 = light magnet, 1.0 = strong constant)
+  snapStrength: 0.9, // 0-1, how strongly to snap (0.3 = light magnet, 1.0 = strong constant)
   snapDistanceLimit: 15, // pixels - maximum distance an element can be pulled to prevent large jumps
 };
 
