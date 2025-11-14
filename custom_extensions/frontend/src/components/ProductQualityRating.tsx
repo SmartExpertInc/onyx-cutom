@@ -14,7 +14,7 @@ const ProductQualityRating = ({
   className,
   isAuthorized = true,
 }: ProductQualityRatingProps): React.ReactElement => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [_hoveredStar, setHoveredStar] = useState<number | null>(null);
 
   const displayQuestion =
@@ -30,7 +30,7 @@ const ProductQualityRating = ({
     .join(' ');
 
   const ratingBoxClasses = [
-    'items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3',
+    'items-center gap-2 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3',
     fullWidth ? 'flex justify-between w-full' : 'inline-flex',
   ]
     .filter(Boolean)
@@ -39,7 +39,12 @@ const ProductQualityRating = ({
   return (
     <div className={containerClasses}>
       <div className={ratingBoxClasses}>
-        <span className="text-[#171718] text-xs">{displayQuestion}</span>
+        <span
+          className="text-[#171718]"
+          style={{ fontSize: language === 'en' ? '12px' : '11px' }}
+        >
+          {displayQuestion}
+        </span>
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
