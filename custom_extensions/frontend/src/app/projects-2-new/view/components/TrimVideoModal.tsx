@@ -52,6 +52,18 @@ export default function TrimVideoModal({
   initialTrim
 }: TrimVideoModalProps) {
   const { t, language } = useLanguage();
+  
+  // Log props changes
+  useEffect(() => {
+    log('TrimVideoModal', 'propsChanged', {
+      isOpen,
+      hasVideoFile: !!videoFile,
+      hasVideoPath: !!videoPath,
+      videoFileName: videoFile?.name,
+      videoPathValue: videoPath,
+      videoFileSize: videoFile?.size
+    });
+  }, [isOpen, videoFile, videoPath]);
   const railRef = useRef<HTMLDivElement>(null);
   const previewVideoRef = useRef<HTMLVideoElement>(null);
   

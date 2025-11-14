@@ -722,8 +722,14 @@ const VideoEditModal: React.FC<VideoEditModalProps> = ({
             {/* Trim Video Button */}
             <button
               onClick={() => {
+                log('VideoEditModal', 'openTrimModal', {
+                  hasVideoFile: !!videoFile,
+                  hasVideoPath: !!videoPath,
+                  videoFileName: videoFile?.name,
+                  videoPathValue: videoPath,
+                  editStateVideoUrl: editState.videoUrl
+                });
                 setShowTrimModal(true);
-                log('VideoEditModal', 'openTrimModal', {});
               }}
               className="flex items-center space-x-2 px-4 py-2 text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium"
               disabled={isProcessing}
@@ -857,9 +863,12 @@ const VideoEditModal: React.FC<VideoEditModalProps> = ({
       {/* Trim Video Modal */}
       <TrimVideoModal
         isOpen={showTrimModal}
-        onClose={() => setShowTrimModal(false)}
+        onClose={() => {
+          log('VideoEditModal', 'closeTrimModal', {});
+          setShowTrimModal(false);
+        }}
         videoFile={videoFile}
-        videoPath={videoPath}
+        videoPath={videoPath || editState.videoUrl || undefined}
         onTrimConfirm={(trimmedVideoPath) => {
           log('VideoEditModal', 'trimComplete', { trimmedVideoPath });
           // Update video path and close trim modal
