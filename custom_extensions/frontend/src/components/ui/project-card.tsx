@@ -233,8 +233,58 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
   const designType = (project.designMicroproductType || "").toLowerCase();
+
+  const [previewSlide, setPreviewSlide] = useState<ComponentBasedSlide | null>(
+    project.previewSlide || null
+  );
+  const [previewTheme, setPreviewTheme] = useState<string | undefined>(
+    project.previewTheme
+  );
+  const [previewDeckVersion, setPreviewDeckVersion] = useState<string | undefined>(
+    project.previewDeckTemplateVersion
+  );
+
+  const loadSlidesFromBackend = designType === "slide deck" || designType === "video lesson presentation";
+  useEffect(() => {
+    if (previewSlide || !loadSlidesFromBackend) {
+      return;
+    }
+    let isMounted = true;
+    const controller = new AbortController();
+    const fetchSlidePreview = async () => {
+      try {
+        const CUSTOM_BACKEND_URL =
+          process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
+        const response = await fetch(
+          `${CUSTOM_BACKEND_URL}/projects/view/${project.id}`,
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          }
+        );
+        if (!response.ok) return;
+        const data = await response.json();
+        const slides = data?.details?.slides;
+        if (isMounted && Array.isArray(slides) && slides.length > 0) {
+          setPreviewSlide(slides[0]);
+          setPreviewTheme(data?.details?.theme);
+          setPreviewDeckVersion(data?.details?.templateVersion || data?.details?.deckTemplateVersion);
+        }
+      } catch (error: any) {
+        if (error?.name !== "AbortError") {
+          console.warn("Failed to load slide preview", error);
+        }
+      }
+    };
+    fetchSlidePreview();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [previewSlide, loadSlidesFromBackend, project.id]);
+
   const hasSlidePreview =
-    !!project.previewSlide &&
+    !!previewSlide &&
     (designType === "slide deck" || designType === "video lesson presentation");
 
   const handleRemoveFromFolder = async () => {
@@ -560,12 +610,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       backgroundColor: "#F2F2F4",
                     }}
                   >
-                    <ComponentBasedSlideRenderer
-                      slide={project.previewSlide}
-                      isEditable={false}
-                      theme={project.previewTheme}
-                      deckTemplateVersion={project.previewDeckTemplateVersion}
-                    />
+                    {previewSlide && (
+                      <ComponentBasedSlideRenderer
+                        slide={previewSlide}
+                        isEditable={false}
+                        theme={previewTheme}
+                        deckTemplateVersion={previewDeckVersion}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
