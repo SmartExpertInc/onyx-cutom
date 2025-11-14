@@ -11,6 +11,17 @@ import {
 import { X, Play, Pause, Loader2 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
+// Enhanced debug logging utility
+const DEBUG = typeof window !== 'undefined' && ((window as any).__TRIM_VIDEO_MODAL_DEBUG__ !== false);
+const log = (source: string, event: string, data: any) => {
+  if (DEBUG) {
+    console.log(`[TrimVideoModal] ${source} | ${event}`, { 
+      ts: Date.now(), 
+      ...data 
+    });
+  }
+};
+
 interface TrimVideoModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -60,33 +71,74 @@ export default function TrimVideoModal({
 
   // Initialize video when modal opens
   useEffect(() => {
+    log('TrimVideoModal', 'initEffect_start', {
+      isOpen,
+      hasVideoFile: !!videoFile,
+      hasVideoPath: !!videoPath,
+      videoFileName: videoFile?.name,
+      videoPathValue: videoPath,
+      initialTrim
+    });
+
     if (isOpen) {
       let url = '';
       
       if (videoFile) {
         url = URL.createObjectURL(videoFile);
+        log('TrimVideoModal', 'initEffect_createdBlobUrl', {
+          blobUrl: url,
+          fileName: videoFile.name,
+          fileSize: videoFile.size,
+          fileType: videoFile.type
+        });
         setVideoUrl(url);
       } else if (videoPath) {
         url = videoPath;
+        log('TrimVideoModal', 'initEffect_usingVideoPath', {
+          videoPath: url
+        });
         setVideoUrl(url);
+      } else {
+        log('TrimVideoModal', 'initEffect_noVideoSource', {
+          warning: 'No videoFile or videoPath provided'
+        });
       }
       
       setVideoLoadState('loading');
+      log('TrimVideoModal', 'initEffect_setLoadingState', {
+        videoUrl: url || 'none'
+      });
       
       // Reset selection
       if (initialTrim && duration > 0) {
-        setSelection({
+        const newSelection = {
           start: initialTrim.start / duration,
           end: initialTrim.end / duration,
+        };
+        log('TrimVideoModal', 'initEffect_setInitialTrim', {
+          initialTrim,
+          duration,
+          selection: newSelection
         });
+        setSelection(newSelection);
       } else {
+        log('TrimVideoModal', 'initEffect_setDefaultSelection', {
+          selection: { start: 0, end: 1 }
+        });
         setSelection({ start: 0, end: 1 });
       }
+    } else {
+      log('TrimVideoModal', 'initEffect_modalClosed', {
+        cleaningUp: true
+      });
     }
     
     // Cleanup blob URL on unmount
     return () => {
       if (videoUrl && videoFile) {
+        log('TrimVideoModal', 'initEffect_cleanup', {
+          revokingBlobUrl: videoUrl
+        });
         URL.revokeObjectURL(videoUrl);
       }
     };
@@ -95,34 +147,110 @@ export default function TrimVideoModal({
   // Handle video metadata load
   const handleVideoLoadedMetadata = useCallback(() => {
     const video = previewVideoRef.current;
-    if (!video) return;
+    
+    log('TrimVideoModal', 'handleVideoLoadedMetadata_start', {
+      hasVideoRef: !!video,
+      videoSrc: video?.src,
+      videoCurrentSrc: video?.currentSrc,
+      videoNetworkState: video?.networkState,
+      videoReadyState: video?.readyState
+    });
+    
+    if (!video) {
+      log('TrimVideoModal', 'handleVideoLoadedMetadata_noVideoRef', {
+        error: 'Video ref is null'
+      });
+      return;
+    }
     
     const videoDuration = video.duration;
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+    
+    log('TrimVideoModal', 'handleVideoLoadedMetadata_metadata', {
+      duration: videoDuration,
+      width: videoWidth,
+      height: videoHeight,
+      isValidDuration: isFinite(videoDuration) && videoDuration > 0
+    });
+    
+    if (!isFinite(videoDuration) || videoDuration <= 0) {
+      log('TrimVideoModal', 'handleVideoLoadedMetadata_invalidDuration', {
+        duration: videoDuration,
+        error: 'Invalid video duration'
+      });
+      setVideoLoadState('error');
+      return;
+    }
+    
     setDuration(videoDuration);
     setVideoLoadState('loaded');
     
+    log('TrimVideoModal', 'handleVideoLoadedMetadata_stateUpdated', {
+      duration: videoDuration,
+      loadState: 'loaded'
+    });
+    
     // Set initial trim if provided
     if (initialTrim) {
-      setSelection({
+      const newSelection = {
         start: initialTrim.start / videoDuration,
         end: initialTrim.end / videoDuration,
+      };
+      log('TrimVideoModal', 'handleVideoLoadedMetadata_setInitialTrim', {
+        initialTrim,
+        videoDuration,
+        selection: newSelection
       });
+      setSelection(newSelection);
     } else {
+      log('TrimVideoModal', 'handleVideoLoadedMetadata_setDefaultSelection', {
+        selection: { start: 0, end: 1 }
+      });
       setSelection({ start: 0, end: 1 });
     }
   }, [initialTrim]);
 
   // Handle video error
-  const handleVideoError = useCallback(() => {
+  const handleVideoError = useCallback((event?: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    const video = previewVideoRef.current;
+    
+    log('TrimVideoModal', 'handleVideoError', {
+      hasVideoRef: !!video,
+      videoSrc: video?.src,
+      videoCurrentSrc: video?.currentSrc,
+      videoError: video?.error,
+      errorCode: video?.error?.code,
+      errorMessage: video?.error?.message,
+      networkState: video?.networkState,
+      readyState: video?.readyState,
+      eventType: event?.type
+    });
+    
     setVideoLoadState('error');
-    console.error('Failed to load video');
+    
+    if (video?.error) {
+      const errorMessages: Record<number, string> = {
+        1: 'MEDIA_ERR_ABORTED - The user aborted the video',
+        2: 'MEDIA_ERR_NETWORK - A network error occurred',
+        3: 'MEDIA_ERR_DECODE - The video was aborted or corrupted',
+        4: 'MEDIA_ERR_SRC_NOT_SUPPORTED - The video format is not supported'
+      };
+      
+      log('TrimVideoModal', 'handleVideoError_details', {
+        errorCode: video.error.code,
+        errorMessage: errorMessages[video.error.code] || 'Unknown error',
+        videoSrc: video.src
+      });
+    }
   }, []);
 
   // Update video time
   const handleVideoTimeUpdate = useCallback(() => {
     const video = previewVideoRef.current;
     if (video) {
-      setCurrentTime(video.currentTime);
+      const newTime = video.currentTime;
+      setCurrentTime(newTime);
       
       // Handle trimmed playback looping
       if (playbackMode === 'trimmed' && duration > 0) {
@@ -130,6 +258,11 @@ export default function TrimVideoModal({
         const endTime = selection.end * duration;
         
         if (video.currentTime >= endTime) {
+          log('TrimVideoModal', 'handleVideoTimeUpdate_loop', {
+            currentTime: video.currentTime,
+            endTime,
+            loopingTo: startTime
+          });
           video.currentTime = startTime;
         }
       }
@@ -153,18 +286,44 @@ export default function TrimVideoModal({
   // Play/Pause handler
   const handlePlayPause = useCallback(() => {
     const video = previewVideoRef.current;
-    if (!video) return;
+    
+    log('TrimVideoModal', 'handlePlayPause_start', {
+      hasVideo: !!video,
+      isPaused: video?.paused,
+      playbackMode,
+      duration
+    });
+    
+    if (!video) {
+      log('TrimVideoModal', 'handlePlayPause_noVideo', {
+        error: 'Video ref is null'
+      });
+      return;
+    }
 
     if (video.paused) {
       if (playbackMode === 'trimmed' && duration > 0) {
         const startTime = selection.start * duration;
+        log('TrimVideoModal', 'handlePlayPause_seekToStart', {
+          startTime,
+          selection
+        });
         video.currentTime = startTime;
       }
-      video.play();
+      video.play().catch((error) => {
+        log('TrimVideoModal', 'handlePlayPause_playError', {
+          error: error.message,
+          videoSrc: video.src
+        });
+      });
       setIsPlaying(true);
+      log('TrimVideoModal', 'handlePlayPause_playing', {
+        playbackMode
+      });
     } else {
       video.pause();
       setIsPlaying(false);
+      log('TrimVideoModal', 'handlePlayPause_paused', {});
     }
   }, [playbackMode, selection, duration]);
 
@@ -313,7 +472,24 @@ export default function TrimVideoModal({
 
   // Trim confirmation handler
   const handleTrimConfirm = useCallback(async () => {
-    if (!videoUrl || !duration || !isValidSelection) return;
+    log('TrimVideoModal', 'handleTrimConfirm_start', {
+      hasVideoUrl: !!videoUrl,
+      duration,
+      isValidSelection,
+      selection,
+      hasVideoFile: !!videoFile,
+      hasVideoPath: !!videoPath,
+      hasOnTrimConfirm: !!onTrimConfirm
+    });
+    
+    if (!videoUrl || !duration || !isValidSelection) {
+      log('TrimVideoModal', 'handleTrimConfirm_validationFailed', {
+        hasVideoUrl: !!videoUrl,
+        duration,
+        isValidSelection
+      });
+      return;
+    }
     
     setIsProcessing(true);
     
@@ -321,19 +497,41 @@ export default function TrimVideoModal({
       const startTime = selection.start * duration;
       const endTime = selection.end * duration;
       
+      log('TrimVideoModal', 'handleTrimConfirm_calculatedTimes', {
+        startTime,
+        endTime,
+        trimDuration: endTime - startTime
+      });
+      
       // Determine video source
       const videoSource = videoFile || videoPath;
       if (!videoSource) {
+        log('TrimVideoModal', 'handleTrimConfirm_noVideoSource', {
+          error: 'No video source available'
+        });
         throw new Error('No video source available');
       }
+      
+      log('TrimVideoModal', 'handleTrimConfirm_callingAPI', {
+        videoSourceType: videoFile ? 'File' : 'Path',
+        videoSource: videoFile ? videoFile.name : videoPath
+      });
       
       // Call backend API
       const designTemplateApi = await import('@/lib/designTemplateApi');
       const result = await designTemplateApi.trimVideo(videoSource, startTime, endTime);
       
+      log('TrimVideoModal', 'handleTrimConfirm_apiResult', {
+        hasFilePath: !!result.file_path,
+        filePath: result.file_path
+      });
+      
       if (result.file_path) {
         // Call parent callback with trimmed video if provided
         if (onTrimConfirm) {
+          log('TrimVideoModal', 'handleTrimConfirm_callingCallback', {
+            trimmedVideoPath: result.file_path
+          });
           onTrimConfirm(result.file_path, {
             startTime,
             endTime,
@@ -341,26 +539,76 @@ export default function TrimVideoModal({
           });
         } else {
           // If no callback provided, just log and close
-          console.warn('TrimVideoModal: onTrimConfirm callback not provided. Trimmed video path:', result.file_path);
+          log('TrimVideoModal', 'handleTrimConfirm_noCallback', {
+            warning: 'onTrimConfirm callback not provided',
+            trimmedVideoPath: result.file_path
+          });
         }
         
         // Close modal
+        log('TrimVideoModal', 'handleTrimConfirm_success', {
+          trimmedVideoPath: result.file_path
+        });
         onClose();
       } else {
+        log('TrimVideoModal', 'handleTrimConfirm_noFilePath', {
+          error: 'No file path returned from trim operation',
+          result
+        });
         throw new Error('No file path returned from trim operation');
       }
     } catch (error) {
+      log('TrimVideoModal', 'handleTrimConfirm_error', {
+        error: error instanceof Error ? error.message : String(error),
+        errorStack: error instanceof Error ? error.stack : undefined
+      });
       console.error('Trim error:', error);
       // TODO: Show error message to user
       alert('Failed to trim video. Please try again.');
     } finally {
       setIsProcessing(false);
+      log('TrimVideoModal', 'handleTrimConfirm_finished', {
+        isProcessing: false
+      });
     }
   }, [videoUrl, duration, isValidSelection, selection, videoFile, videoPath, onTrimConfirm, onClose]);
 
+  // Log video URL changes
+  useEffect(() => {
+    log('TrimVideoModal', 'videoUrlStateChanged', {
+      videoUrl: videoUrl ? (videoUrl.length > 50 ? videoUrl.substring(0, 50) + '...' : videoUrl) : 'none',
+      hasVideoUrl: !!videoUrl,
+      videoLoadState,
+      isOpen
+    });
+  }, [videoUrl, videoLoadState, isOpen]);
+
+  // Log component render
+  useEffect(() => {
+    log('TrimVideoModal', 'componentRender', {
+      isOpen,
+      videoLoadState,
+      hasVideoUrl: !!videoUrl,
+      videoUrl: videoUrl ? (videoUrl.length > 50 ? videoUrl.substring(0, 50) + '...' : videoUrl) : 'none',
+      duration,
+      selection,
+      isProcessing,
+      hasVideoFile: !!videoFile,
+      hasVideoPath: !!videoPath
+    });
+  }, [isOpen, videoLoadState, videoUrl, duration, selection, isProcessing, videoFile, videoPath]);
+
   if (!isOpen) {
+    log('TrimVideoModal', 'notRendering_modalClosed', {});
     return null;
   }
+  
+  log('TrimVideoModal', 'rendering', {
+    videoLoadState,
+    hasVideoUrl: !!videoUrl,
+    duration,
+    selection
+  });
 
   const actionButtonWidth = language === 'en' ? '75px' : '85px';
   const startTimeSeconds = selection.start * duration;
@@ -401,6 +649,9 @@ export default function TrimVideoModal({
               {videoLoadState === 'loading' && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
                   <Loader2 className="w-8 h-8 animate-spin text-white" />
+                  <div className="ml-4 text-white text-sm">
+                    {videoUrl ? 'Loading video...' : 'No video source'}
+                  </div>
                 </div>
               )}
               
@@ -409,6 +660,23 @@ export default function TrimVideoModal({
                   <div className="text-center">
                     <p className="text-sm">Failed to load video</p>
                     <p className="text-xs text-gray-400 mt-2">Please try again</p>
+                    {previewVideoRef.current?.error && (
+                      <p className="text-xs text-red-400 mt-1">
+                        Error: {previewVideoRef.current.error.code} - {previewVideoRef.current.error.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {!videoUrl && videoLoadState === 'loading' && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-900 text-white">
+                  <div className="text-center">
+                    <p className="text-sm">No video source provided</p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      videoFile: {videoFile ? 'provided' : 'missing'}, 
+                      videoPath: {videoPath ? videoPath : 'missing'}
+                    </p>
                   </div>
                 </div>
               )}
@@ -416,15 +684,60 @@ export default function TrimVideoModal({
               {videoUrl && videoLoadState === 'loaded' && (
                 <>
                   <video
-                    ref={previewVideoRef}
+                    ref={(ref) => {
+                      previewVideoRef.current = ref;
+                      log('TrimVideoModal', 'videoRef_set', {
+                        hasRef: !!ref,
+                        videoSrc: ref?.src,
+                        videoCurrentSrc: ref?.currentSrc
+                      });
+                    }}
                     src={videoUrl}
                     className="w-full h-full object-contain"
                     muted
                     playsInline
+                    onLoadStart={() => {
+                      log('TrimVideoModal', 'video_onLoadStart', {
+                        videoSrc: previewVideoRef.current?.src
+                      });
+                    }}
+                    onLoadedData={() => {
+                      log('TrimVideoModal', 'video_onLoadedData', {
+                        videoSrc: previewVideoRef.current?.src,
+                        videoWidth: previewVideoRef.current?.videoWidth,
+                        videoHeight: previewVideoRef.current?.videoHeight
+                      });
+                    }}
                     onLoadedMetadata={handleVideoLoadedMetadata}
+                    onCanPlay={() => {
+                      log('TrimVideoModal', 'video_onCanPlay', {
+                        videoSrc: previewVideoRef.current?.src,
+                        readyState: previewVideoRef.current?.readyState
+                      });
+                    }}
+                    onCanPlayThrough={() => {
+                      log('TrimVideoModal', 'video_onCanPlayThrough', {
+                        videoSrc: previewVideoRef.current?.src
+                      });
+                    }}
                     onTimeUpdate={handleVideoTimeUpdate}
                     onEnded={handleVideoEnded}
                     onError={handleVideoError}
+                    onWaiting={() => {
+                      log('TrimVideoModal', 'video_onWaiting', {
+                        videoSrc: previewVideoRef.current?.src
+                      });
+                    }}
+                    onStalled={() => {
+                      log('TrimVideoModal', 'video_onStalled', {
+                        videoSrc: previewVideoRef.current?.src
+                      });
+                    }}
+                    onSuspend={() => {
+                      log('TrimVideoModal', 'video_onSuspend', {
+                        videoSrc: previewVideoRef.current?.src
+                      });
+                    }}
                   />
                   
                   {/* Play/Pause overlay */}
