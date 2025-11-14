@@ -277,153 +277,161 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
       {/* Main Content with Image */}
       <div style={mainContentStyles}>
         {/* Left side text items - positioned next to icons */}
-        {challengeItems.map((item: string, index: number) => {
-          // Position each challenge next to its icon
-          const positions = [
-            { top: '15%', left: '0px' },   // Top icon
-            { top: '48%', left: '0px' },   // Middle icon
-            { top: '75%', left: '0px' }    // Bottom icon
-          ];
-          const pos = positions[index] || positions[0];
-          
-          return (
-            <div key={index} data-draggable="true" style={{
-              position: 'absolute',
-              ...pos,
-              width: '220px',
-              maxWidth: '220px',
-              zIndex: 10
-            }}>
-              {editingChallengeItems[index] ? (
-                <WysiwygEditor
-                  initialValue={challengeItems[index]}
-                  onSave={(value) => handleChallengeItemSave(index, value)}
-                  onCancel={() => {
-                    const newEditingStates = [...editingChallengeItems];
-                    newEditingStates[index] = false;
-                    setEditingChallengeItems(newEditingStates);
-                  }}
-                  placeholder="Enter challenge"
-                  className="inline-editor-challenge"
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    width: '100%',
-                    minWidth: '200px',
-                    padding: '8px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    cursor: isEditable ? 'pointer' : 'default',
-                    textAlign: 'left',
-                    width: '100%',
-                    wordWrap: 'break-word'
-                  }}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    handleChallengeItemEdit(index);
-                  }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  dangerouslySetInnerHTML={{ __html: item }}
-                />
-              )}
-            </div>
-          );
-        })}
+        <div style={{
+          position: 'absolute',
+          left: '0px',
+          top: 0,
+          width: '220px',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: '15%',
+          paddingBottom: '25%',
+          zIndex: 10
+        }}>
+          {challengeItems.map((item: string, index: number) => {
+            return (
+              <div key={index} data-draggable="true" style={{
+                width: '100%',
+                display: 'inline-block'
+              }}>
+                {editingChallengeItems[index] ? (
+                  <WysiwygEditor
+                    initialValue={challengeItems[index]}
+                    onSave={(value) => handleChallengeItemSave(index, value)}
+                    onCancel={() => {
+                      const newEditingStates = [...editingChallengeItems];
+                      newEditingStates[index] = false;
+                      setEditingChallengeItems(newEditingStates);
+                    }}
+                    placeholder="Enter challenge"
+                    className="inline-editor-challenge"
+                    style={{
+                      fontSize: '17px',
+                      color: '#000000',
+                      fontFamily: 'Arial, sans-serif',
+                      fontWeight: 'normal',
+                      width: '100%',
+                      minWidth: '200px',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={{
+                      fontSize: '17px',
+                      color: '#000000',
+                      fontFamily: 'Arial, sans-serif',
+                      fontWeight: 'normal',
+                      cursor: isEditable ? 'pointer' : 'default',
+                      textAlign: 'left',
+                      width: '100%',
+                      wordWrap: 'break-word'
+                    }}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      handleChallengeItemEdit(index);
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                    dangerouslySetInnerHTML={{ __html: item }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
 
         {/* Right side text items - positioned next to icons */}
-        {solutionItems.map((item: string, index: number) => {
-          // Position each solution next to its icon
-          const positions = [
-            { top: '15%', right: '0px' },   // Top icon
-            { top: '48%', right: '0px' },   // Middle icon
-            { top: '75%', right: '0px' }    // Bottom icon
-          ];
-          const pos = positions[index] || positions[0];
-          
-          return (
-            <div key={index} data-draggable="true" style={{
-              position: 'absolute',
-              ...pos,
-              width: '220px',
-              maxWidth: '220px',
-              zIndex: 10
-            }}>
-              {editingSolutionItems[index] ? (
-                <WysiwygEditor
-                  initialValue={solutionItems[index]}
-                  onSave={(value) => handleSolutionItemSave(index, value)}
-                  onCancel={() => {
-                    const newEditingStates = [...editingSolutionItems];
-                    newEditingStates[index] = false;
-                    setEditingSolutionItems(newEditingStates);
-                  }}
-                  placeholder="Enter solution"
-                  className="inline-editor-solution"
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    textAlign: 'left',
-                    width: '100%',
-                    minWidth: '200px',
-                    padding: '8px',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '4px',
-                    wordWrap: 'break-word',
-                    whiteSpace: 'pre-wrap',
-                    boxSizing: 'border-box',
-                    display: 'block'
-                  }}
-                />
-              ) : (
-                <div 
-                  style={{
-                    fontSize: '17px',
-                    color: '#000000',
-                    fontFamily: 'Arial, sans-serif',
-                    fontWeight: 'normal',
-                    textAlign: 'left',
-                    cursor: isEditable ? 'pointer' : 'default',
-                    width: '100%',
-                    wordWrap: 'break-word'
-                  }}
-                  onClick={(e) => {
-                    const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
-                    if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      return;
-                    }
-                    handleSolutionItemEdit(index);
-                  }}
-                  className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
-                  dangerouslySetInnerHTML={{ __html: item }}
-                />
-              )}
-            </div>
-          );
-        })}
+        <div style={{
+          position: 'absolute',
+          right: '0px',
+          top: 0,
+          width: '220px',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingTop: '15%',
+          paddingBottom: '25%',
+          zIndex: 10
+        }}>
+          {solutionItems.map((item: string, index: number) => {
+            return (
+              <div key={index} data-draggable="true" style={{
+                width: '100%',
+                display: 'inline-block'
+              }}>
+                {editingSolutionItems[index] ? (
+                  <WysiwygEditor
+                    initialValue={solutionItems[index]}
+                    onSave={(value) => handleSolutionItemSave(index, value)}
+                    onCancel={() => {
+                      const newEditingStates = [...editingSolutionItems];
+                      newEditingStates[index] = false;
+                      setEditingSolutionItems(newEditingStates);
+                    }}
+                    placeholder="Enter solution"
+                    className="inline-editor-solution"
+                    style={{
+                      fontSize: '17px',
+                      color: '#000000',
+                      fontFamily: 'Arial, sans-serif',
+                      fontWeight: 'normal',
+                      textAlign: 'left',
+                      width: '100%',
+                      minWidth: '200px',
+                      padding: '8px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '4px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      boxSizing: 'border-box',
+                      display: 'block'
+                    }}
+                  />
+                ) : (
+                  <div 
+                    style={{
+                      fontSize: '17px',
+                      color: '#000000',
+                      fontFamily: 'Arial, sans-serif',
+                      fontWeight: 'normal',
+                      textAlign: 'left',
+                      cursor: isEditable ? 'pointer' : 'default',
+                      width: '100%',
+                      wordWrap: 'break-word'
+                    }}
+                    onClick={(e) => {
+                      const wrapper = (e.currentTarget as HTMLElement).closest('[data-draggable="true"]') as HTMLElement | null;
+                      if (wrapper && wrapper.getAttribute('data-just-dragged') === 'true') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                      }
+                      handleSolutionItemEdit(index);
+                    }}
+                    className={isEditable ? 'cursor-pointer border border-transparent hover:border-gray-300 hover:border-opacity-50' : ''}
+                    dangerouslySetInnerHTML={{ __html: item }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
 
         <div style={imageContainerStyles}>
           <Image src={groupImg} alt="Group" width={500} height={400} />
