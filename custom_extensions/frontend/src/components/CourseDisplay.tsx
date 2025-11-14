@@ -291,7 +291,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                     opacity: isCollapsed ? 0 : 1
                   }}
                 >
-                  <div className="px-2 sm:px-[40px] pt-0 pb-2 sm:pb-[25px]">
+                  <div className="px-3 sm:px-[40px] pt-0 pb-2 sm:pb-[25px]">
                     <div
                       className="grid gap-4 items-center px-[25px] py-[10px] mx-[-25px]"
                       style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px` }}
@@ -357,7 +357,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                           return (
                             <div
                               key={lesson?.id || lessonIndex}
-                              className="flex flex-col gap-0 sm:grid sm:gap-4 sm:items-center px-2 sm:px-0 sm:pl-[24px] py-2 sm:py-[16px] rounded-md"
+                              className="flex flex-col gap-1 sm:grid sm:gap-4 sm:items-center px-3 sm:px-0 sm:pl-[24px] py-2 sm:py-[16px] rounded-md"
                               style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, border: '1px solid #CCCCCC' }}
                             >
                               <div className="flex flex-col gap-2">
