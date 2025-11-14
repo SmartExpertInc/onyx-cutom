@@ -31,7 +31,7 @@ const ProductQualityRating = ({
 
   const ratingBoxClasses = [
     'items-center gap-3 bg-[#FFFFFF] border border-[#E0E0E0] shadow-xl rounded-md px-3 py-3',
-    fullWidth ? 'flex w-full' : 'inline-flex',
+    fullWidth ? 'flex w-full justify-center' : 'inline-flex',
   ]
     .filter(Boolean)
     .join(' ');
