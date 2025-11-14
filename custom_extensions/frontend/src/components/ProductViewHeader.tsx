@@ -229,8 +229,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   };
   const homeButtonHeight = useMobileLinkViewLayout ? 44 : 36;
   const homeButtonPaddingX = useMobileLinkViewLayout ? 16 : 12;
-  const homeIconWidth = useMobileLinkViewLayout ? 26 : 16;
-  const homeIconHeight = useMobileLinkViewLayout ? 26 : 20;
+  const homeIconWidth = useMobileLinkViewLayout ? 26 : 23;
+  const homeIconHeight = useMobileLinkViewLayout ? 26 : 28;
 
   const renderHomeButton = () => (
           <button
@@ -262,7 +262,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
                 })()}
               </h1>
-              {!isVideoLesson && !hideCloudAndArrowIndicators && (
+              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isMobileViewport) && (
                 <>
                   <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -299,7 +299,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   </div>
                 </>
               )}
-              {!isVideoLesson && !hideCloudAndArrowIndicators && (
+              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isMobileViewport) && (
                 <>
                   <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <div className="flex items-center">
@@ -313,7 +313,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </>
               )}
             </div>
-            {enableLinkViewButtons && (
+            {(enableLinkViewButtons || isOnePager) && (
                 <div className="flex items-center gap-1.5 text-[10px] text-[#878787]">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g clipPath="url(#clip0_4291_33172)">
@@ -590,7 +590,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   }
 
   return (
-    <header className="sticky top-0 z-50 h-[170px] md:h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
+    <header className="sticky top-0 z-50 h-[120px] md:h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
         <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-y-2 gap-x-4 text-left">
           {renderHomeButton()}

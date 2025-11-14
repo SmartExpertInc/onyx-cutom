@@ -32,6 +32,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { uploadOnePagerImage } from '@/lib/designTemplateApi';
 import WordStyleImageEditor from './WordStyleImageEditor';
 import ImageBasicActions from './ImageBasicActions';
+import Comments from '@/app/projects-2/view/components/Comments';
 
 // Type definitions for internal structuring
 type MiniSection = {
@@ -2625,8 +2626,54 @@ const TextPresentationDisplay = ({
   const renderMobileOnePagerActions = () => {
     if (!onToggleEditMode && !onExport) return null;
     return (
-      <div className="sm:hidden border-t border-[#E4E4E7] pt-4 mt-6 flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+      <div className="sm:hidden border-t border-[#E4E4E7] pt-4 mt-6 flex flex-row-reverse gap-3">
         {onToggleEditMode && (
+          <button
+            // onClick={onToggleEditMode}
+            className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+            style={{
+              backgroundColor: '#0F58F9',
+              color: '#FFFFFF',
+              fontSize: '14px',
+              lineHeight: '140%',
+              letterSpacing: '0.05em',
+              border: '1px solid #0F58F9',
+              height: '44px',
+            }}
+            // title={isEditing ? 'Save' : 'Edit'}
+          >
+              <>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.8864 6.55695C5.12559 6.87705 5.43077 7.14192 5.78123 7.33359C6.13168 7.52524 6.51922 7.63922 6.91754 7.66778C7.31587 7.69633 7.71567 7.6388 8.08983 7.49908C8.464 7.35938 8.80377 7.14075 9.0861 6.85803L10.7571 5.18537C11.2644 4.6596 11.5451 3.9554 11.5387 3.22446C11.5324 2.49353 11.2395 1.79432 10.7231 1.27745C10.2068 0.760579 9.50825 0.467395 8.77809 0.461043C8.04788 0.454691 7.34439 0.735681 6.81915 1.24349L5.86113 2.1969M7.11435 5.44185C6.87516 5.12175 6.56998 4.85688 6.21952 4.66521C5.86907 4.47355 5.48153 4.35958 5.08321 4.33102C4.68488 4.30247 4.28508 4.36 3.91092 4.49971C3.53675 4.63942 3.19698 4.85805 2.91465 5.14077L1.24369 6.81342C0.736381 7.3392 0.455674 8.0434 0.462019 8.77433C0.468365 9.50524 0.761255 10.2045 1.27761 10.7213C1.79396 11.2382 2.49246 11.5314 3.22266 11.5378C3.95287 11.5441 4.65635 11.2632 5.1816 10.7553L6.13406 9.80192" stroke="white" stroke-width="0.923077" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+                Copy Link
+              </>
+          </button>
+        )}
+        {onExport && (
+          <button
+            onClick={onExport}
+            className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
+            style={{
+              backgroundColor: '#FFFFFF',
+              color: '#FFFFFF',
+              fontSize: '14px',
+              lineHeight: '140%',
+              letterSpacing: '0.05em',
+              border: '1px solid #0F58F9',
+              height: '44px',
+            }}
+            title="Export to PDF"
+          >
+            <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="currentColor" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Export
+          </button>
+        )}
+      </div>
+      {onToggleEditMode && (
           <button
             onClick={onToggleEditMode}
             className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
@@ -2656,27 +2703,6 @@ const TextPresentationDisplay = ({
                 Edit
               </>
             )}
-          </button>
-        )}
-        {onExport && (
-          <button
-            onClick={onExport}
-            className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
-            style={{
-              backgroundColor: '#0F58F9',
-              color: '#FFFFFF',
-              fontSize: '14px',
-              lineHeight: '140%',
-              letterSpacing: '0.05em',
-              border: '1px solid #0F58F9',
-              height: '44px',
-            }}
-            title="Export to PDF"
-          >
-            <svg width="9" height="11" viewBox="0 0 9 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4.1429 7.88542V0.402344M4.1429 7.88542L0.935872 4.67839M4.1429 7.88542L7.34994 4.67839M7.88444 10.0234H0.401367" stroke="currentColor" strokeWidth="0.801758" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Export
           </button>
         )}
       </div>
@@ -3780,6 +3806,9 @@ const TextPresentationDisplay = ({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  </div>
+  <div className="max-w-5xl mx-auto mb-10">
+    <Comments />
   </div>
   </>
   );
