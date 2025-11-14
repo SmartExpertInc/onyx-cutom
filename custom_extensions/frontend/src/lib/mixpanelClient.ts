@@ -169,6 +169,19 @@ export const trackSmartEdit = async (action: string) => {
   );
 };
 
+export const trackAIAgentUsed = async (action: string) => {
+  const props = {
+    "Feature Category": "Products",
+    "Action": action,
+  };
+
+  await track(
+    "AI Agent Used", 
+    props, 
+    { transport: "sendBeacon", send_immediately: true }
+  );
+};
+
 export const trackCreateOffer = async (action: string) => {
   const props = {
     "Feature Category": "Offers",

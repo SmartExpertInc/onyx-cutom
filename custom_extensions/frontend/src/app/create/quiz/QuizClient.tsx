@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
-import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { trackCreateProduct, trackAIAgentUsed } from "../../../lib/mixpanelClient"
 import { AiAgent } from "@/components/ui/ai-agent";
 import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
 import ManageAddonsModal from "../../../components/AddOnsModal";
@@ -1645,12 +1645,14 @@ export default function QuizClient() {
         }
       }
 
+      trackAIAgentUsed("Completed");
       // NEW: Mark that user has made edits after AI editing
       setHasUserEdits(true);
 
       setEditPrompt("");
       setSelectedExamples([]);
     } catch (error: any) {
+      trackAIAgentUsed("Failed");
       console.error('Edit error:', error);
       setError(error.message || 'An error occurred during editing');
     } finally {

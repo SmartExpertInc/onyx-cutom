@@ -11,7 +11,7 @@ import { useLanguage } from '../../../../contexts/LanguageContext';
 import { useFeaturePermission } from '@/hooks/useFeaturePermission';
 import { ProductViewHeader } from '@/components/ProductViewHeader';
 import { AiAgent } from '@/components/ui/ai-agent';
-import { trackProductEditorUsed } from '@/lib/mixpanelClient';
+import { trackProductEditorUsed, trackAIAgentUsed } from '@/lib/mixpanelClient';
 
 // Small inline product icons (from generate page), using currentColor so parent can set gray
 const LessonPresentationIcon: React.FC<{ size?: number; color?: string }> = ({ size = 16, color }) => (
@@ -247,7 +247,9 @@ export default function ProductViewNewPage() {
           }
         }
       }
+      trackAIAgentUsed("Completed");
     } catch (error) {
+      trackAIAgentUsed("Failed");
       console.error('Error applying edit:', error);
       setSaveError(error instanceof Error ? error.message : 'Failed to apply edit');
     } finally {

@@ -19,7 +19,7 @@ import { THEME_OPTIONS, getThemeSvg, getFilteredThemeOptions } from "../../../co
 import { DEFAULT_SLIDE_THEME } from "../../../types/slideThemes";
 import { useCreationTheme } from "../../../hooks/useCreationTheme";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
-import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { trackCreateProduct, trackAIAgentUsed } from "../../../lib/mixpanelClient"
 import useFeaturePermission from "../../../hooks/useFeaturePermission";
 import { FeedbackButton } from "@/components/ui/feedback-button";
 import { AiAgent } from "@/components/ui/ai-agent";
@@ -1798,7 +1798,9 @@ export default function LessonPresentationClient() {
           setLoading(false);
         }
       }
+      trackAIAgentUsed("Completed");
     } catch (e: any) {
+      trackAIAgentUsed("Failed");
       if (e.name !== "AbortError") {
         setError(e.message || "Failed to apply edit");
       }

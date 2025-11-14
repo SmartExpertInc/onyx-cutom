@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, CustomPillSelector } from "@/components/ui/select";
 import { FeedbackButton } from "@/components/ui/feedback-button";
 import { AiAgent } from "@/components/ui/ai-agent";
-import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { trackCreateProduct, trackAIAgentUsed } from "../../../lib/mixpanelClient"
 import { BackButton } from "../components/BackButton";
 import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
 import ManageAddonsModal from "../../../components/AddOnsModal";
@@ -1307,6 +1307,8 @@ export default function CourseOutlineClient() {
               isFromText
             };
             
+            trackAIAgentUsed("Completed");
+            
             // Don't update the prompt state to avoid triggering useEffect
             // The advanced edit result is now the current state, no need to update textarea
             setEditPrompt("");
@@ -1317,6 +1319,7 @@ export default function CourseOutlineClient() {
         }
       }
     } catch (e: any) {
+      trackAIAgentUsed("Failed");
       setError(e.message || "Failed to apply edit");
     } finally {
       // Ensure overlay is removed in case of error

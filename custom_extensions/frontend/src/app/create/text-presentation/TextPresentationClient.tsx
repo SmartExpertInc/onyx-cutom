@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { ThemeSvgs } from "../../../components/theme/ThemeSvgs";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { getPromptFromUrlOrStorage, generatePromptId } from "../../../utils/promptUtils";
-import { trackCreateProduct } from "../../../lib/mixpanelClient"
+import { trackCreateProduct, trackAIAgentUsed } from "../../../lib/mixpanelClient"
 import InsufficientCreditsModal from "../../../components/InsufficientCreditsModal";
 import ManageAddonsModal from "../../../components/AddOnsModal";
 import { AiAgent } from "@/components/ui/ai-agent";
@@ -1287,6 +1287,7 @@ export default function TextPresentationClient() {
           }
         }
       }
+      trackAIAgentUsed("Completed");
 
       // NEW: Mark that content has been edited by AI
       setHasUserEdits(true);
@@ -1294,6 +1295,7 @@ export default function TextPresentationClient() {
       setEditPrompt("");
       setSelectedExamples([]);
     } catch (error: any) {
+      trackAIAgentUsed("Failed");
       setError(error.message || "Failed to apply edit");
     } finally {
       // Always cleanup timeouts
