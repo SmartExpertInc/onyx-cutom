@@ -13,6 +13,8 @@ const VIEW_MODE_MAX_WIDTH = 1152; // Tailwind max-w-6xl (72rem)
 const VIEW_MODE_MIN_WIDTH = 320;
 const VIEW_MODE_SIDEBAR_WIDTH = 400;
 const VIEW_MODE_HORIZONTAL_GAP = 32; // px allowance when sidebar is beside slides
+const VIEW_MODE_CANVAS_WIDTH = 1200;
+const VIEW_MODE_CANVAS_HEIGHT = 675;
 
 interface PresentationLayoutProps {
   deck: ComponentBasedSlideDeck;
@@ -337,6 +339,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     );
   }
 
+  const viewModeScale = isViewMode
+    ? Math.min(1, viewModeSlideWidth / VIEW_MODE_CANVAS_WIDTH)
+    : 1;
+
   return (
     <>
     <div
@@ -352,7 +358,12 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       ].filter(Boolean).join(' ')}
       style={
         isViewMode
-          ? ({ '--slide-width': `${viewModeSlideWidth}px` } as React.CSSProperties)
+          ? ({
+              '--slide-width': `${viewModeSlideWidth}px`,
+              '--slide-scale': `${viewModeScale}`,
+              '--slide-canvas-width': `${VIEW_MODE_CANVAS_WIDTH}px`,
+              '--slide-canvas-height': `${VIEW_MODE_CANVAS_HEIGHT}px`
+            } as React.CSSProperties)
           : undefined
       }
     >
@@ -576,12 +587,16 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                         )}
                         {isViewMode ? (
                           <div className="presentation-viewer-slide rounded-lg">
-                            <ComponentBasedSlideRenderer
-                              slide={slide}
-                              isEditable={false}
-                              theme={theme}
-                              forceHybridView
-                            />
+                            <div className="slide-scaling-wrapper">
+                              <div className="slide-scaling-inner">
+                                <ComponentBasedSlideRenderer
+                                  slide={slide}
+                                  isEditable={false}
+                                  theme={theme}
+                                  forceHybridView
+                                />
+                              </div>
+                            </div>
                           </div>
                         ) : (
                           <ComponentBasedSlideRenderer
