@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ProjectInstanceDetail, TrainingPlanData, TextPresentationData } from '@/types/projectSpecificTypes';
 import ScormDownloadButton from '@/components/ScormDownloadButton';
 import { ToastProvider } from '@/components/ui/toast';
@@ -56,6 +57,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   createdAt = null,
   exportOptions
 }) => {
+
+  const { language } = useLanguage();
 
   const [localIsAuthorized, setLocalIsAuthorized] = useState(isAuthorized);
 
@@ -127,23 +130,34 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
     unauth: 'Unauth'
   };
 
-  const getOrdinalSuffix = (day: number) => {
-    const j = day % 10;
-    const k = day % 100;
-    if (j === 1 && k !== 11) return 'st';
-    if (j === 2 && k !== 12) return 'nd';
-    if (j === 3 && k !== 13) return 'rd';
-    return 'th';
+  const getEnglishFormattedDate = (dateObj: Date) => {
+    const day = dateObj.getDate();
+    const month = dateObj.toLocaleString('en-US', { month: 'short' });
+    const year = dateObj.getFullYear();
+    const getOrdinalSuffix = (value: number) => {
+      const j = value % 10;
+      const k = value % 100;
+      if (j === 1 && k !== 11) return 'st';
+      if (j === 2 && k !== 12) return 'nd';
+      if (j === 3 && k !== 13) return 'rd';
+      return 'th';
+    };
+    return `${day}${getOrdinalSuffix(day)} ${month}, ${year}`;
   };
 
   const formattedCreatedAt = (() => {
     if (!createdAt) return null;
     const dateObj = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
     if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) return null;
-    const day = dateObj.getDate();
-    const month = dateObj.toLocaleString('en-US', { month: 'short' });
-    const year = dateObj.getFullYear();
-    return `${day}${getOrdinalSuffix(day)} ${month}, ${year}`;
+    if (!language || language === 'en') {
+      return getEnglishFormattedDate(dateObj);
+    }
+    const formatter = new Intl.DateTimeFormat(language, {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+    return formatter.format(dateObj);
   })();
 
   // Debug logging for PDF export
