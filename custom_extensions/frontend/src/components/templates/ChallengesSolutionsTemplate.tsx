@@ -283,17 +283,21 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           top: 0,
           width: '220px',
           height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingTop: '15%',
-          paddingBottom: '25%',
           zIndex: 10
         }}>
           {challengeItems.map((item: string, index: number) => {
+            // Position each challenge next to its icon
+            const positions = [
+              { top: '15%', left: '0px' },   // Top icon
+              { top: '48%', left: '0px' },   // Middle icon
+              { top: '75%', left: '0px' }    // Bottom icon
+            ];
+            const pos = positions[index] || positions[0];
+            
             return (
               <div key={index} data-draggable="true" style={{
+                position: 'absolute',
+                ...pos,
                 width: '100%',
                 display: 'inline-block'
               }}>
@@ -361,17 +365,21 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           top: 0,
           width: '220px',
           height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingTop: '15%',
-          paddingBottom: '25%',
           zIndex: 10
         }}>
           {solutionItems.map((item: string, index: number) => {
+            // Position each solution next to its icon
+            const positions = [
+              { top: '15%', right: '0px' },   // Top icon
+              { top: '48%', right: '0px' },   // Middle icon
+              { top: '75%', right: '0px' }    // Bottom icon
+            ];
+            const pos = positions[index] || positions[0];
+            
             return (
               <div key={index} data-draggable="true" style={{
+                position: 'absolute',
+                ...pos,
                 width: '100%',
                 display: 'inline-block'
               }}>
