@@ -291,7 +291,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                     opacity: isCollapsed ? 0 : 1
                   }}
                 >
-                  <div className="pb-[25px] px-[40px] pt-0">
+                  <div className="pb-[25px] px-2 lg:px-[40px] pt-0">
                     <div
                       className="grid gap-4 items-center px-[25px] py-[10px] mx-[-25px]"
                       style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px` }}
@@ -315,10 +315,46 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                             videoLesson: { exists: false }
                           };
 
+                          const renderContentCell = (config: ContentColumnConfig, options?: { extraClasses?: string; keyPrefix?: string }) => {
+                            const columnStatus = status[config.key];
+                            const exists = Boolean(columnStatus?.exists && columnStatus?.productId);
+                            const productIdForColumn = columnStatus?.productId;
+                            const color = exists ? '#0F58F9' : '#E0E0E0';
+                            const baseClasses = 'flex flex-col items-center justify-center gap-2 text-[8px] transition-colors';
+                            const composedClasses = `${baseClasses} ${options?.extraClasses ?? ''}`;
+                            const key = `${options?.keyPrefix ?? ''}${config.key}`;
+
+                            if (exists && productIdForColumn) {
+                              return (
+                                <button
+                                  key={key}
+                                  type="button"
+                                  onClick={() => handleProductClick(productIdForColumn, config.contentType)}
+                                  className={`${composedClasses} cursor-pointer hover:opacity-80`}
+                                  style={{ color }}
+                                >
+                                  {renderContentIcon(config.key)}
+                                  <span>{config.label}</span>
+                                </button>
+                              );
+                            }
+
+                            return (
+                              <div
+                                key={key}
+                                className={`${composedClasses} cursor-default`}
+                                style={{ color }}
+                              >
+                                {renderContentIcon(config.key)}
+                                <span>{config.label}</span>
+                              </div>
+                            );
+                          };
+
                           return (
                             <div
                               key={lesson?.id || lessonIndex}
-                              className="grid gap-4 items-center pl-[24px] py-[16px] rounded-md"
+                              className="flex flex-col gap-3 sm:grid sm:gap-4 sm:items-center pl-[16px] sm:pl-[24px] py-[16px] rounded-md"
                               style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, border: '1px solid #E0E0E0' }}
                             >
                               <div className="flex flex-col gap-2">
@@ -330,39 +366,21 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                 </div>
                               </div>
 
-                              {contentColumnConfigs.map((config) => {
-                                const columnStatus = status[config.key];
-                                const exists = Boolean(columnStatus?.exists && columnStatus?.productId);
-                                const productIdForColumn = columnStatus?.productId;
-                                const color = exists ? '#0F58F9' : '#E0E0E0';
-                                const sharedClasses = 'flex flex-col items-center justify-center gap-2 text-[8px] transition-colors';
+                              <div className="flex flex-wrap gap-3 sm:hidden pt-2">
+                                {contentColumnConfigs.map((config) =>
+                                  renderContentCell(config, {
+                                    keyPrefix: 'mobile-',
+                                    extraClasses: 'flex-1 min-w-[90px] border border-[#E0E0E0] rounded-md py-2 px-2'
+                                  })
+                                )}
+                              </div>
 
-                                if (exists && productIdForColumn) {
-                                  return (
-                                    <button
-                                      key={config.key}
-                                      type="button"
-                                      onClick={() => handleProductClick(productIdForColumn, config.contentType)}
-                                      className={`${sharedClasses} cursor-pointer hover:opacity-80`}
-                                      style={{ color }}
-                                    >
-                                      {renderContentIcon(config.key)}
-                                      <span>{config.label}</span>
-                                    </button>
-                                  );
-                                }
-
-                                return (
-                                  <div
-                                    key={config.key}
-                                    className={`${sharedClasses} cursor-default`}
-                                    style={{ color }}
-                                  >
-                                    {renderContentIcon(config.key)}
-                                    <span>{config.label}</span>
-                                  </div>
-                                );
-                              })}
+                              {contentColumnConfigs.map((config) =>
+                                renderContentCell(config, {
+                                  keyPrefix: 'desktop-',
+                                  extraClasses: 'hidden sm:flex'
+                                })
+                              )}
                             </div>
                           );
                         })}
