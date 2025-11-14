@@ -125,7 +125,7 @@ export const trackCreateProduct = async (
   language?: string,
   productType?: string,
   stylesSelection?: string,
-  advancedModeState?: string
+  aiAgentState?: string
 ) => {
   // Decide generation method based on the flags
   let generationMethod: string | undefined = undefined;
@@ -150,7 +150,7 @@ export const trackCreateProduct = async (
     "Language": language,
     "Product Type": productType,
     "Styles Selection": stylesSelection,
-    "Advanced Mode": advancedModeState
+    "AI Agent State": aiAgentState
   };
 
   await track("Create Product", props);

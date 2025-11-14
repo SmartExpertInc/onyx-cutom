@@ -397,17 +397,17 @@ export default function LessonPresentationClient() {
   const [showAiAgent, setShowAiAgent] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingEdit, setLoadingEdit] = useState(false);
-  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
-  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
+  const [aiAgentState, setAiAgentState] = useState<string | undefined>(undefined);
+  const [aiAgentClicked, setAiAgentClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
   const [aiAgentChatStarted, setAiAgentChatStarted] = useState(false);
   const [aiAgentLastMessage, setAiAgentLastMessage] = useState("");
   
   
-  const handleAdvancedModeClick = () => {
-    if (advancedModeClicked == false) {
-      setAdvancedModeState("Clicked");
-      setAdvancedModeClicked(true);
+  const handleAiAgentClick = () => {
+    if (aiAgentClicked == false) {
+      setAiAgentState("Clicked");
+      setAiAgentClicked(true);
     }
   };
 
@@ -1497,7 +1497,7 @@ export default function LessonPresentationClient() {
         language, 
         activeProductType ?? undefined,
         undefined,
-        advancedModeState
+        aiAgentState
       );
       
       // Clear the failed state since we successfully completed
@@ -1549,7 +1549,7 @@ export default function LessonPresentationClient() {
             language, 
             activeProductType ?? undefined,
             undefined, 
-            advancedModeState
+            aiAgentState
           );
           sessionStorage.setItem('createProductFailed', 'true');
         }
@@ -2733,7 +2733,7 @@ export default function LessonPresentationClient() {
             loadingEdit={loadingEdit}
             onApplyEdit={() => {
               handleApplyLessonEdit();
-              setAdvancedModeState("Used");
+              setAiAgentState("Used");
             }}
             onClose={() => setShowAiAgent(false)}
             advancedSectionRef={advancedSectionRef}
@@ -2773,7 +2773,7 @@ export default function LessonPresentationClient() {
                     type="button"
                     onClick={() => {
                       setShowAiAgent(!showAiAgent);
-                      handleAdvancedModeClick();
+                      handleAiAgentClick();
                     }}
                     className="px-4 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-lg font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
                   >

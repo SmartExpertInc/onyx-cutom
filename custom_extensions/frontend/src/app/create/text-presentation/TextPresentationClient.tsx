@@ -204,12 +204,12 @@ export default function TextPresentationClient() {
 
   // Advanced mode state
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
-  const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
-  const handleAdvancedModeClick = () => {
-    if (advancedModeClicked == false) {
-      setAdvancedModeState("Clicked");
-      setAdvancedModeClicked(true);
+  const [aiAgentState, setAiAgentState] = useState<string | undefined>(undefined);
+  const [aiAgentClicked, setAiAgentClicked] = useState(false);
+  const handleAiAgentClick = () => {
+    if (aiAgentClicked == false) {
+      setAiAgentState("Clicked");
+      setAiAgentClicked(true);
     }
   };
   const [editPrompt, setEditPrompt] = useState("");
@@ -1951,7 +1951,7 @@ export default function TextPresentationClient() {
         language, 
         activeProductType ?? undefined,
         stylesState || undefined,
-        advancedModeState
+        aiAgentState
       );
       
       // Clear the failed state since we successfully completed
@@ -1986,7 +1986,7 @@ export default function TextPresentationClient() {
             language, 
             activeProductType ?? undefined,
             stylesState || undefined,
-            advancedModeState
+            aiAgentState
           );
           sessionStorage.setItem('createProductFailed', 'true');
         }
@@ -2671,7 +2671,7 @@ export default function TextPresentationClient() {
                 type="button"
                 onClick={() => {
                   setShowAdvanced(!showAdvanced);
-                  handleAdvancedModeClick();
+                  handleAiAgentClick();
                 }}
                 className="px-6 py-2 rounded-md border border-[#0F58F9] bg-white text-[#0F58F9] text-xs font-medium hover:bg-blue-50 active:scale-95 transition-transform flex items-center justify-center gap-2"
               >
@@ -2719,7 +2719,7 @@ export default function TextPresentationClient() {
           loadingEdit={loadingEdit}
           onApplyEdit={() => {
             handleApplyEdit();
-            setAdvancedModeState("Used");
+            setAiAgentState("Used");
           }}
           onClose={() => setShowAdvanced(false)}
           advancedSectionRef={advancedSectionRef}

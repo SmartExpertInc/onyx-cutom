@@ -1013,7 +1013,7 @@ export default function CourseOutlineClient() {
         language, 
         activeProductType ?? undefined,
         undefined,
-        advancedModeState
+        aiAgentState
       );
       
       // Clear the failed state since we successfully completed
@@ -1053,7 +1053,7 @@ export default function CourseOutlineClient() {
             language, 
             activeProductType ?? undefined, 
             undefined,
-            advancedModeState
+            aiAgentState
           );
           sessionStorage.setItem('createProductFailed', 'true');
         }
@@ -1308,7 +1308,7 @@ export default function CourseOutlineClient() {
             };
             
             trackAIAgentUsed("Completed");
-            
+
             // Don't update the prompt state to avoid triggering useEffect
             // The advanced edit result is now the current state, no need to update textarea
             setEditPrompt("");
@@ -1332,7 +1332,7 @@ export default function CourseOutlineClient() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editPrompt, setEditPrompt] = useState("");
   const [loadingPreview, setLoadingPreview] = useState(false);
-  const [advancedModeState, setAdvancedModeState] = useState<string | undefined>(undefined);
+  const [aiAgentState, setAiAgentState] = useState<string | undefined>(undefined);
   const [advancedModeClicked, setAdvancedModeClicked] = useState(false);
   const advancedSectionRef = useRef<HTMLDivElement>(null);
   const [lastEditFromAiAgent, setLastEditFromAiAgent] = useState(false);
@@ -1350,7 +1350,7 @@ export default function CourseOutlineClient() {
   
   const handleAdvancedModeClick = () => {
     if (advancedModeClicked == false) {
-      setAdvancedModeState("Clicked");
+      setAiAgentState("Clicked");
       setAdvancedModeClicked(true);
     }
   };
@@ -1795,7 +1795,7 @@ export default function CourseOutlineClient() {
                 loadingEdit={loadingPreview}
                 onApplyEdit={() => {
                   handleApplyEdit();
-                  setAdvancedModeState("Used");
+                  setAiAgentState("Used");
                 }}
                 onClose={() => setShowAdvanced(false)}
                 advancedSectionRef={advancedSectionRef}
