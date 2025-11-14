@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
 import { Badge } from "./badge";
 import { Button } from "./button";
@@ -207,7 +206,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   language = "en",
   onTierChange,
 }) => {
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [permanentDeleteConfirmOpen, setPermanentDeleteConfirmOpen] = useState(false);
   const [trashConfirmOpen, setTrashConfirmOpen] = useState(false);
@@ -513,18 +511,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   }, [courseTableEnabled, isTrashMode, project.designMicroproductType, project.id]);
 
   const handleCardClick = (e: React.MouseEvent) => {
-    if (isTrashMode) {
-      e.preventDefault();
-      setShowRestorePrompt(true);
+    if (!isTrashMode) {
       return;
     }
-
-    if (!projectHref || projectHref === "#" || e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
-      return;
-    }
-
     e.preventDefault();
-    router.push(projectHref);
+    setShowRestorePrompt(true);
   };
 
   const handleDuplicateProject = async (e: React.MouseEvent) => {
