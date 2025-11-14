@@ -4,7 +4,6 @@ import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../contexts/LanguageContext";
 import SmartDriveConnectors from "@/components/SmartDrive/SmartDriveConnectors";
-import { trackImportFiles } from "@/lib/mixpanelClient";
 import {
   KnowledgeBaseConnector,
   KnowledgeBaseSelection,
@@ -205,30 +204,7 @@ export const ImportFromSmartDriveModal: React.FC<ImportFromSmartDriveModalProps>
     }
 
     const { combinedContext, searchParams, connectorSources } = buildKnowledgeBaseContext(selection);
-
-    if (connectorSources.length > 0) {
-      trackImportFiles('Connectors', Array.from(new Set(connectorSources)));
-    } else if (filesToImport.length > 0) {
-      const fileExtensionsForTracking: string[] = Array.from(
-        new Set(
-          filesToImport
-            .map((filePath) => {
-              try {
-                const name = (filePath.split('/').pop() || filePath).split('?')[0];
-                const parts = name.split('.');
-                return parts.length > 1 ? parts.pop()?.toLowerCase() : undefined;
-              } catch {
-                return undefined;
-              }
-            })
-            .filter((ext): ext is string => !!ext)
-        )
-      );
-      if (fileExtensionsForTracking.length > 0) {
-        trackImportFiles('Files', fileExtensionsForTracking);
-      }
-    }
-
+    
     try {
       sessionStorage.setItem('combinedContext', JSON.stringify(combinedContext));
     } catch (error) {
