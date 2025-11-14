@@ -223,12 +223,12 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const showDraftButton = canShowDraftButton && !useMobileLinkViewLayout;
   const actionButtonFontSize = '14px';
   const actionButtonHeight = useMobileLinkViewLayout ? 44 : 44;
-  const actionButtonWidth = useMobileLinkViewLayout ? 138 : undefined;
+  const actionButtonWidth = useMobileLinkViewLayout ? 138 : 138;
   const actionButtonPadding = {
     paddingLeft: useMobileLinkViewLayout ? '16px' : '15px',
     paddingRight: useMobileLinkViewLayout ? '16px' : '20px'
   };
-  const homeButtonHeight = useMobileLinkViewLayout ? 44 : 36;
+  const homeButtonHeight = useMobileLinkViewLayout ? 44 : 44;
   const homeButtonPaddingX = useMobileLinkViewLayout ? 16 : 12;
   const homeIconWidth = useMobileLinkViewLayout ? 26 : 23;
   const homeIconHeight = useMobileLinkViewLayout ? 26 : 28;

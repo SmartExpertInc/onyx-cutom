@@ -663,7 +663,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 style={{
                   width: "400%",
                   height: "400%",
-                  transform: "scale(0.25)",
+                  transform: "scale(0.27)",
                   transformOrigin: "top left",
                   backgroundColor: "#F2F2F4",
                 }}
