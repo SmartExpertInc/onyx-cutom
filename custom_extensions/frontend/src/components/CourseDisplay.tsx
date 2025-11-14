@@ -51,23 +51,23 @@ type ContentColumnConfig = {
   headerColor: string;
 };
 
-const renderContentIcon = (key: LessonContentKey) => {
+const renderContentIcon = (key: LessonContentKey, size = 24) => {
   switch (key) {
     case 'videoLesson':
       return (
-        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M7.99967 11.3333V14M5.33301 14H10.6663M6.66634 4.66667L9.99967 6.66667L6.66634 8.66667V4.66667ZM2.66634 2H13.333C14.0694 2 14.6663 2.59695 14.6663 3.33333V10C14.6663 10.7364 14.0694 11.3333 13.333 11.3333H2.66634C1.92996 11.3333 1.33301 10.7364 1.33301 10V3.33333C1.33301 2.59695 1.92996 2 2.66634 2Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       );
     case 'quiz':
       return (
-        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M6.66699 6.86732C6.80033 6.60065 7.00033 6.33398 7.26699 6.20065C7.54308 6.04103 7.86539 5.98046 8.18059 6.02895C8.49579 6.07745 8.78498 6.2321 9.00033 6.46732C9.20033 6.73398 9.33366 7.00065 9.33366 7.33398C9.33366 8.20065 8.00033 8.66732 8.00033 8.66732M8.00033 11.334H8.00699M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       );
     case 'presentation':
       return (
-        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M13.3333 2H2.66667C2.29848 2 2 2.29848 2 2.66667V6C2 6.36819 2.29848 6.66667 2.66667 6.66667H13.3333C13.7015 6.66667 14 6.36819 14 6V2.66667C14 2.29848 13.7015 2 13.3333 2Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M7.33333 9.33333H2.66667C2.29848 9.33333 2 9.63181 2 10V13.3333C2 13.7015 2.29848 14 2.66667 14H7.33333C7.70152 14 8 13.7015 8 13.3333V10C8 9.63181 7.70152 9.33333 7.33333 9.33333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
           <path d="M13.3333 9.33333H11.3333C10.9651 9.33333 10.6667 9.63181 10.6667 10V13.3333C10.6667 13.7015 10.9651 14 11.3333 14H13.3333C13.7015 14 14 13.7015 14 13.3333V10C14 9.63181 13.7015 9.33333 13.3333 9.33333Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
@@ -75,7 +75,7 @@ const renderContentIcon = (key: LessonContentKey) => {
       );
     case 'onePager':
       return (
-        <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M9.33366 1.33398V5.33398H13.3337M9.66699 1.33398H4.00033C3.6467 1.33398 3.30756 1.47446 3.05752 1.72451C2.80747 1.97456 2.66699 2.3137 2.66699 2.66732V13.334C2.66699 13.6876 2.80747 14.0267 3.05752 14.2768C3.30756 14.5268 3.6467 14.6673 4.00033 14.6673H12.0003C12.3539 14.6673 12.6931 14.5268 12.9431 14.2768C13.1932 14.0267 13.3337 13.6876 13.3337 13.334V5.00065L9.66699 1.33398Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       );
@@ -315,7 +315,10 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                             videoLesson: { exists: false }
                           };
 
-                          const renderContentCell = (config: ContentColumnConfig, options?: { extraClasses?: string; keyPrefix?: string }) => {
+                          const renderContentCell = (
+                            config: ContentColumnConfig,
+                            options?: { extraClasses?: string; keyPrefix?: string; iconSize?: number }
+                          ) => {
                             const columnStatus = status[config.key];
                             const exists = Boolean(columnStatus?.exists && columnStatus?.productId);
                             const productIdForColumn = columnStatus?.productId;
@@ -333,7 +336,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                   className={`${composedClasses} cursor-pointer hover:opacity-80`}
                                   style={{ color }}
                                 >
-                                  {renderContentIcon(config.key)}
+                                  {renderContentIcon(config.key, options?.iconSize)}
                                   <span>{config.label}</span>
                                 </button>
                               );
@@ -345,7 +348,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                 className={`${composedClasses} cursor-default`}
                                 style={{ color }}
                               >
-                                {renderContentIcon(config.key)}
+                                {renderContentIcon(config.key, options?.iconSize)}
                                 <span>{config.label}</span>
                               </div>
                             );
@@ -354,8 +357,8 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                           return (
                             <div
                               key={lesson?.id || lessonIndex}
-                              className="flex flex-col gap-3 sm:grid sm:gap-4 sm:items-center px-2 sm:px-0 sm:pl-[24px] py-[16px] rounded-md"
-                              style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, border: '1px solid #E0E0E0' }}
+                              className="flex flex-col gap-3 sm:grid sm:gap-4 sm:items-center px-2 sm:px-0 sm:pl-[24px] py-2 sm:py-[16px] rounded-md"
+                              style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px`, border: '1px solid #CCCCCC' }}
                             >
                               <div className="flex flex-col gap-2">
                                 <div className="flex items-center gap-2">
@@ -366,11 +369,12 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                 </div>
                               </div>
 
-                              <div className="flex gap-2 sm:hidden pt-2 flex-nowrap w-full">
+                              <div className="flex gap-3 sm:hidden pt-2 flex-nowrap w-full">
                                 {contentColumnConfigs.map((config) =>
                                   renderContentCell(config, {
                                     keyPrefix: 'mobile-',
-                                    extraClasses: 'flex-1 min-w-0 py-2 px-2'
+                                    extraClasses: 'flex-1 min-w-0 py-2 px-2',
+                                    iconSize: 28
                                   })
                                 )}
                               </div>
