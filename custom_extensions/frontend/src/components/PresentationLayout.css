@@ -110,7 +110,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  height: calc(var(--slide-canvas-height, 675px) * var(--slide-scale, 1));
+  height: 100%;
 }
 
 .presentation-view .slide-scaling-wrapper {

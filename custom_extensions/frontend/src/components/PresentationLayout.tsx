@@ -342,6 +342,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const viewModeScale = isViewMode
     ? Math.min(1, viewModeSlideWidth / VIEW_MODE_CANVAS_WIDTH)
     : 1;
+  const scaledSlideHeight = isViewMode
+    ? VIEW_MODE_CANVAS_HEIGHT * viewModeScale
+    : undefined;
 
   return (
     <>
@@ -533,7 +536,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={editingEnabled ? () => setHoveredSlideId(null) : undefined}
                   >
                     <div className="w-full max-w-6xl">
-                      <div className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}>
+                      <div
+                        className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}
+                        style={isViewMode ? { height: scaledSlideHeight } : undefined}
+                      >
                         {/* Three dots menu button - appears on hover at top left */}
                         {editingEnabled && isHovered && (
                           <div className="absolute top-2 left-2 z-40">
