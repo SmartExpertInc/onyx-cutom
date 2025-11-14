@@ -77,6 +77,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { ComponentBasedSlide } from "@/types/slideTemplates";
 import {
   Dialog,
   DialogContent,
@@ -856,6 +857,9 @@ interface Project {
   instanceName?: string;
   folderId?: number | null;
   order?: number;
+  previewSlide?: ComponentBasedSlide;
+  previewTheme?: string;
+  previewDeckTemplateVersion?: string;
 }
 
 interface Folder {
@@ -2413,6 +2417,34 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
     }
   }, []);
 
+  const extractSlidePreviewFromProject = useCallback((p: any) => {
+    try {
+      const type = (p?.design_microproduct_type || '').toLowerCase();
+      if (type !== 'slide deck' && type !== 'video lesson presentation') {
+        return {};
+      }
+      let content = p?.microproduct_content;
+      if (typeof content === 'string') {
+        try {
+          content = JSON.parse(content);
+        } catch {
+          content = null;
+        }
+      }
+      const slides = Array.isArray(content?.slides) ? content.slides : null;
+      if (slides && slides.length > 0) {
+        return {
+          previewSlide: slides[0] as ComponentBasedSlide,
+          previewTheme: content?.theme,
+          previewDeckTemplateVersion: content?.templateVersion || content?.deckTemplateVersion,
+        };
+      }
+    } catch (error) {
+      console.warn('[PRODUCTS PAGE] extractSlidePreviewFromProject error:', error);
+    }
+    return {};
+  }, []);
+
   // Drag and drop reordering state
   const [draggedProject, setDraggedProject] = useState<Project | null>(null);
   const [draggedFolder, setDraggedFolder] = useState<Folder | null>(null);
@@ -2523,22 +2555,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         console.warn('[PRODUCTS PAGE] Error during debug logging:', e);
       }
       
-      const processedProjects = projectsData.map((p: any) => ({
-        id: p.id,
-        title: computeDisplayTitleFromProjectApi(p),
-        imageUrl: p.imageUrl || "",
-        lastViewed: p.lastViewed || "Never",
-        createdAt: p.created_at,
-        createdBy: p.createdBy || "You",
-        isPrivate: p.isPrivate || true,
-        designMicroproductType: p.design_microproduct_type,
-        isGamma: p.isGamma || false,
-        instanceName: p.microproduct_name,
-        folderId: p.folder_id,
-        order: p.order || 0,
-        is_standalone: p.is_standalone,
-        source_chat_session_id: p.source_chat_session_id,
-      }));
+      const processedProjects = projectsData.map((p: any) => {
+        const previewMeta = extractSlidePreviewFromProject(p);
+        return {
+          id: p.id,
+          title: computeDisplayTitleFromProjectApi(p),
+          imageUrl: p.imageUrl || "",
+          lastViewed: p.lastViewed || "Never",
+          createdAt: p.created_at,
+          createdBy: p.createdBy || "You",
+          isPrivate: p.isPrivate || true,
+          designMicroproductType: p.design_microproduct_type,
+          isGamma: p.isGamma || false,
+          instanceName: p.microproduct_name,
+          folderId: p.folder_id,
+          order: p.order || 0,
+          is_standalone: p.is_standalone,
+          source_chat_session_id: p.source_chat_session_id,
+          previewSlide: previewMeta.previewSlide,
+          previewTheme: previewMeta.previewTheme,
+          previewDeckTemplateVersion: previewMeta.previewDeckTemplateVersion,
+        };
+      });
 
       // Sort projects by order field (default sorting)
       const sortedProjects = processedProjects.sort(
@@ -2780,22 +2818,28 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({
         }
 
         const projectsData = await response.json();
-        const processedProjects = projectsData.map((p: any) => ({
-          id: p.id,
-          title: computeDisplayTitleFromProjectApi(p),
-          imageUrl: p.imageUrl || "",
-          lastViewed: p.lastViewed || "Never",
-          createdAt: p.created_at,
-          createdBy: p.createdBy || "You",
-          isPrivate: p.isPrivate || true,
-          designMicroproductType: p.design_microproduct_type,
-          isGamma: p.isGamma || false,
-          instanceName: p.microproduct_name,
-          folderId: p.folder_id,
-          order: p.order || 0,
-          is_standalone: p.is_standalone,
-          source_chat_session_id: p.source_chat_session_id,
-        }));
+        const processedProjects = projectsData.map((p: any) => {
+          const previewMeta = extractSlidePreviewFromProject(p);
+          return {
+            id: p.id,
+            title: computeDisplayTitleFromProjectApi(p),
+            imageUrl: p.imageUrl || "",
+            lastViewed: p.lastViewed || "Never",
+            createdAt: p.created_at,
+            createdBy: p.createdBy || "You",
+            isPrivate: p.isPrivate || true,
+            designMicroproductType: p.design_microproduct_type,
+            isGamma: p.isGamma || false,
+            instanceName: p.microproduct_name,
+            folderId: p.folder_id,
+            order: p.order || 0,
+            is_standalone: p.is_standalone,
+            source_chat_session_id: p.source_chat_session_id,
+            previewSlide: previewMeta.previewSlide,
+            previewTheme: previewMeta.previewTheme,
+            previewDeckTemplateVersion: previewMeta.previewDeckTemplateVersion,
+          };
+        });
 
         // Sort folder projects by order field
         const sortedProjects = processedProjects.sort(

@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import ProjectSettingsModal from "../../app/projects/ProjectSettingsModal";
 import useFeaturePermission from "../../hooks/useFeaturePermission";
 import FolderSelectionModal from "./folder-selection-modal";
+import { ComponentBasedSlideRenderer } from "@/components/ComponentBasedSlideRenderer";
+import { ComponentBasedSlide } from "@/types/slideTemplates";
 import { 
   MoreHorizontal, 
   Lock, 
@@ -56,6 +58,9 @@ interface Project {
   createdAt: string;
   isGamma?: boolean;
   folderId?: number | null;
+  previewSlide?: ComponentBasedSlide;
+  previewTheme?: string;
+  previewDeckTemplateVersion?: string;
 }
 
 interface Folder {
@@ -227,6 +232,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
+  const designType = (project.designMicroproductType || "").toLowerCase();
+  const hasSlidePreview =
+    !!project.previewSlide &&
+    (designType === "slide deck" || designType === "video lesson presentation");
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -536,40 +545,76 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         <div 
-          className="relative h-40 flex"
+          className={`relative h-40 ${hasSlidePreview ? "overflow-hidden rounded-t-md bg-white" : "flex"}`}
         >
-          {/* Left side - Only gradient */}
-          <div className="w-[45%] h-full" style={{
-            backgroundColor: bgColor,
-            backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
-              displayTitle.split("").reverse().join("")
-            )}99)`,
-          }} />
-          {/* Top row with badge positioned absolutely */}
-          
-          {/* Right side - Title text with icon */}
-          <div className="w-[55%] h-full relative flex flex-col p-4" style={{ backgroundColor: `${bgColor}20` }}>
-            {/* Lock/Users icon positioned absolutely in top-right */}
-            {project.isPrivate ? (
-              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                <Lock size={18} strokeWidth={1.5} className="text-gray-600" />
+          {hasSlidePreview && project.previewSlide ? (
+            <>
+              <div className="absolute inset-0 pointer-events-none bg-[#F5F5F5]">
+                <div className="absolute inset-0">
+                  <div
+                    style={{
+                      width: "400%",
+                      height: "400%",
+                      transform: "scale(0.25)",
+                      transformOrigin: "top left",
+                      backgroundColor: "#F2F2F4",
+                    }}
+                  >
+                    <ComponentBasedSlideRenderer
+                      slide={project.previewSlide}
+                      isEditable={false}
+                      theme={project.previewTheme}
+                      deckTemplateVersion={project.previewDeckTemplateVersion}
+                    />
+                  </div>
+                </div>
               </div>
-            ) : (
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/20 via-transparent to-transparent" />
               <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
-                <Users size={18} strokeWidth={1.5} className="text-gray-600" />
+                {project.isPrivate ? (
+                  <Lock size={18} strokeWidth={1.5} className="text-gray-600" />
+                ) : (
+                  <Users size={18} strokeWidth={1.5} className="text-gray-600" />
+                )}
               </div>
-            )}
-            
-            {/* Title text */}
-            <div className="flex items-center justify-center flex-1 mt-8">
-              <h3 
-                className="font-semibold text-md text-left leading-tight line-clamp-5"
-                  style={{ color: "black" }}
-              >
-                {displayTitle}
-              </h3>
-            </div>
-          </div>
+              <div className="absolute inset-x-3 bottom-3 bg-white/95 backdrop-blur-md rounded-md px-3 py-2 shadow-sm">
+                <h3 
+                  className="font-semibold text-sm leading-tight text-gray-900 line-clamp-2"
+                >
+                  {displayTitle}
+                </h3>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="w-[45%] h-full" style={{
+                backgroundColor: bgColor,
+                backgroundImage: `linear-gradient(45deg, ${bgColor}99, ${stringToColor(
+                  displayTitle.split("").reverse().join("")
+                )}99)`,
+              }} />
+              <div className="w-[55%] h-full relative flex flex-col p-4" style={{ backgroundColor: `${bgColor}20` }}>
+                {project.isPrivate ? (
+                  <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
+                    <Lock size={18} strokeWidth={1.5} className="text-gray-600" />
+                  </div>
+                ) : (
+                  <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
+                    <Users size={18} strokeWidth={1.5} className="text-gray-600" />
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-center flex-1 mt-8">
+                  <h3 
+                    className="font-semibold text-md text-left leading-tight line-clamp-5"
+                      style={{ color: "black" }}
+                  >
+                    {displayTitle}
+                  </h3>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         
         {/* Lower section with white background (25-30% of height) */}
