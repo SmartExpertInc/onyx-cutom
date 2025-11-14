@@ -126,7 +126,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     }
 
     const measureHeight = () => {
-      const height = node.getBoundingClientRect().height || 0;
+      const measured = node.getBoundingClientRect().height || 0;
+      const unscaledHeight = viewModeScale > 0 ? measured / viewModeScale : measured;
+      const height = Math.round(unscaledHeight * 100) / 100;
       setSlideHeights(prev => {
         if (Math.abs((prev[slideId] || 0) - height) < 1) {
           return prev;
