@@ -2657,7 +2657,7 @@ const TextPresentationDisplay = ({
             className="flex w-full items-center justify-center gap-2 rounded-md transition-all duration-200 hover:shadow-lg cursor-pointer focus:outline-none"
             style={{
               backgroundColor: '#FFFFFF',
-              color: '#FFFFFF',
+              color: '#0F58F9',
               fontSize: '14px',
               lineHeight: '140%',
               letterSpacing: '0.05em',
@@ -3419,7 +3419,7 @@ const TextPresentationDisplay = ({
                 return (
                   <div key={index} className={reorderClasses}>
 
-                    <section className={`p-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
+                    <section className={`py-3 px-0 md:px-3 rounded-md text-left ${isEditing ? 'bg-[#F7FAFF] border border-blue-200' : ''}`}>
                       {(!item._skipRenderHeadline || isEditing) && (
                         <div 
                           className={`relative group/section ${!isEditing && !isHeadlineEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
@@ -3584,7 +3584,7 @@ const TextPresentationDisplay = ({
                             return (
                               <div 
                                 key={subIndex} 
-                                className={`relative group/block ${!isEditing && !isSubBlockEditing ? 'cursor-pointer border-2 border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
+                                className={`relative group/block ${!isEditing && !isSubBlockEditing ? 'cursor-pointer border-2 flex flex-col md:flex-row border-transparent hover:border-blue-500 rounded-md transition-all duration-200 p-1 -m-1' : ''}`}
                                 onClick={(e) => !isEditing && handleBlockClick(originalSubIndex, e)}
                               >
                                 <RenderBlock
@@ -3774,7 +3774,7 @@ const TextPresentationDisplay = ({
         onImageUploaded={handleImageUploaded}
       />
     </div>
-    <div className="mt-6 mb-8 flex justify-center">
+    <div className="hidden md:flex mt-6 mb-8 justify-center">
     <DropdownMenu open={addSectionDropdownOpen} onOpenChange={setAddSectionDropdownOpen}>
       <DropdownMenuTrigger asChild>
         <button className="w-full max-w-5xl flex items-center justify-center bg-white gap-2 px-6 py-4 text-sm text-[#719AF5] hover:bg-blue-50 rounded-lg transition-colors duration-200 border border-[#CCCCCC]">
@@ -3807,9 +3807,9 @@ const TextPresentationDisplay = ({
       </DropdownMenuContent>
     </DropdownMenu>
   </div>
-  <div className="max-w-5xl mx-auto mb-10">
+  {/* <div className="max-w-5xl mx-auto mb-10">
     <Comments />
-  </div>
+  </div> */}
   </>
   );
 };

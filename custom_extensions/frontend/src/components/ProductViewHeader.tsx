@@ -593,7 +593,22 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
     <header className="sticky top-0 z-50 h-[120px] md:h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
         <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-y-2 gap-x-4 text-left">
-          {renderHomeButton()}
+          <div className="flex flex-row justify-between">{renderHomeButton()}
+          {currentIsAuthorized ? (
+            <div
+              className="block md:hidden flex items-center"
+              style={useMobileLinkViewLayout ? { height: `${actionButtonHeight}px` } : undefined}
+            >
+              <UserDropdown buttonSize={homeButtonHeight} />
+            </div>
+          ) : (
+            <div className="block md:hidden flex items-center gap-3">
+              <div className="w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
+              {isMobileViewport && renderCopyLinkButton()}
+              {renderSignUpButton()}
+            </div>
+          )}
+          </div>
           {renderTitleSection()}
         </div>
 
@@ -661,13 +676,13 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
 
           {currentIsAuthorized ? (
             <div
-              className="flex items-center"
+              className="hidden md:flex items-center"
               style={useMobileLinkViewLayout ? { height: `${actionButtonHeight}px` } : undefined}
             >
               <UserDropdown buttonSize={homeButtonHeight} />
             </div>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <div className="w-px bg-gray-300" style={{ height: `${actionButtonHeight}px` }} />
               {isMobileViewport && renderCopyLinkButton()}
               {renderSignUpButton()}
