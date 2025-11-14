@@ -433,8 +433,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 				body: JSON.stringify({ path: `${currentPath}${currentPath.endsWith('/') ? '' : '/'}${name}` })
 			});
 			if (!res.ok) throw new Error(await res.text());
-			// track successfully create folder event
-			trackSmartDrive('Create Folder');
+			// track successfully added folder event
+			trackSmartDrive("Add Folder");
 			setMkdirOpen(false);
 			setMkdirName('');
 			await fetchList(currentPath);
@@ -707,17 +707,17 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 
 	const onUploadClick = () => uploadInput.current?.click();
 	const onUploadChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-	console.log('%c[SmartDriveBrowser] FILE INPUT CHANGE EVENT', 'background: #ff0000; color: #fff; font-size: 14px; font-weight: bold');
-	console.log('[SmartDriveBrowser] Files selected from input:', e.target.files);
-	const files = e.target.files;
-	if (!files || files.length === 0) {
-		console.log('[SmartDriveBrowser] No files selected');
-		return;
-	}
-	console.log('[SmartDriveBrowser] About to call uploadFiles with:', Array.from(files).map(f => f.name));
-	await uploadFiles(Array.from(files));
-	if (uploadInput.current) uploadInput.current.value = '';
-};
+		console.log('%c[SmartDriveBrowser] FILE INPUT CHANGE EVENT', 'background: #ff0000; color: #fff; font-size: 14px; font-weight: bold');
+		console.log('[SmartDriveBrowser] Files selected from input:', e.target.files);
+		const files = e.target.files;
+		if (!files || files.length === 0) {
+			console.log('[SmartDriveBrowser] No files selected');
+			return;
+		}
+		console.log('[SmartDriveBrowser] About to call uploadFiles with:', Array.from(files).map(f => f.name));
+		await uploadFiles(Array.from(files));
+		if (uploadInput.current) uploadInput.current.value = '';
+	};
 
 	const INDEX_TOKENS_PER_SEC = 2500; // ~2500 tokens/s for duration estimation
 
@@ -886,6 +886,8 @@ const SmartDriveBrowser: React.FC<SmartDriveBrowserProps> = ({
 		} finally {
 			console.log('=== [SmartDrive] UPLOAD FINALLY BLOCK ===');
 			console.log('[SmartDrive] Indexing state at end of upload:', indexing);
+			// track successfully uploaded files event
+			trackSmartDrive("Upload File");
 			setUploading([]);
 			setBusy(false);
 		}

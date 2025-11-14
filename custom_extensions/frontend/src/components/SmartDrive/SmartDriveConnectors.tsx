@@ -12,7 +12,7 @@ import ConnectorManagementPage from './connector-management/ConnectorManagementP
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
-import { timeEvent, trackConnectConnector } from '@/lib/mixpanelClient';
+import { timeEvent, trackConnectConnector, trackSmartDrive } from '@/lib/mixpanelClient';
 import { Input } from '../ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
@@ -372,6 +372,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
         body: JSON.stringify({ path: `${currentPath}${currentPath.endsWith('/') ? '' : '/'}${name}` })
       });
       if (!res.ok) throw new Error(await res.text());
+      // track successfully added folder event
+      trackSmartDrive("Add folder");
       setMkdirOpen(false);
       setMkdirName('');
       await fetchList(currentPath);
@@ -449,6 +451,8 @@ const SmartDriveConnectors: React.FC<SmartDriveConnectorsProps> = ({
       console.error('[SmartDrive] Upload error:', e);
       alert('Upload failed');
     } finally {
+      // track successfully uploaded files event
+      trackSmartDrive("Upload File");
       setUploading([]);
       setBusy(false);
     }
