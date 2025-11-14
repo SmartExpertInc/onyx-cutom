@@ -1752,18 +1752,6 @@ export default function ProjectInstanceViewPage() {
     window.open(pdfUrl, '_blank');
   };
 
-  const handleCopyLink = () => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-    const linkToCopy = window.location.href;
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(linkToCopy).catch((err) => {
-        console.error('Failed to copy link:', err);
-      });
-    }
-  };
-
   // Theme management for slide decks
   const slideDeckData = projectInstanceData?.component_name === COMPONENT_NAME_SLIDE_DECK
     ? (editableData as ComponentBasedSlideDeck)
@@ -2064,7 +2052,6 @@ export default function ProjectInstanceViewPage() {
             isAuthorized={isAuthorized}
             onAuthorizationChange={setIsAuthorized}
             onExport={handlePdfDownload}
-            onCopyLink={handleCopyLink}
           />
         );
       case COMPONENT_NAME_LESSON_PLAN:

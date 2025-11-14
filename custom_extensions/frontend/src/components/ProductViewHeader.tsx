@@ -109,7 +109,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const isCourse = projectData?.component_name === 'TrainingPlanTable';
   const isPresentation = projectData?.component_name === 'SlideDeckDisplay' || projectData?.component_name === 'VideoProductDisplay';
   const isVideoProduct = projectData?.component_name === 'VideoProductDisplay';
-  const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation || isVideoProduct);
+  const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation || isVideoProduct || isQuiz);
   const isMobileMidViewport = viewportWidth !== null && viewportWidth >= 390 && viewportWidth < 640;
   const isMobileViewport = viewportWidth !== null && viewportWidth < 640;
   const useMobileLinkViewLayout = isMobileMidViewport && enableLinkViewButtons && shouldShowLinkButtons;
@@ -313,7 +313,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </>
               )}
             </div>
-            {(enableLinkViewButtons || isOnePager) && (
+            {(enableLinkViewButtons || isOnePager || isQuiz) && (
                 <div className="flex items-center gap-1.5 text-[10px] text-[#878787]">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g clipPath="url(#clip0_4291_33172)">

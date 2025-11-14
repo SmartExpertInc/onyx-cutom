@@ -54,7 +54,6 @@ interface QuizDisplayProps {
   isAuthorized?: boolean;
   onAuthorizationChange?: (value: boolean) => void;
   onExport?: () => void;
-  onCopyLink?: () => void;
 }
 
 // Explanation Field Component
@@ -139,7 +138,7 @@ const ExplanationField: React.FC<ExplanationFieldProps> = ({
   );
 };
 
-const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber, isAuthorized = true, onAuthorizationChange, onExport, onCopyLink }) => {
+const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber, isAuthorized = true, onAuthorizationChange, onExport }) => {
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -161,10 +160,6 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
     onAuthorizationChange?.(value);
   };
   const handleMobileCopyLink = () => {
-    if (onCopyLink) {
-      onCopyLink();
-      return;
-    }
     if (typeof window === 'undefined') return;
     const linkToCopy = window.location.href;
     if (navigator?.clipboard?.writeText) {
@@ -661,7 +656,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                     </p>
                   </div>
                   <div className="flex items-start gap-2 flex-1">
-                    <span className="w-4 h-4 rounded-full bg-[#D817FF] text-white text-xs font-semibold flex items-center justify-center">
+                    <span className="w-4 h-4 mt-2 rounded-full bg-[#D817FF] text-white text-xs font-semibold flex items-center justify-center">
                       {matchedOption?.id}
                     </span>
                     <p className="text-[#1C1D2A] text-regular leading-relaxed">
@@ -1059,7 +1054,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   };
 
   const renderMobileActions = () => (
-    <div className="sm:hidden border-t border-[#E4E4E7] pt-4 mt-6">
+    <div className="sm:hidden border-t border-[#E4E4E7] pt-0 mt-0">
       <div className="flex flex-row-reverse gap-3">
         <button
           onClick={handleMobileCopyLink}
@@ -1106,7 +1101,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   return (
     <div className="min-h-screen bg-[#F2F2F4]">
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-2 md:px-6 pb-8">
+      <div className="max-w-7xl mx-auto px-2 md:px-6 pb-0 md:pb-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="text-sm text-[#797979]">
             {questions.length} questions total

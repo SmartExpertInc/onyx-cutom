@@ -2082,7 +2082,6 @@ export default function ProjectInstanceViewPage() {
             isAuthorized={isAuthorized}
             onAuthorizationChange={setIsAuthorized}
             onExport={handlePdfDownload}
-            onCopyLink={handleMobileCopyLink}
           />
         );
       case COMPONENT_NAME_LESSON_PLAN:
