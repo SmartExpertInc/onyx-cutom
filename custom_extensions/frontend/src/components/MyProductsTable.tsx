@@ -78,6 +78,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { isSlidePreviewEligibleType } from "@/lib/slidePreview";
 import { ComponentBasedSlide } from "@/types/slideTemplates";
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -2288,8 +2289,7 @@ const MyProductsTable: React.FC<ProjectsTableProps> = ({
 
   const extractSlidePreviewFromProject = useCallback((p: any) => {
     try {
-      const type = (p?.design_microproduct_type || '').toLowerCase();
-      if (type !== 'slide deck' && type !== 'video lesson presentation') {
+      if (!isSlidePreviewEligibleType(p?.design_microproduct_type)) {
         return {};
       }
       let content = p?.microproduct_content;

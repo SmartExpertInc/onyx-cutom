@@ -7,6 +7,7 @@ import { Button } from "./button";
 import { Input } from "./input";
 import { Label } from "./label";
 import { cn } from "@/lib/utils";
+import { isSlidePreviewEligibleType } from "@/lib/slidePreview";
 import ProjectSettingsModal from "../../app/projects/ProjectSettingsModal";
 import useFeaturePermission from "../../hooks/useFeaturePermission";
 import FolderSelectionModal from "./folder-selection-modal";
@@ -232,7 +233,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
   const bgColor = stringToColor(project.title);
   const avatarColor = stringToColor(project.createdBy);
-  const designType = (project.designMicroproductType || "").toLowerCase();
+  const supportsSlidePreview = isSlidePreviewEligibleType(project.designMicroproductType);
 
   const [previewSlide, setPreviewSlide] = useState<ComponentBasedSlide | null>(
     project.previewSlide || null
@@ -244,7 +245,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     project.previewDeckTemplateVersion
   );
 
-  const loadSlidesFromBackend = designType === "slide deck" || designType === "video lesson presentation";
+  const loadSlidesFromBackend = supportsSlidePreview;
   useEffect(() => {
     if (previewSlide || !loadSlidesFromBackend) {
       return;
@@ -255,13 +256,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       try {
         const CUSTOM_BACKEND_URL =
           process.env.NEXT_PUBLIC_CUSTOM_BACKEND_URL || "/api/custom-projects-backend";
-        const response = await fetch(
-          `${CUSTOM_BACKEND_URL}/projects/view/${project.id}`,
-          {
-            cache: "no-store",
-            signal: controller.signal,
-          }
-        );
+        const response = await fetch(`${CUSTOM_BACKEND_URL}/projects/view/${project.id}`, {
+          cache: "no-store",
+          signal: controller.signal,
+          credentials: "same-origin",
+        });
         if (!response.ok) return;
         const data = await response.json();
         const slides = data?.details?.slides;
@@ -283,9 +282,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     };
   }, [previewSlide, loadSlidesFromBackend, project.id]);
 
-  const hasSlidePreview =
-    !!previewSlide &&
-    (designType === "slide deck" || designType === "video lesson presentation");
+  const hasSlidePreview = !!previewSlide && supportsSlidePreview;
 
   const handleRemoveFromFolder = async () => {
     try {
@@ -594,50 +591,41 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         onClick={handleCardClick}
         className="block h-full"
       >
-        <div 
-          className={`relative h-40 ${hasSlidePreview ? "overflow-hidden rounded-t-md bg-white" : "flex"}`}
-        >
-          {hasSlidePreview && project.previewSlide ? (
-            <>
-              <div className="absolute inset-0 pointer-events-none bg-[#F5F5F5]">
-                <div className="absolute inset-0">
-                  <div
-                    style={{
-                      width: "400%",
-                      height: "400%",
-                      transform: "scale(0.25)",
-                      transformOrigin: "top left",
-                      backgroundColor: "#F2F2F4",
-                    }}
-                  >
-                    {previewSlide && (
-                      <ComponentBasedSlideRenderer
-                        slide={previewSlide}
-                        isEditable={false}
-                        theme={previewTheme}
-                        deckTemplateVersion={previewDeckVersion}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-              <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
+        {hasSlidePreview && previewSlide ? (
+          <div className="h-40 rounded-t-md bg-white px-3 py-3 flex flex-col gap-2 border-b border-gray-100">
+            <div className="flex justify-end">
+              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
                 {project.isPrivate ? (
                   <Lock size={18} strokeWidth={1.5} className="text-gray-600" />
                 ) : (
                   <Users size={18} strokeWidth={1.5} className="text-gray-600" />
                 )}
               </div>
-              <div className="absolute inset-x-3 bottom-3 bg-white/95 backdrop-blur-md rounded-md px-3 py-2 shadow-sm">
-                <h3 
-                  className="font-semibold text-sm leading-tight text-gray-900 line-clamp-2"
-                >
-                  {displayTitle}
-                </h3>
+            </div>
+            <div className="relative flex-1 rounded-md border border-gray-200 bg-[#F5F5F5] overflow-hidden">
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  width: "400%",
+                  height: "400%",
+                  transform: "scale(0.25)",
+                  transformOrigin: "top left",
+                  backgroundColor: "#F2F2F4",
+                }}
+              >
+                <ComponentBasedSlideRenderer
+                  slide={previewSlide}
+                  isEditable={false}
+                  theme={previewTheme}
+                  deckTemplateVersion={previewDeckVersion}
+                />
               </div>
-            </>
-          ) : (
+            </div>
+          </div>
+        ) : (
+        <div 
+          className="relative h-40 flex"
+        >
             <>
               <div className="w-[45%] h-full" style={{
                 backgroundColor: bgColor,
@@ -666,8 +654,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 </div>
               </div>
             </>
-          )}
         </div>
+        )}
         
         {/* Lower section with white background (25-30% of height) */}
         <div className="bg-white px-4 py-3 pt-2 flex flex-col justify-between gap-2">
