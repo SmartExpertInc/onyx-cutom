@@ -13,8 +13,6 @@ const VIEW_MODE_MAX_WIDTH = 1152; // Tailwind max-w-6xl (72rem)
 const VIEW_MODE_MIN_WIDTH = 320;
 const VIEW_MODE_SIDEBAR_WIDTH = 400;
 const VIEW_MODE_HORIZONTAL_GAP = 32; // px allowance when sidebar is beside slides
-const DEFAULT_SLIDE_WIDTH = VIEW_MODE_MAX_WIDTH;
-const DEFAULT_SLIDE_HEIGHT = Math.round(DEFAULT_SLIDE_WIDTH * (9 / 16));
 
 interface PresentationLayoutProps {
   deck: ComponentBasedSlideDeck;
@@ -104,22 +102,6 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
     window.addEventListener('resize', computeWidth);
     return () => window.removeEventListener('resize', computeWidth);
   }, [isViewMode, rightSidebar, viewModeSidebarWidth]);
-
-  const getSlideBaseDimensions = (slide: ComponentBasedSlide) => {
-    const baseWidth = slide.canvasConfig?.width || DEFAULT_SLIDE_WIDTH;
-    const baseHeight =
-      slide.canvasConfig?.height ||
-      (slide.canvasConfig?.width ? slide.canvasConfig.width * (9 / 16) : DEFAULT_SLIDE_HEIGHT);
-    return { baseWidth, baseHeight };
-  };
-
-  const getViewModeSizing = (slide: ComponentBasedSlide) => {
-    const { baseWidth, baseHeight } = getSlideBaseDimensions(slide);
-    const effectiveWidth = isViewMode ? viewModeSlideWidth : baseWidth;
-    const scale = Math.min(1, effectiveWidth / baseWidth);
-    const scaledHeight = baseHeight * scale;
-    return { baseWidth, baseHeight, scale, scaledHeight };
-  };
 
   // Initialize with first slide
   useEffect(() => {
@@ -593,37 +575,14 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                           </div>
                         )}
                         {isViewMode ? (
-                          (() => {
-                            const sizing = getViewModeSizing(slide);
-                            return (
-                              <div
-                                className="presentation-viewer-slide rounded-lg"
-                                style={{
-                                  width: '100%',
-                                  maxWidth: `${viewModeSlideWidth}px`,
-                                  minHeight: `${sizing.scaledHeight}px`,
-                                  height: `${sizing.scaledHeight}px`
-                                }}
-                              >
-                                <div
-                                  className="presentation-viewer-slide-inner"
-                                  style={{
-                                    width: `${sizing.baseWidth}px`,
-                                    minHeight: `${sizing.baseHeight}px`,
-                                    transform: `scale(${sizing.scale})`,
-                                    transformOrigin: 'top center'
-                                  }}
-                                >
-                                  <ComponentBasedSlideRenderer
-                                    slide={slide}
-                                    isEditable={false}
-                                    theme={theme}
-                                    forceHybridView
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })()
+                          <div className="presentation-viewer-slide rounded-lg">
+                            <ComponentBasedSlideRenderer
+                              slide={slide}
+                              isEditable={false}
+                              theme={theme}
+                              forceHybridView
+                            />
+                          </div>
                         ) : (
                           <ComponentBasedSlideRenderer
                             slide={slide}
