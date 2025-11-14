@@ -96,20 +96,14 @@
 
 .presentation-view {
   --slide-width: 1152px;
-  --slide-scale: 1;
-  --slide-canvas-width: 1200px;
-  --slide-canvas-height: 675px;
 }
 
 .presentation-view .presentation-viewer-slide {
   width: min(100%, var(--slide-width, 1152px));
   max-width: min(1152px, var(--available-width, 1152px));
-  aspect-ratio: 1200 / 675;
   margin: 0 auto;
   background: #F2F2F4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   overflow: hidden;
 }
 
@@ -121,13 +115,9 @@
 }
 
 .presentation-view .slide-scaling-inner {
-  width: var(--slide-canvas-width, 1200px);
-  height: var(--slide-canvas-height, 675px);
   position: absolute;
   top: 0;
   left: 0;
-  transform-origin: top left;
-  transform: scale(var(--slide-scale, 1));
 }
 
 
