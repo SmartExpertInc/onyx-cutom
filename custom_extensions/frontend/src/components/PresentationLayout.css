@@ -96,6 +96,9 @@
 
 .presentation-view {
   --slide-width: 1152px;
+  --slide-scale: 1;
+  --slide-canvas-width: 1200px;
+  --slide-canvas-height: 675px;
 }
 
 .presentation-view .presentation-viewer-slide {
@@ -103,21 +106,28 @@
   max-width: min(1152px, var(--available-width, 1152px));
   margin: 0 auto;
   background: #F2F2F4;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
+  height: calc(var(--slide-canvas-height, 675px) * var(--slide-scale, 1));
 }
 
 .presentation-view .slide-scaling-wrapper {
-  width: 100%;
+  width: min(100%, var(--slide-width, 1152px));
   height: 100%;
   position: relative;
   overflow: hidden;
 }
 
 .presentation-view .slide-scaling-inner {
+  width: var(--slide-canvas-width, 1200px);
+  height: var(--slide-canvas-height, 675px);
   position: absolute;
   top: 0;
   left: 0;
+  transform-origin: top left;
+  transform: scale(var(--slide-scale, 1));
 }
 
 

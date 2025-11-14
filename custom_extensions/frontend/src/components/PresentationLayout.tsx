@@ -342,8 +342,6 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const viewModeScale = isViewMode
     ? Math.min(1, viewModeSlideWidth / VIEW_MODE_CANVAS_WIDTH)
     : 1;
-  const scaledWidth = isViewMode ? viewModeSlideWidth : undefined;
-  const scaledHeight = isViewMode ? VIEW_MODE_CANVAS_HEIGHT * viewModeScale : undefined;
 
   return (
     <>
@@ -361,7 +359,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
       style={
         isViewMode
           ? ({
-              '--slide-width': `${viewModeSlideWidth}px`
+              '--slide-width': `${viewModeSlideWidth}px`,
+              '--slide-scale': `${viewModeScale}`,
+              '--slide-canvas-width': `${VIEW_MODE_CANVAS_WIDTH}px`,
+              '--slide-canvas-height': `${VIEW_MODE_CANVAS_HEIGHT}px`
             } as React.CSSProperties)
           : undefined
       }
@@ -532,10 +533,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={editingEnabled ? () => setHoveredSlideId(null) : undefined}
                   >
                     <div className="w-full max-w-6xl">
-                      <div
-                        className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}
-                        style={isViewMode ? { height: scaledHeight } : undefined}
-                      >
+                      <div className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}>
                         {/* Three dots menu button - appears on hover at top left */}
                         {editingEnabled && isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -588,28 +586,9 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                           </div>
                         )}
                         {isViewMode ? (
-                          <div
-                            className="presentation-viewer-slide rounded-lg"
-                            style={{
-                              height: scaledHeight
-                            }}
-                          >
-                            <div
-                              className="slide-scaling-wrapper"
-                              style={{
-                                width: scaledWidth,
-                                height: scaledHeight
-                              }}
-                            >
-                              <div
-                                className="slide-scaling-inner"
-                                style={{
-                                  width: VIEW_MODE_CANVAS_WIDTH,
-                                  height: VIEW_MODE_CANVAS_HEIGHT,
-                                  transform: `scale(${viewModeScale})`,
-                                  transformOrigin: 'top left'
-                                }}
-                              >
+                          <div className="presentation-viewer-slide rounded-lg">
+                            <div className="slide-scaling-wrapper">
+                              <div className="slide-scaling-inner">
                                 <ComponentBasedSlideRenderer
                                   slide={slide}
                                   isEditable={false}
