@@ -6921,7 +6921,7 @@
             position: relative;
             overflow: hidden;
             color: #d1d5db;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--title-font, 'Inter', sans-serif);
             display: grid;
             grid-template-columns: 1fr 1fr;
         }
@@ -6977,7 +6977,7 @@
         }
 
         .connection-slide .avatar-container {
-            margin-top: 162px;
+            margin-top: 240px;
             background-color: #ffffff;
             width: 240px;
             height: 240px;
@@ -7169,9 +7169,18 @@
             aspect-ratio: 16/9;
             background: #E0E7FF;
             color: #111827;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             position: relative;
             padding-top: 198px;
+        }
+
+        .change-mgmt-tabs-slide *:not(.title-element) {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        .change-mgmt-tabs-slide .title-element {
+            font-family: 'Lora', serif !important;
+            font-weight: 500 !important;
         }
 
         .change-mgmt-tabs-slide .top-tabs-wrap {
@@ -7190,7 +7199,7 @@
             padding: 0 68px;
             font-size: 30px;
             letter-spacing: 0.5px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .change-mgmt-tabs-slide .tab-row-blue {
@@ -7242,7 +7251,7 @@
             font-weight: 500;
             color: #2D2D2D;
             line-height: 1.2;
-            font-family: "'Lora', serif";
+            font-family: 'Lora', serif;
             white-space: pre-wrap;
         }
 
@@ -7267,7 +7276,7 @@
             font-size: 36px;
             height: 100%;
             background: #FFFFFF;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             position: relative;
             z-index: 1;
             width: 750px;
@@ -7336,7 +7345,7 @@
             font-size: 24px;
             font-weight: 400;
             color: #09090B;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .change-mgmt-tabs-slide .page-number-container {
@@ -7358,7 +7367,7 @@
             color: #09090B99;
             font-size: 26px;
             font-weight: 300;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         /* Data Driven Insights Slide Template */
@@ -7367,8 +7376,31 @@
             aspect-ratio: 16/9;
             background: #E0E7FF;
             color: #000000;
-            font-family: '"Inter", sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             position: relative;
+        }
+
+        .data-driven-insights-slide *:not(.title-element):not(.metric-value) {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        .data-driven-insights-slide .title-element,
+        .data-driven-insights-slide .metric-value {
+            font-family: 'Lora', serif !important;
+            font-weight: 600 !important;
+        }
+
+        .data-driven-insights-slide .logo-text {
+            font-weight: 600 !important;
+        }
+
+        .data-driven-insights-slide .logo-text * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 600 !important;
+        }
+
+        .data-driven-insights-slide .desc-element {
+            font-weight: 400 !important;
         }
 
         .data-driven-insights-slide .tag {
@@ -7384,7 +7416,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            font-family: '"Inter", sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .data-driven-insights-slide .tag-dot {
@@ -7405,11 +7437,11 @@
 
         .data-driven-insights-slide .title {
             font-size: 57px;
-            font-weight: 700;
+            font-weight: 900;
             color: #000000;
             text-align: left;
             margin-bottom: 24px;
-            font-family: 'serif';
+            font-family: 'Lora', serif;
         }
 
         .data-driven-insights-slide .desc-wrap {
@@ -7426,7 +7458,7 @@
             font-size: 26px;
             text-align: left;
             line-height: 1.5;
-            font-family: '"Inter", sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .data-driven-insights-slide .charts-wrap {
@@ -7480,7 +7512,7 @@
             width: 60px;
             color: #3A3A3C;
             font-size: 18px;
-            font-family: '"Inter", sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .data-driven-insights-slide .bar {
@@ -7508,7 +7540,7 @@
             padding: 0 15px 0 38px;
             color: #3A3A3C;
             font-size: 18px;
-            font-family: '"Inter", sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .data-driven-insights-slide .year-label {
@@ -7517,7 +7549,7 @@
             text-align: center;
             color: #3A3A3C;
             font-size: 18px;
-            font-family: '"Inter", sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .data-driven-insights-slide .right-metrics {
@@ -7533,7 +7565,7 @@
             font-size: 57px;
             font-weight: 600;
             color: #000000;
-            font-family: 'serif';
+            font-family: 'Lora', serif;
         }
 
         .data-driven-insights-slide .metric-caption {
@@ -7542,7 +7574,7 @@
             color: #34353C;
             font-size: 23px;
             line-height: 1.4;
-            font-family: '"Inter", sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .data-driven-insights-slide .avatar {
@@ -7591,7 +7623,7 @@
             color: #34353C;
             font-size: 23px;
             font-weight: 400;
-            font-family: 'Inter, sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -7607,7 +7639,7 @@
             color: #34353C;
             font-size: 24px;
             font-weight: 600;
-            font-family: 'Inter, sans-serif';
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         /* Proof Statistics Slide Template */
@@ -7619,8 +7651,17 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--title-font, 'Inter', sans-serif);
             padding: 45px 90px;
+        }
+
+        .proof-statistics-slide *:not(.title-element) {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        }
+
+        .proof-statistics-slide .title-element {
+            font-family: 'Lora', serif !important;
+            font-weight: 500 !important;
         }
 
         .proof-statistics-slide .tag {
@@ -7653,7 +7694,7 @@
             font-size: 27px;
             color: #09090BCC;
             font-weight: 400;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .proof-statistics-slide .title {
@@ -7665,7 +7706,7 @@
             color: #09090B;
             line-height: 1.1;
             max-width: 1350px;
-            font-family: "'Lora', serif";
+            font-family: 'Lora', serif;
         }
 
         .proof-statistics-slide .description {
@@ -7705,7 +7746,7 @@
             font-weight: semibold;
             color: #09090B;
             margin-bottom: 9px;
-            font-family: "'Lora', serif";
+            font-family: 'Lora', serif;
         }
 
         .proof-statistics-slide .statistic-description {
@@ -7826,7 +7867,7 @@
             font-size: 24px;
             font-weight: 400;
             color: #09090B;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         .proof-statistics-slide .page-number-container {
@@ -7848,7 +7889,7 @@
             color: #09090B99;
             font-size: 26px;
             font-weight: 300;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
     </style>
 </head>
@@ -11270,7 +11311,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                                 <img src="{{ avatarPath }}" alt="Profile photo" class="avatar-img" />
                             {% endif %}
                         </div>
-                        <div class="heading">{{ heading or 'Communication is the lifeblood\nof successful change initiatives.' }}</div>
+                        <div class="heading title-element">{{ heading or 'Communication is the lifeblood\nof successful change initiatives.' }}</div>
 
                         <div class="capsules-wrap">
                             {% set defaultPills = pills if pills and pills|length >= 3 else ['Organization', 'Communication', 'Stakeholders'] %}
@@ -11313,7 +11354,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     </div>
 
                     <div class="title-wrap">
-                        <div class="title">{{ title or 'Data-Driven Insights: Statistics and Trends' }}</div>
+                        <div class="title title-element">{{ title or 'Data-Driven Insights: Statistics and Trends' }}</div>
                     </div>
 
                     <div class="desc-wrap">
@@ -11399,7 +11440,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         ] %}
                         {% for metric in defaultMetrics %}
                             <div>
-                                <div class="metric-value">{{ metric.value or '' }}</div>
+                                <div class="metric-value title-element">{{ metric.value or '' }}</div>
                                 <div class="metric-caption">{{ metric.caption or '' }}</div>
                             </div>
                         {% endfor %}
@@ -11438,7 +11479,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                     </div>
 
                     <!-- Title -->
-                    <div class="title">{{ title or 'The Proof Is in the Pudding' }}</div>
+                    <div class="title title-element">{{ title or 'The Proof Is in the Pudding' }}</div>
 
                     <!-- Description -->
                     <div class="description">{{ description or 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:' }}</div>
@@ -11455,7 +11496,7 @@ Create opportunities for growth & advancement.{% endif %}</div>
                         ] %}
                         {% for stat in defaultStatistics %}
                             <div class="statistic-item">
-                                <div class="statistic-value">{{ stat.value or 'XX%' }}</div>
+                                <div class="statistic-value title-element">{{ stat.value or 'XX%' }}</div>
                                 <div class="statistic-description">{{ stat.description or 'Percentage increase in productivity' }}</div>
                             </div>
                         {% endfor %}
