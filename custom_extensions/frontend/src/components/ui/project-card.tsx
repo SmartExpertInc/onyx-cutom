@@ -149,16 +149,6 @@ const redirectToMainAuth = (path: string) => {
 };
 
 
-interface SlidePreviewCacheEntry {
-  slide: ComponentBasedSlide;
-  theme?: string;
-  deckTemplateVersion?: string;
-  timestamp: number;
-}
-
-const PREVIEW_CACHE_TTL_MS = 1000 * 60 * 5; // 5 minutes
-const slidePreviewCache = new Map<number, SlidePreviewCacheEntry>();
-
 // Generate color from string
 const stringToColor = (str: string): string => {
   let hash = 0;
@@ -245,15 +235,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const avatarColor = stringToColor(project.createdBy);
   const supportsSlidePreview = isSlidePreviewEligibleType(project.designMicroproductType);
 
-  const cachedPreview = slidePreviewCache.get(project.id);
   const [previewSlide, setPreviewSlide] = useState<ComponentBasedSlide | null>(
-    project.previewSlide || cachedPreview?.slide || null
+    project.previewSlide || null
   );
   const [previewTheme, setPreviewTheme] = useState<string | undefined>(
-    project.previewTheme || cachedPreview?.theme
+    project.previewTheme
   );
   const [previewDeckVersion, setPreviewDeckVersion] = useState<string | undefined>(
-    project.previewDeckTemplateVersion || cachedPreview?.deckTemplateVersion
+    project.previewDeckTemplateVersion
   );
 
   const loadSlidesFromBackend = supportsSlidePreview;
@@ -297,21 +286,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
     let isMounted = true;
     const controller = new AbortController();
-    const cachedEntry = slidePreviewCache.get(project.id);
-
-    if (cachedEntry) {
-      setPreviewSlide((prev) => prev || cachedEntry.slide);
-      setPreviewTheme((prev) => prev || cachedEntry.theme);
-      setPreviewDeckVersion((prev) => prev || cachedEntry.deckTemplateVersion);
-      const isCacheFresh = Date.now() - cachedEntry.timestamp < PREVIEW_CACHE_TTL_MS;
-      if (isCacheFresh) {
-        return () => {
-          isMounted = false;
-          controller.abort();
-        };
-      }
-    }
-
     const fetchSlidePreview = async () => {
       try {
         const CUSTOM_BACKEND_URL =
@@ -328,13 +302,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           const nextSlide = slides[0] as ComponentBasedSlide;
           const nextTheme = data?.details?.theme;
           const nextDeckVersion = data?.details?.templateVersion || data?.details?.deckTemplateVersion;
-
-          slidePreviewCache.set(project.id, {
-            slide: nextSlide,
-            theme: nextTheme,
-            deckTemplateVersion: nextDeckVersion,
-            timestamp: Date.now(),
-          });
 
           setPreviewSlide(nextSlide);
           setPreviewTheme(nextTheme);
