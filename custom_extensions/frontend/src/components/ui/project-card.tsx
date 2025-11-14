@@ -592,8 +592,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         className="block h-full"
       >
         {hasSlidePreview && previewSlide ? (
-          <div className="h-40 rounded-t-md bg-white px-3 py-3 flex flex-col gap-2 border-b border-gray-100">
-            <div className="flex justify-end">
+          <div className="h-40 rounded-t-md bg-white flex flex-col gap-2 border-b border-gray-100">
+            <div className="flex z-10 absolute top-2 right-2 justify-end">
               <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-sm px-1.5 py-1.5 border border-gray-200">
                 {project.isPrivate ? (
                   <Lock size={18} strokeWidth={1.5} className="text-gray-600" />
@@ -618,6 +618,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   isEditable={false}
                   theme={previewTheme}
                   deckTemplateVersion={previewDeckVersion}
+                  forceHybridView
                 />
               </div>
             </div>
