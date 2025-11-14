@@ -342,6 +342,8 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
   const viewModeScale = isViewMode
     ? Math.min(1, viewModeSlideWidth / VIEW_MODE_CANVAS_WIDTH)
     : 1;
+  const scaledWidth = isViewMode ? viewModeSlideWidth : undefined;
+  const scaledHeight = isViewMode ? VIEW_MODE_CANVAS_HEIGHT * viewModeScale : undefined;
 
   return (
     <>
@@ -515,7 +517,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
           className={`flex-1 bg-[#F2F2F4] ${shouldCenterView ? 'w-full flex justify-center' : ''}`}
           ref={scrollContainerRef}
         >
-          <div className={`space-y-8 ${isViewMode ? 'px-0 w-full flex flex-col items-center pb-4' : 'px-6 pb-4'}`}>
+          <div className={`space-y-2 lg:space-y-8 ${isViewMode ? 'px-0 w-full flex flex-col items-center pb-4' : 'px-6 pb-4'}`}>
             {deck.slides.map((slide, index) => {
               const isActive = slide.slideId === selectedSlideId;
               const isHovered = editingEnabled && hoveredSlideId === slide.slideId;
@@ -530,7 +532,10 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                     onMouseLeave={editingEnabled ? () => setHoveredSlideId(null) : undefined}
                   >
                     <div className="w-full max-w-6xl">
-                      <div className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}>
+                      <div
+                        className={`border border-[#CCCCCC] rounded-md relative ${isViewMode ? 'bg-[#F2F2F4]' : ''}`}
+                        style={isViewMode ? { height: scaledHeight } : undefined}
+                      >
                         {/* Three dots menu button - appears on hover at top left */}
                         {editingEnabled && isHovered && (
                           <div className="absolute top-2 left-2 z-40">
@@ -582,10 +587,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                             </button>
                           </div>
                         )}
-                        {isViewMode ? (() => {
-                          const scaledWidth = viewModeSlideWidth;
-                          const scaledHeight = VIEW_MODE_CANVAS_HEIGHT * viewModeScale;
-                          return (
+                        {isViewMode ? (
                           <div
                             className="presentation-viewer-slide rounded-lg"
                             style={{
@@ -617,8 +619,7 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
                               </div>
                             </div>
                           </div>
-                          );
-                        })() : (
+                        ) : (
                           <ComponentBasedSlideRenderer
                             slide={slide}
                             isEditable={editingEnabled}
