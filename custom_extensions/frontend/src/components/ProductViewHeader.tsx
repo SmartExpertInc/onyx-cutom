@@ -412,6 +412,8 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const renderExportControl = () => {
     if (!currentIsAuthorized) return null;
 
+    const exportFontSize = useMobileLinkViewLayout ? localizedSecondaryButtonFontSize : actionButtonFontSize;
+
     return (
       <div className="relative">
         <button
@@ -423,7 +425,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
             backgroundColor: '#FFFFFF',
             color: '#0F58F9',
             border: '1px solid #0F58F9',
-            fontSize: actionButtonFontSize,
+            fontSize: exportFontSize,
             lineHeight: '140%',
             letterSpacing: '0.05em',
             height: `${actionButtonHeight}px`,
@@ -466,7 +468,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         backgroundColor: currentIsAuthorized ? '#0F58F9' : '#FFFFFF',
         color: currentIsAuthorized ? '#FFFFFF' : '#0F58F9',
         border: '1px solid #0F58F9',
-        fontSize: localizedSecondaryButtonFontSize,
+        fontSize: useMobileLinkViewLayout ? localizedSecondaryButtonFontSize : actionButtonFontSize,
         lineHeight: '140%',
         letterSpacing: '0.05em',
         height: `${actionButtonHeight}px`,
@@ -488,7 +490,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         backgroundColor: '#0F58F9',
         color: '#FFFFFF',
         border: '1px solid #0F58F9',
-        fontSize: actionButtonFontSize,
+        fontSize: useMobileLinkViewLayout ? localizedSecondaryButtonFontSize : actionButtonFontSize,
         lineHeight: '140%',
         letterSpacing: '0.05em',
         height: `${actionButtonHeight}px`,

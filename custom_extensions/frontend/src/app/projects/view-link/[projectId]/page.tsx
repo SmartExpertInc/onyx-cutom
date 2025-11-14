@@ -267,7 +267,7 @@ export default function ProjectInstanceViewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { projectId } = params || {};
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { isEnabled: scormEnabled } = useFeaturePermission('export_scorm_2004');
   const [showMobileExportMenu, setShowMobileExportMenu] = useState(false);
   const mobileExportMenuRef = useRef<HTMLDivElement | null>(null);
@@ -2153,7 +2153,7 @@ export default function ProjectInstanceViewPage() {
     projectInstanceData?.component_name === COMPONENT_NAME_VIDEO_PRODUCT;
   const showMobileAuthorizedActions = Boolean(isAuthorized && isLinkViewProduct);
 
-  const mobileActionButtonFontSize = '14px';
+  const mobileActionButtonFontSize = language === 'en' ? '14px' : '11px';
   const mobileActionButtonHeight = 44;
   const mobileActionButtonPadding = {
     paddingLeft: '16px',
