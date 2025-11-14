@@ -248,6 +248,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const canShowDraftButton = shouldShowLinkButtons && currentIsAuthorized && (isPresentation || isVideoProduct);
   const showDraftButton = canShowDraftButton && !useMobileLinkViewLayout;
   const actionButtonFontSize = '14px';
+  const localizedSecondaryButtonFontSize = language === 'en' ? actionButtonFontSize : '11px';
   const actionButtonHeight = useMobileLinkViewLayout ? 44 : 36;
   const actionButtonWidth = useMobileLinkViewLayout ? 138 : undefined;
   const actionButtonPadding = {
@@ -393,7 +394,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         backgroundColor: '#FFFFFF',
         color: '#171718',
         border: '1px solid #171718',
-        fontSize: actionButtonFontSize,
+        fontSize: localizedSecondaryButtonFontSize,
         lineHeight: '140%',
         letterSpacing: '0.05em',
         height: `${actionButtonHeight}px`,
@@ -465,7 +466,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
         backgroundColor: currentIsAuthorized ? '#0F58F9' : '#FFFFFF',
         color: currentIsAuthorized ? '#FFFFFF' : '#0F58F9',
         border: '1px solid #0F58F9',
-        fontSize: actionButtonFontSize,
+        fontSize: localizedSecondaryButtonFontSize,
         lineHeight: '140%',
         letterSpacing: '0.05em',
         height: `${actionButtonHeight}px`,
