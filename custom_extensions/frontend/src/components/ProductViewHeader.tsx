@@ -591,7 +591,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   }
 
   return (
-    <header className="sticky top-0 z-50 h-[120px] md:h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
+    <header className="sticky top-0 z-50 h-[120px] md:h-16 bg-white flex flex-row justify-between items-center gap-4 py-3 md:py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
         <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-y-2 gap-x-4 text-left">
           <div className="flex flex-row w-full md:w-auto justify-between">{renderHomeButton()}
