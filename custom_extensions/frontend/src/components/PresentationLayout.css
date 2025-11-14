@@ -99,30 +99,14 @@
 }
 
 .presentation-view .presentation-viewer-slide {
-  width: min(100%, var(--slide-width));
-  max-width: var(--slide-width);
+  width: min(100%, var(--slide-width), calc(100vw - 24px));
+  max-width: min(var(--slide-width), calc(100vw - 24px));
   margin: 0 auto;
   background: #F2F2F4;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-.presentation-view .presentation-viewer-slide .positioning-enabled-slide {
-  width: 100%;
-  height: 100%;
-}
-
-.presentation-view .presentation-viewer-slide {
-  width: min(100%, var(--slide-width, 1152px));
-  max-width: min(1152px, var(--available-width, 1152px));
-  margin: 0 auto;
-  overflow: hidden;
-  background: #F2F2F4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .presentation-view .presentation-viewer-slide .positioning-enabled-slide {
