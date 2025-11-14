@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ComponentBasedSlideDeck, ComponentBasedSlide } from '@/types/slideTemplates';
 import { ChevronLeft, ChevronRight, Plus, FileText, Clipboard, ChevronDown, X, Sparkles, ChevronDown as ArrowDown, MoreVertical, Copy, Trash2 } from 'lucide-react';
 import { ComponentBasedSlideRenderer } from './ComponentBasedSlideRenderer';
@@ -108,46 +108,43 @@ const PresentationLayout: React.FC<PresentationLayoutProps> = ({
 
   const viewModeScale = Math.min(1, viewModeSlideWidth / VIEW_MODE_MAX_WIDTH);
 
-  const registerSlideNode = useCallback(
-    (slideId: string) => (node: HTMLDivElement | null) => {
-      const observers = slideResizeObservers.current;
-      const existingObserver = observers.get(slideId);
-      if (existingObserver) {
-        existingObserver.disconnect();
-        observers.delete(slideId);
-      }
+  const registerSlideNode = (slideId: string) => (node: HTMLDivElement | null) => {
+    const observers = slideResizeObservers.current;
+    const existingObserver = observers.get(slideId);
+    if (existingObserver) {
+      existingObserver.disconnect();
+      observers.delete(slideId);
+    }
 
-      if (!node) {
-        setSlideHeights(prev => {
-          if (!(slideId in prev)) return prev;
-          const { [slideId]: _, ...rest } = prev;
-          return rest;
-        });
-        return;
-      }
+    if (!node) {
+      setSlideHeights(prev => {
+        if (!(slideId in prev)) return prev;
+        const { [slideId]: _, ...rest } = prev;
+        return rest;
+      });
+      return;
+    }
 
-      const measureHeight = () => {
-        const height = node.getBoundingClientRect().height || 0;
-        setSlideHeights(prev => {
-          if (Math.abs((prev[slideId] || 0) - height) < 1) {
-            return prev;
-          }
-          return { ...prev, [slideId]: height };
-        });
-      };
+    const measureHeight = () => {
+      const height = node.getBoundingClientRect().height || 0;
+      setSlideHeights(prev => {
+        if (Math.abs((prev[slideId] || 0) - height) < 1) {
+          return prev;
+        }
+        return { ...prev, [slideId]: height };
+      });
+    };
 
-      measureHeight();
+    measureHeight();
 
-      if (typeof window !== 'undefined' && typeof ResizeObserver !== 'undefined') {
-        const observer = new ResizeObserver(() => {
-          measureHeight();
-        });
-        observer.observe(node);
-        observers.set(slideId, observer);
-      }
-    },
-    []
-  );
+    if (typeof window !== 'undefined' && typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() => {
+        measureHeight();
+      });
+      observer.observe(node);
+      observers.set(slideId, observer);
+    }
+  };
 
   useEffect(() => {
     return () => {
