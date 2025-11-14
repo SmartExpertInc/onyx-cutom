@@ -37,9 +37,9 @@ const CommentsForGeneratedProduct = ({
       {isAuthorized ? (
         <>
           {/* Search bar and Filter button */}
-          <div className="flex flex-col gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2 lg:gap-3 mb-4">
             {/* Search bar */}
-            <div className="relative w-full lg:w-[270px]">
+            <div className="relative flex-1 min-w-0">
               <input
                 type="text"
                 placeholder="Search comments"
@@ -53,7 +53,7 @@ const CommentsForGeneratedProduct = ({
             </div>
 
             {/* Filter button */}
-            <div className="relative" ref={filterDropdownRef}>
+            <div className="relative flex-shrink-0" ref={filterDropdownRef}>
               <button
                 onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
                 className="flex items-center gap-2 px-3 text-xs text-[#878787] bg-white border border-[#CCCCCC] rounded-md hover:bg-gray-50 transition-colors whitespace-nowrap cursor-pointer h-[44px] lg:h-[38px]"
