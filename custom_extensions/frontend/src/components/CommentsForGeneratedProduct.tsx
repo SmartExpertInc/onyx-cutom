@@ -37,13 +37,13 @@ const CommentsForGeneratedProduct = ({
       {isAuthorized ? (
         <>
           {/* Search bar and Filter button */}
-          <div className="flex justify-between mb-4">
+          <div className="flex flex-col gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between">
             {/* Search bar */}
-            <div className="w-[270px] relative">
+            <div className="relative w-full lg:w-[270px]">
               <input
                 type="text"
                 placeholder="Search comments"
-                className="w-full pl-8 pr-3 py-2 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-md focus:outline-none focus:border-[#CCCCCC]"
+                className="w-full h-[44px] lg:h-[38px] pl-8 pr-3 text-xs text-[#171718] placeholder-[#878787] bg-white border border-[#CCCCCC] rounded-md focus:outline-none focus:border-[#CCCCCC]"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2">
                 <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -56,7 +56,7 @@ const CommentsForGeneratedProduct = ({
             <div className="relative" ref={filterDropdownRef}>
               <button
                 onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-2 text-xs text-[#878787] bg-white border border-[#CCCCCC] rounded-md hover:bg-gray-50 transition-colors whitespace-nowrap cursor-pointer"
+                className="flex items-center gap-2 px-3 text-xs text-[#878787] bg-white border border-[#CCCCCC] rounded-md hover:bg-gray-50 transition-colors whitespace-nowrap cursor-pointer h-[44px] lg:h-[38px]"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10.1328 9.0332C11.1811 9.0332 12.0569 9.77787 12.2568 10.7676L12.3438 11.1992L12.2568 11.6309C12.0569 12.6206 11.1812 13.3662 10.1328 13.3662C9.08455 13.3661 8.20964 12.6206 8.00977 11.6309L7.92188 11.1992L8.00977 10.7676C8.20972 9.77798 9.08462 9.03333 10.1328 9.0332ZM10.1328 9.09961C8.97322 9.09975 8.03334 10.0396 8.0332 11.1992C8.0332 12.3589 8.97312 13.2997 10.1328 13.2998C11.2926 13.2998 12.2334 12.359 12.2334 11.1992C12.2333 10.0395 11.2925 9.09961 10.1328 9.09961ZM1.59961 11.166H7.4707L7.80566 11.1992L7.4707 11.2324H1.59961C1.58129 11.2324 1.56641 11.2176 1.56641 11.1992C1.56655 11.181 1.58138 11.1661 1.59961 11.166ZM12.7959 11.166H14.3994C14.4177 11.166 14.4325 11.181 14.4326 11.1992C14.4326 11.2176 14.4178 11.2324 14.3994 11.2324H12.7959L12.46 11.1992L12.7959 11.166ZM5.86621 2.63281C6.91458 2.63281 7.79034 3.37836 7.99023 4.36816L8.07617 4.79883L7.99023 5.23145C7.79027 6.22116 6.91452 6.96582 5.86621 6.96582C4.81796 6.96573 3.94211 6.22113 3.74219 5.23145L3.65527 4.79883L3.74219 4.36816C3.94207 3.37842 4.81792 2.63291 5.86621 2.63281ZM5.86621 2.69922C4.7065 2.69932 3.7666 3.64007 3.7666 4.7998C3.76678 5.95939 4.70661 6.89931 5.86621 6.89941C7.0259 6.89941 7.96662 5.95946 7.9668 4.7998C7.9668 3.64 7.02601 2.69922 5.86621 2.69922ZM1.59961 4.7666H3.2041L3.53906 4.79883L3.2041 4.83301H1.59961C1.58137 4.83294 1.56658 4.81802 1.56641 4.7998C1.56641 4.78144 1.58126 4.76667 1.59961 4.7666ZM8.5293 4.7666H14.3994C14.4178 4.7666 14.4326 4.78142 14.4326 4.7998C14.4324 4.81803 14.4177 4.83301 14.3994 4.83301H8.5293L8.19238 4.79883L8.5293 4.7666Z" fill="#878787" stroke="#878787"/>
@@ -170,9 +170,13 @@ const CommentsForGeneratedProduct = ({
           
           {/* Text */}
           <p className="text-center text-[#171718] text-base lg:font-medium leading-tight">
-            Comments are only available for
-            <span className="lg:hidden"> workspace members</span>
-            <span className="hidden lg:inline"> <br />workspace members</span>
+            Comments are only available for workspace
+            <span className="lg:hidden">
+              <br />members
+            </span>
+            <span className="hidden lg:inline">
+              <br />members
+            </span>
           </p>
           
           {/* Sign up button */}

@@ -2302,7 +2302,7 @@ export default function ProjectInstanceViewPage() {
             </div>
           </div>
           {showMobileAuthorizedActions && (
-            <div className="lg:hidden mt-3">
+            <div className="lg:hidden my-2">
               <div className="flex w-full gap-2">
                 <div className="relative flex-1 min-w-0">
                   <button
@@ -2374,7 +2374,7 @@ export default function ProjectInstanceViewPage() {
               </div>
             </div>
           )}
-          <aside className="flex flex-col gap-6 -mx-3 -mb-3 lg:mx-0 lg:mb-0">
+          <aside className="flex flex-col gap-0 lg:gap-6 -mx-3 -mb-3 lg:mx-0 lg:mb-0">
             <div className="flex flex-col flex-none h-[500px] lg:h-[550px]">
               <CommentsForGeneratedProduct isAuthorized={isAuthorized} />
             </div>
