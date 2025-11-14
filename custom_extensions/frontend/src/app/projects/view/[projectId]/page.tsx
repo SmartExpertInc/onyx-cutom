@@ -268,6 +268,7 @@ export default function ProjectInstanceViewPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [wasEdited, setWasEdited] = useState(false);
   const [editableData, setEditableData] = useState<MicroProductContentData>(null);
   const [isSaving, setIsSaving] = useState(false);
   const lastSavedDataRef = useRef<MicroProductContentData | null>(null);
@@ -1109,7 +1110,7 @@ export default function ProjectInstanceViewPage() {
     }
 
     // Track product editor used if this is the first save
-    if (!lastSavedDataRef.current) {
+    if (!wasEdited) {
       trackProductEditorUsed();
     }
 
@@ -1207,6 +1208,7 @@ export default function ProjectInstanceViewPage() {
       }
       console.log('💾 [SAVE SUCCESS] Save completed, refetching data...');
       setIsEditing(false);
+      setWasEdited(true);
       // Update the last saved data reference after successful manual save
       lastSavedDataRef.current = JSON.parse(JSON.stringify(processedEditableData));
       await fetchPageData(projectId);
@@ -1238,7 +1240,7 @@ export default function ProjectInstanceViewPage() {
     }
 
     // Track product editor used if this is the first save
-    if (!lastSavedDataRef.current) {
+    if (!wasEdited) {
       trackProductEditorUsed();
     }
     
@@ -1405,6 +1407,7 @@ export default function ProjectInstanceViewPage() {
 
         // Update the last saved data reference after successful save
         lastSavedDataRef.current = JSON.parse(JSON.stringify(editableData));
+        setWasEdited(true);
 
         // NEW: Refresh products list to update names after rename propagation
         try {
