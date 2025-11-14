@@ -653,7 +653,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
                   className="py-3 flex flex-col gap-3 sm:flex-row sm:items-start"
                 >
                   <div className="flex items-start gap-2 flex-1">
-                    <span className="w-4 h-4 rounded-full bg-[#0F58F9] text-white text-xs font-semibold flex items-center justify-center">
+                    <span className="w-4 h-4 mt-2 rounded-full bg-[#0F58F9] text-white text-xs font-semibold flex items-center justify-center">
                       {promptIndex + 1}
                     </span>
                     <p className="text-[#1C1D2A] text-regular leading-relaxed">
@@ -1116,14 +1116,14 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
           </div>
         </div>
 
-      <div className="hidden md:block space-y-6">
+      <div className="space-y-6">
         {questions.map((question, index) => renderQuestion(question, index))}
           
           {/* Add Question Button with Dropdown */}
           <div className="flex justify-center mt-8 relative" ref={questionTypeMenuRef}>
             <button
               onClick={() => setShowQuestionTypeMenu(!showQuestionTypeMenu)}
-              className="flex text-sm w-full font-medium items-center justify-center gap-2 px-6 py-4 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
+              className="hidden md:flex text-sm w-full font-medium items-center justify-center gap-2 px-6 py-4 bg-white border border-[#E0E0E0] rounded-lg text-[#498FFF] hover:bg-gray-50 transition-colors"
             >
               <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M7.79167 0.5V17.0333M0.5 8.76667H15.0833" stroke="#498FFF" stroke-linecap="round" stroke-linejoin="round"/>

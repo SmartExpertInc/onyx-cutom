@@ -262,7 +262,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
                 })()}
               </h1>
-              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isMobileViewport) && (
+              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isQuiz && isMobileViewport) && (
                 <>
                   <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -299,7 +299,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   </div>
                 </>
               )}
-              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isMobileViewport) && (
+              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isQuiz && isMobileViewport) && (
                 <>
                   <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <div className="flex items-center">
