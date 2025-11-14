@@ -283,19 +283,25 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           top: 0,
           width: '220px',
           height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingTop: '15%',
-          paddingBottom: '25%',
           zIndex: 10
         }}>
           {challengeItems.map((item: string, index: number) => {
+            // Align with image: first at top (0%), second at center (50%), third at bottom (100%)
+            const positions = [
+              { top: '0%', transform: 'translate(-50%, 0)' },   // Top level - aligned with top of image
+              { top: '50%', transform: 'translate(-50%, -50%)' }, // Center level - aligned with center of image
+              { top: '100%', transform: 'translate(-50%, -100%)' }  // Bottom level - aligned with bottom of image
+            ];
+            const pos = positions[index] || positions[0];
+            
             return (
               <div key={index} data-draggable="true" style={{
+                position: 'absolute',
+                top: pos.top,
                 width: '100%',
-                display: 'inline-block'
+                display: 'inline-block',
+                left: '50%',
+                transform: pos.transform
               }}>
                 {editingChallengeItems[index] ? (
                   <WysiwygEditor
@@ -361,19 +367,25 @@ const ChallengesSolutionsTemplate: React.FC<ChallengesSolutionsTemplateProps & P
           top: 0,
           width: '220px',
           height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingTop: '15%',
-          paddingBottom: '25%',
           zIndex: 10
         }}>
           {solutionItems.map((item: string, index: number) => {
+            // Align with image: first at top (0%), second at center (50%), third at bottom (100%)
+            const positions = [
+              { top: '0%', transform: 'translate(-50%, 0)' },   // Top level - aligned with top of image
+              { top: '50%', transform: 'translate(-50%, -50%)' }, // Center level - aligned with center of image
+              { top: '100%', transform: 'translate(-50%, -100%)' }  // Bottom level - aligned with bottom of image
+            ];
+            const pos = positions[index] || positions[0];
+            
             return (
               <div key={index} data-draggable="true" style={{
+                position: 'absolute',
+                top: pos.top,
                 width: '100%',
-                display: 'inline-block'
+                display: 'inline-block',
+                left: '50%',
+                transform: pos.transform
               }}>
                 {editingSolutionItems[index] ? (
                   <WysiwygEditor
