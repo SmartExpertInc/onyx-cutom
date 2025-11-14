@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom';
 import { ZoomIn, ZoomOut, Check, X, Video, Play, Pause, Scissors } from 'lucide-react';
 import Moveable from 'react-moveable';
-import TrimVideoModal from '@/app/projects-2-new/view/components/TrimVideoModal';
 
 // Enhanced debug logging utility
 const DEBUG = typeof window !== 'undefined' && ((window as any).__MOVEABLE_DEBUG__ || true);
@@ -27,6 +26,7 @@ export interface VideoEditModalProps {
   onDoNotCrop: (originalVideoPath: string) => void;
   onCancel: () => void;
   onTrimComplete?: (trimmedVideoPath: string) => void; // Optional callback for trimmed video
+  onOpenTrimModal?: () => void; // ✅ NEW: Callback to open trim modal in parent component
 }
 
 export interface VideoCropSettings {
@@ -60,10 +60,10 @@ const VideoEditModal: React.FC<VideoEditModalProps> = ({
   onDoNotCrop,
   onCancel,
   onTrimComplete,
+  onOpenTrimModal,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
-  const [showTrimModal, setShowTrimModal] = useState(false);
   const [editState, setEditState] = useState<VideoEditState>({
     videoUrl: '',
     scale: 1,
@@ -727,9 +727,18 @@ const VideoEditModal: React.FC<VideoEditModalProps> = ({
                   hasVideoPath: !!videoPath,
                   videoFileName: videoFile?.name,
                   videoPathValue: videoPath,
-                  editStateVideoUrl: editState.videoUrl
+                  editStateVideoUrl: editState.videoUrl,
+                  hasOnOpenTrimModal: !!onOpenTrimModal
                 });
-                setShowTrimModal(true);
+                // ✅ NEW: Call parent callback if provided, otherwise fallback to local state
+                if (onOpenTrimModal) {
+                  onOpenTrimModal();
+                } else {
+                  // Fallback: log warning (should not happen in normal flow)
+                  log('VideoEditModal', 'openTrimModal_noCallback', {
+                    warning: 'onOpenTrimModal callback not provided'
+                  });
+                }
               }}
               className="flex items-center space-x-2 px-4 py-2 text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium"
               disabled={isProcessing}
@@ -859,33 +868,7 @@ const VideoEditModal: React.FC<VideoEditModalProps> = ({
   return (
     <>
       {createPortal(modalContent, portalContainer)}
-      
-      {/* Trim Video Modal */}
-      <TrimVideoModal
-        isOpen={showTrimModal}
-        onClose={() => {
-          log('VideoEditModal', 'closeTrimModal', {});
-          setShowTrimModal(false);
-        }}
-        videoFile={videoFile}
-        videoPath={videoPath || editState.videoUrl || undefined}
-        onTrimConfirm={(trimmedVideoPath) => {
-          log('VideoEditModal', 'trimComplete', { trimmedVideoPath });
-          // Update video path and close trim modal
-          // If onTrimComplete callback exists, use it; otherwise update local state
-          if (onTrimComplete) {
-            onTrimComplete(trimmedVideoPath);
-          } else {
-            // Update the video URL to the trimmed version
-            setEditState(prev => ({
-              ...prev,
-              videoUrl: trimmedVideoPath,
-              hasChanges: true
-            }));
-          }
-          setShowTrimModal(false);
-        }}
-      />
+      {/* ✅ TrimVideoModal is now rendered in ClickableImagePlaceholder */}
     </>
   );
 };

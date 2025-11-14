@@ -10,6 +10,7 @@ import ImageChoiceModal from './ImageChoiceModal';
 import Moveable from 'react-moveable';
 import ImageEditModal from './ImageEditModal';
 import VideoEditModal from './VideoEditModal';
+import TrimVideoModal from '@/app/projects-2-new/view/components/TrimVideoModal';
 import { useLanguage } from '../contexts/LanguageContext';
 
 // ✅ REMOVED: Global context menu management - replaced with inline buttons!
@@ -94,6 +95,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
   const [showVideoEditModal, setShowVideoEditModal] = useState(false);
   const [pendingVideoFile, setPendingVideoFile] = useState<File | null>(null);
   const [pendingVideoPath, setPendingVideoPath] = useState<string | undefined>(undefined);
+  
+  // ✅ NEW: Trim video modal state
+  const [showTrimModal, setShowTrimModal] = useState(false);
 
   // ✅ NEW: AI Generation modal state
   const [showAIGenerationModal, setShowAIGenerationModal] = useState(false);
@@ -754,6 +758,33 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setPendingVideoPath(undefined);
   }, [elementId, instanceId]);
 
+  // ✅ NEW: Handle opening trim modal from VideoEditModal
+  const handleOpenTrimModal = useCallback(() => {
+    log('ClickableImagePlaceholder', 'openTrimModal', {
+      elementId,
+      instanceId,
+      hasVideoFile: !!pendingVideoFile,
+      hasVideoPath: !!pendingVideoPath,
+      displayedImage
+    });
+    setShowTrimModal(true);
+  }, [elementId, instanceId, pendingVideoFile, pendingVideoPath, displayedImage]);
+
+  // ✅ NEW: Handle trim completion
+  const handleTrimComplete = useCallback((trimmedVideoPath: string) => {
+    log('ClickableImagePlaceholder', 'trimComplete', {
+      elementId,
+      instanceId,
+      trimmedVideoPath
+    });
+    // Update the displayed video and save
+    setDisplayedImage(trimmedVideoPath);
+    onImageUploaded(trimmedVideoPath);
+    setShowTrimModal(false);
+    // Also close VideoEditModal if it's still open
+    setShowVideoEditModal(false);
+  }, [elementId, instanceId, onImageUploaded]);
+
   // Finalize image upload
   const finalizeImageUpload = useCallback(async (imagePath: string) => {
     log('ClickableImagePlaceholder', 'finalizeImageUpload', {
@@ -992,6 +1023,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
           onConfirmCrop={handleVideoConfirmCrop}
           onDoNotCrop={handleVideoDoNotCrop}
           onCancel={handleVideoModalCancel}
+          onOpenTrimModal={handleOpenTrimModal}
+        />
+
+        {/* ✅ NEW: Trim Video Modal */}
+        <TrimVideoModal
+          isOpen={showTrimModal}
+          onClose={() => setShowTrimModal(false)}
+          videoFile={pendingVideoFile}
+          videoPath={pendingVideoPath || displayedImage}
+          onTrimConfirm={handleTrimComplete}
         />
 
         {/* ✅ NEW: AI Image Generation Modal */}
@@ -1104,6 +1145,16 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         onConfirmCrop={handleVideoConfirmCrop}
         onDoNotCrop={handleVideoDoNotCrop}
         onCancel={handleVideoModalCancel}
+        onOpenTrimModal={handleOpenTrimModal}
+      />
+
+      {/* ✅ NEW: Trim Video Modal */}
+      <TrimVideoModal
+        isOpen={showTrimModal}
+        onClose={() => setShowTrimModal(false)}
+        videoFile={pendingVideoFile}
+        videoPath={pendingVideoPath || displayedImage}
+        onTrimConfirm={handleTrimComplete}
       />
 
       {/* ✅ NEW: AI Image Generation Modal for placeholder */}
