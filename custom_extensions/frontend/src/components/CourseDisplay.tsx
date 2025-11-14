@@ -291,7 +291,7 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                     opacity: isCollapsed ? 0 : 1
                   }}
                 >
-                  <div className="pb-[25px] px-2 sm:px-[40px] pt-0">
+                  <div className="px-2 sm:px-[40px] pt-0 pb-2 sm:pb-[25px]">
                     <div
                       className="grid gap-4 items-center px-[25px] py-[10px] mx-[-25px]"
                       style={{ gridTemplateColumns: `1fr${columnVideoLessonEnabled ? ' 100px' : ''} 100px 100px 100px` }}
