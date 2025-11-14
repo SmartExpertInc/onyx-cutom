@@ -727,8 +727,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onImageUploaded(processedVideoPath);
     setDisplayedImage(processedVideoPath);
     setShowVideoEditModal(false);
-    setPendingVideoFile(null);
-    setPendingVideoPath(undefined);
+    // ✅ DON'T clear video source immediately - keep it for TrimVideoModal
+    // Update pendingVideoPath to the processed path so TrimVideoModal can use it
+    setPendingVideoPath(processedVideoPath);
+    // Keep pendingVideoFile if it exists (for trimming original file)
+    // setPendingVideoFile(null); // ❌ Removed - keep for trim modal
   }, [onImageUploaded, elementId, instanceId]);
 
   // ✅ NEW: Handle video edit modal do not crop
@@ -742,8 +745,11 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     onImageUploaded(originalVideoPath);
     setDisplayedImage(originalVideoPath);
     setShowVideoEditModal(false);
-    setPendingVideoFile(null);
-    setPendingVideoPath(undefined);
+    // ✅ DON'T clear video source immediately - keep it for TrimVideoModal
+    // Update pendingVideoPath to the original path so TrimVideoModal can use it
+    setPendingVideoPath(originalVideoPath);
+    // Keep pendingVideoFile if it exists (for trimming original file)
+    // setPendingVideoFile(null); // ❌ Removed - keep for trim modal
   }, [onImageUploaded, elementId, instanceId]);
 
   // ✅ NEW: Handle video edit modal cancel
@@ -754,9 +760,13 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     });
 
     setShowVideoEditModal(false);
-    setPendingVideoFile(null);
-    setPendingVideoPath(undefined);
-  }, [elementId, instanceId]);
+    // ✅ Only clear video source if TrimVideoModal is also closed
+    // This allows user to cancel VideoEditModal but still trim the video
+    if (!showTrimModal) {
+      setPendingVideoFile(null);
+      setPendingVideoPath(undefined);
+    }
+  }, [elementId, instanceId, showTrimModal]);
 
   // ✅ NEW: Handle opening trim modal from VideoEditModal
   const handleOpenTrimModal = useCallback(() => {
@@ -783,6 +793,9 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
     setShowTrimModal(false);
     // Also close VideoEditModal if it's still open
     setShowVideoEditModal(false);
+    // ✅ NOW clear the video source since we're done with all editing
+    setPendingVideoFile(null);
+    setPendingVideoPath(undefined);
   }, [elementId, instanceId, onImageUploaded]);
 
   // Finalize image upload
@@ -1029,7 +1042,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
         {/* ✅ NEW: Trim Video Modal */}
         <TrimVideoModal
           isOpen={showTrimModal}
-          onClose={() => setShowTrimModal(false)}
+          onClose={() => {
+            setShowTrimModal(false);
+            // ✅ Clear video source when TrimVideoModal closes (if VideoEditModal is also closed)
+            if (!showVideoEditModal) {
+              setPendingVideoFile(null);
+              setPendingVideoPath(undefined);
+            }
+          }}
           videoFile={pendingVideoFile}
           videoPath={pendingVideoPath || displayedImage}
           onTrimConfirm={handleTrimComplete}
@@ -1151,7 +1171,14 @@ const ClickableImagePlaceholder: React.FC<ClickableImagePlaceholderProps> = ({
       {/* ✅ NEW: Trim Video Modal */}
       <TrimVideoModal
         isOpen={showTrimModal}
-        onClose={() => setShowTrimModal(false)}
+        onClose={() => {
+          setShowTrimModal(false);
+          // ✅ Clear video source when TrimVideoModal closes (if VideoEditModal is also closed)
+          if (!showVideoEditModal) {
+            setPendingVideoFile(null);
+            setPendingVideoPath(undefined);
+          }
+        }}
         videoFile={pendingVideoFile}
         videoPath={pendingVideoPath || displayedImage}
         onTrimConfirm={handleTrimComplete}
