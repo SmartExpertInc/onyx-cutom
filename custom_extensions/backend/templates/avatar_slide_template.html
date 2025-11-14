@@ -6708,13 +6708,13 @@
 
         .introduction-data-analysis-slide .title-container {
             position: absolute;
-            right: 158px;
+            right: 290px;
             top: 135px;
             width: 645px;
         }
 
         .introduction-data-analysis-slide .title {
-            font-size: 84px;
+            font-size: 89px;
             color: #FFFFFF;
             line-height: 1.2;
             margin-bottom: 60px;
@@ -6725,9 +6725,9 @@
 
         .introduction-data-analysis-slide .icon-frame {
             position: absolute;
-            right: 83px;
+            right: 208px;
             top: 420px;
-            width: 717px;
+            width: 725px;
             height: 473px;
             background: #FFFFFF;
             border-radius: 15px;
@@ -6911,6 +6911,944 @@
             color: #ffffff;
             font-size: 26px;
             font-weight: 300;
+        }
+
+        /* Connection Slide Template */
+        .connection-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #121212;
+            position: relative;
+            overflow: hidden;
+            color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .connection-slide .top-bar {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            min-height: 96px;
+            display: flex;
+            align-items: center;
+            padding: 38px 38px;
+            z-index: 2;
+        }
+
+        .connection-slide .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .connection-slide .logo-img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+        }
+
+        .connection-slide .logo-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .connection-slide .left-section {
+            padding: 132px 84px 210px 84px;
+            background-color: #E0E7FF;
+        }
+
+        .connection-slide .title {
+            font-size: 68px;
+            color: #09090B;
+            font-weight: 800;
+            margin-top: 8px;
+            margin-bottom: 30px;
+        }
+
+        .connection-slide .description {
+            font-size: 23px;
+            line-height: 1.5;
+            max-width: 570px;
+            color: #09090B;
+        }
+
+        .connection-slide .avatar-container {
+            margin-top: 162px;
+            background-color: #ffffff;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .connection-slide .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .connection-slide .right-section {
+            position: relative;
+            background-color: #1b1b1b;
+        }
+
+        .connection-slide .background-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.35);
+        }
+
+        .connection-slide .background-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(0deg, rgba(0,0,0,0.35), rgba(0,0,0,0.35));
+            pointer-events: none;
+        }
+
+        .connection-slide .venn-wrapper {
+            position: absolute;
+            right: 108px;
+            top: 144px;
+            width: 960px;
+            height: 960px;
+            z-index: 2;
+        }
+
+        .connection-slide .big-circle {
+            position: absolute;
+            right: 0;
+            top: 23px;
+            width: 660px;
+            height: 660px;
+            border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.35);
+            background-color: rgba(255,255,255,0.08);
+        }
+
+        .connection-slide .small-circle-left {
+            position: absolute;
+            width: 270px;
+            height: 270px;
+            border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.35);
+            background-color: rgba(255,255,255,0.06);
+            top: 225px;
+            left: 360px;
+        }
+
+        .connection-slide .small-circle-right {
+            position: absolute;
+            width: 270px;
+            height: 270px;
+            border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.35);
+            background-color: rgba(255,255,255,0.06);
+            top: 225px;
+            right: 60px;
+        }
+
+        .connection-slide .venn-labels {
+            position: absolute;
+            right: 108px;
+            top: 144px;
+            width: 960px;
+            height: 960px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .connection-slide .venn-label-culture {
+            position: absolute;
+            left: 59%;
+            top: 98px;
+            color: #FFFFFF;
+            opacity: 0.9;
+            font-size: 33px;
+            pointer-events: auto;
+            z-index: 3;
+        }
+
+        .connection-slide .venn-label-managers {
+            position: absolute;
+            left: 498px;
+            top: 360px;
+            transform: translate(-50%, -50%);
+            color: #e5e7eb;
+            font-size: 30px;
+            pointer-events: auto;
+            z-index: 3;
+        }
+
+        .connection-slide .venn-label-teams {
+            position: absolute;
+            right: 200px;
+            top: 360px;
+            transform: translate(50%, -50%);
+            color: #e5e7eb;
+            font-size: 30px;
+            pointer-events: auto;
+            z-index: 3;
+        }
+
+        .connection-slide .center-plus {
+            position: absolute;
+            left: 594px;
+            top: 326px;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background-color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+        }
+
+        .connection-slide .plus-horizontal {
+            width: 30px;
+            height: 5px;
+            background-color: #fff;
+            position: absolute;
+        }
+
+        .connection-slide .plus-vertical {
+            width: 5px;
+            height: 30px;
+            background-color: #fff;
+            position: absolute;
+        }
+
+        .connection-slide .footer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 98px;
+            background-color: #0D0D0D;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            border-top: 2px solid #2b2b2b;
+        }
+
+        .connection-slide .tab {
+            background-color: #0F58F9;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .connection-slide .tab-active {
+            border-top: 5px solid #ffffff;
+            background-color: #ffffff;
+            color: #0F58F9;
+            position: relative;
+        }
+
+        .connection-slide .tab-active-indicator {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -9px;
+            height: 5px;
+            background-color: #2563eb;
+            border-radius: 3px;
+        }
+
+        /* Change Management Tabs Slide Template */
+        .change-mgmt-tabs-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #E0E7FF;
+            color: #111827;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            padding-top: 198px;
+        }
+
+        .change-mgmt-tabs-slide .top-tabs-wrap {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 282px;
+            display: grid;
+            grid-template-rows: 71px 71px 71px 71px;
+        }
+
+        .change-mgmt-tabs-slide .tab-row {
+            display: flex;
+            align-items: center;
+            padding: 0 68px;
+            font-size: 30px;
+            letter-spacing: 0.5px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .change-mgmt-tabs-slide .tab-row-blue {
+            background: #0F58F9;
+            color: #FFFFFF;
+        }
+
+        .change-mgmt-tabs-slide .tab-row-white {
+            background: #FFFFFF;
+            color: #09090B;
+        }
+
+        .change-mgmt-tabs-slide .content {
+            position: absolute;
+            left: 84px;
+            right: 84px;
+            top: 330px;
+            bottom: 180px;
+        }
+
+        .change-mgmt-tabs-slide .avatar {
+            position: absolute;
+            left: -15px;
+            top: 15px;
+            width: 255px;
+            height: 255px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #0F58F9;
+        }
+
+        .change-mgmt-tabs-slide .avatar-img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+
+        .change-mgmt-tabs-slide .heading {
+            position: absolute;
+            left: 330px;
+            right: 84px;
+            top: 60px;
+            font-size: 68px;
+            font-weight: 500;
+            color: #2D2D2D;
+            line-height: 1.2;
+            font-family: "'Lora', serif";
+            white-space: pre-wrap;
+        }
+
+        .change-mgmt-tabs-slide .capsules-wrap {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 330px;
+            height: 165px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .change-mgmt-tabs-slide .capsule {
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #09090B;
+            font-size: 36px;
+            height: 100%;
+            background: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            z-index: 1;
+            width: 750px;
+            box-shadow: 0 6px 9px rgba(0, 0, 0, 0.1);
+        }
+
+        .change-mgmt-tabs-slide .capsule-active {
+            height: 83%;
+            background: #0F58F9;
+            color: #FFFFFF;
+            border: 24px solid #E0E7FF;
+            z-index: 10;
+            width: 600px;
+            margin-left: -90px;
+            margin-right: -90px;
+            box-shadow: none;
+        }
+
+        .change-mgmt-tabs-slide .logo-container {
+            position: absolute;
+            bottom: 30px;
+            right: 45px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .change-mgmt-tabs-slide .logo-img {
+            height: 45px;
+            max-width: 180px;
+            object-fit: contain;
+        }
+
+        .change-mgmt-tabs-slide .logo-placeholder {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .change-mgmt-tabs-slide .logo-circle {
+            width: 45px;
+            height: 45px;
+            border: 3px solid #09090B;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .change-mgmt-tabs-slide .logo-circle-h {
+            width: 18px;
+            height: 3px;
+            background-color: #09090B;
+            position: absolute;
+        }
+
+        .change-mgmt-tabs-slide .logo-circle-v {
+            width: 3px;
+            height: 18px;
+            background-color: #09090B;
+            position: absolute;
+        }
+
+        .change-mgmt-tabs-slide .logo-text {
+            font-size: 24px;
+            font-weight: 400;
+            color: #09090B;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .change-mgmt-tabs-slide .page-number-container {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .change-mgmt-tabs-slide .page-line {
+            width: 30px;
+            height: 2px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+
+        .change-mgmt-tabs-slide .page-number {
+            color: #09090B99;
+            font-size: 26px;
+            font-weight: 300;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Data Driven Insights Slide Template */
+        .data-driven-insights-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #E0E7FF;
+            color: #000000;
+            font-family: '"Inter", sans-serif';
+            position: relative;
+        }
+
+        .data-driven-insights-slide .tag {
+            position: absolute;
+            left: 60px;
+            top: 60px;
+            background: transparent;
+            color: #34353C;
+            padding: 12px 27px;
+            font-size: 26px;
+            border-radius: 30px;
+            border: 3px solid #000000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: '"Inter", sans-serif';
+        }
+
+        .data-driven-insights-slide .tag-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #0F58F9;
+        }
+
+        .data-driven-insights-slide .title-wrap {
+            position: absolute;
+            left: 60px;
+            top: 150px;
+            right: 720px;
+            width: 1170px;
+            min-height: 75px;
+        }
+
+        .data-driven-insights-slide .title {
+            font-size: 57px;
+            font-weight: 700;
+            color: #000000;
+            text-align: left;
+            margin-bottom: 24px;
+            font-family: 'serif';
+        }
+
+        .data-driven-insights-slide .desc-wrap {
+            position: absolute;
+            left: 60px;
+            top: 255px;
+            right: 630px;
+            min-height: 69px;
+        }
+
+        .data-driven-insights-slide .description {
+            width: 1005px;
+            color: #34353C;
+            font-size: 26px;
+            text-align: left;
+            line-height: 1.5;
+            font-family: '"Inter", sans-serif';
+        }
+
+        .data-driven-insights-slide .charts-wrap {
+            position: absolute;
+            left: 60px;
+            top: 405px;
+            right: 600px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .data-driven-insights-slide .panel {
+            background: #FFFFFF;
+            width: 533px;
+            height: 480px;
+            flex: 1;
+            padding: 15px 15px 5px 23px;
+            border-radius: 6px;
+            position: relative;
+            box-shadow: 0 6px 9px -1px rgba(0, 0, 0, 0.1), 0 3px 6px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .data-driven-insights-slide .chart-title {
+            color: #34353C;
+            font-size: 21px;
+            margin-bottom: 10px;
+        }
+
+        .data-driven-insights-slide .chart-area {
+            position: relative;
+            height: 330px;
+            padding: 24px 0 12px 0;
+        }
+
+        .data-driven-insights-slide .bars-row {
+            position: absolute;
+            left: 45px;
+            right: 15px;
+            bottom: 12px;
+            display: flex;
+            align-items: flex-end;
+            height: calc(100% - 36px);
+            flex-wrap: nowrap;
+        }
+
+        .data-driven-insights-slide .y-axis {
+            position: absolute;
+            left: 0;
+            top: 20px;
+            bottom: 12px;
+            width: 60px;
+            color: #3A3A3C;
+            font-size: 18px;
+            font-family: '"Inter", sans-serif';
+        }
+
+        .data-driven-insights-slide .bar {
+            flex: 1;
+            margin-right: 8px;
+            background: linear-gradient(to top, #C2E0FF, #3B8BE9, #1158C3);
+            position: relative;
+            border-radius: 2px 2px 2px 2px;
+        }
+
+        .data-driven-insights-slide .bar-value {
+            position: absolute;
+            top: 9px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #FFFFFF;
+            font-size: 15px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        .data-driven-insights-slide .year-row {
+            display: flex;
+            justify-content: flex-start;
+            padding: 0 15px 0 38px;
+            color: #3A3A3C;
+            font-size: 18px;
+            font-family: '"Inter", sans-serif';
+        }
+
+        .data-driven-insights-slide .year-label {
+            flex: 1;
+            margin-right: 8px;
+            text-align: center;
+            color: #3A3A3C;
+            font-size: 18px;
+            font-family: '"Inter", sans-serif';
+        }
+
+        .data-driven-insights-slide .right-metrics {
+            position: absolute;
+            right: 0;
+            top: 420px;
+            width: 540px;
+            display: grid;
+            row-gap: 23px;
+        }
+
+        .data-driven-insights-slide .metric-value {
+            font-size: 57px;
+            font-weight: 600;
+            color: #000000;
+            font-family: 'serif';
+        }
+
+        .data-driven-insights-slide .metric-caption {
+            margin-top: 9px;
+            width: 405px;
+            color: #34353C;
+            font-size: 23px;
+            line-height: 1.4;
+            font-family: '"Inter", sans-serif';
+        }
+
+        .data-driven-insights-slide .avatar {
+            position: absolute;
+            right: 96px;
+            top: 63px;
+            width: 255px;
+            height: 255px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #0F58F9;
+        }
+
+        .data-driven-insights-slide .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .data-driven-insights-slide .logo-container {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .data-driven-insights-slide .logo-img {
+            height: 45px;
+            max-width: 180px;
+            object-fit: contain;
+        }
+
+        .data-driven-insights-slide .logo-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000000;
+        }
+
+        .data-driven-insights-slide .page-number-container {
+            position: absolute;
+            bottom: 36px;
+            left: 0px;
+            color: #34353C;
+            font-size: 23px;
+            font-weight: 400;
+            font-family: 'Inter, sans-serif';
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .data-driven-insights-slide .page-line {
+            width: 23px;
+            height: 2px;
+            background-color: #5F616D;
+        }
+
+        .data-driven-insights-slide .page-number {
+            color: #34353C;
+            font-size: 24px;
+            font-weight: 600;
+            font-family: 'Inter, sans-serif';
+        }
+
+        /* Proof Statistics Slide Template */
+        .proof-statistics-slide {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            padding: 45px 90px;
+        }
+
+        .proof-statistics-slide .tag {
+            position: absolute;
+            top: 45px;
+            left: 90px;
+            margin-bottom: 38px;
+            display: flex;
+            align-items: center;
+        }
+
+        .proof-statistics-slide .tag-container {
+            background-color: #ffffff;
+            border-radius: 36px;
+            padding: 12px 27px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            border: 2px solid #09090B;
+        }
+
+        .proof-statistics-slide .tag-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+        }
+
+        .proof-statistics-slide .tag-text {
+            font-size: 27px;
+            color: #09090BCC;
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .proof-statistics-slide .title {
+            position: absolute;
+            top: 150px;
+            left: 90px;
+            font-size: 72px;
+            font-weight: bold;
+            color: #09090B;
+            line-height: 1.1;
+            max-width: 1350px;
+            font-family: "'Lora', serif";
+        }
+
+        .proof-statistics-slide .description {
+            position: absolute;
+            top: 258px;
+            left: 90px;
+            font-size: 24px;
+            color: rgba(9, 9, 11, 0.7);
+            line-height: 1.4;
+            max-width: 720px;
+        }
+
+        .proof-statistics-slide .statistics-grid {
+            position: absolute;
+            top: 383px;
+            left: 90px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 53px;
+            width: 900px;
+            background-color: #F3F5FF;
+            padding: 66px;
+            border-radius: 9px;
+            box-shadow: 0px 21px 21px -7px #2A334608;
+            padding-top: 38px;
+            padding-bottom: 53px;
+        }
+
+        .proof-statistics-slide .statistic-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .proof-statistics-slide .statistic-value {
+            font-size: 42px;
+            font-weight: semibold;
+            color: #09090B;
+            margin-bottom: 9px;
+            font-family: "'Lora', serif";
+        }
+
+        .proof-statistics-slide .statistic-description {
+            font-size: 21px;
+            color: rgba(9, 9, 11, 0.7);
+            line-height: 1.3;
+        }
+
+        .proof-statistics-slide .right-section {
+            position: absolute;
+            top: 383px;
+            right: 90px;
+            width: 600px;
+        }
+
+        .proof-statistics-slide .conclusion-text {
+            font-size: 27px;
+            color: rgba(9, 9, 11, 0.7);
+            line-height: 1.4;
+            margin-bottom: 60px;
+        }
+
+        .proof-statistics-slide .bullet-points {
+            display: flex;
+            flex-direction: column;
+            gap: 23px;
+        }
+
+        .proof-statistics-slide .bullet-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 23px;
+        }
+
+        .proof-statistics-slide .bullet-icon {
+            width: 9px;
+            height: 9px;
+            margin-top: 12px;
+            flex-shrink: 0;
+        }
+
+        .proof-statistics-slide .bullet-text {
+            font-size: 27px;
+            color: rgba(9, 9, 11, 0.7);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .proof-statistics-slide .profile-image {
+            position: absolute;
+            top: 60px;
+            right: 90px;
+            width: 255px;
+            height: 255px;
+            border-radius: 50%;
+            background-color: #0F58F9;
+            overflow: hidden;
+        }
+
+        .proof-statistics-slide .profile-image-img {
+            width: 110%;
+            height: 110%;
+            border-radius: 50%;
+            position: relative;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            object-fit: cover;
+        }
+
+        .proof-statistics-slide .logo-container {
+            position: absolute;
+            bottom: 45px;
+            right: 45px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .proof-statistics-slide .logo-img {
+            height: 45px;
+            max-width: 180px;
+            object-fit: contain;
+        }
+
+        .proof-statistics-slide .logo-placeholder {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .proof-statistics-slide .logo-circle {
+            width: 45px;
+            height: 45px;
+            border: 3px solid #09090B;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .proof-statistics-slide .logo-circle-h {
+            width: 18px;
+            height: 3px;
+            background-color: #09090B;
+            position: absolute;
+        }
+
+        .proof-statistics-slide .logo-circle-v {
+            width: 3px;
+            height: 18px;
+            background-color: #09090B;
+            position: absolute;
+        }
+
+        .proof-statistics-slide .logo-text {
+            font-size: 24px;
+            font-weight: 400;
+            color: #09090B;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .proof-statistics-slide .page-number-container {
+            position: absolute;
+            bottom: 45px;
+            left: 0px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .proof-statistics-slide .page-line {
+            width: 30px;
+            height: 2px;
+            background-color: rgba(9, 9, 11, 0.6);
+        }
+
+        .proof-statistics-slide .page-number {
+            color: #09090B99;
+            font-size: 26px;
+            font-weight: 300;
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
@@ -10235,6 +11173,340 @@ Create opportunities for growth & advancement.{% endif %}</div>
 
                     <!-- Bottom horizontal separator line -->
                     <div class="separator-line separator-line-bottom"></div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '03' }}</div>
+                    </div>
+                </div>
+
+            {% elif templateId == 'connection-slide' or templateId == 'connection' %}
+                <!-- Connection Slide Template -->
+                <div class="connection-slide">
+                    <!-- Top bar with logo -->
+                    <div class="top-bar">
+                        <div class="logo-container">
+                            {% if logoPath %}
+                                <img src="{{ logoPath }}" alt="Logo" class="logo-img" />
+                            {% endif %}
+                            <span class="logo-text">{{ logoText or 'Your Logo' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="left-section">
+                        <div class="title">{{ title or 'Connection' }}</div>
+                        <div class="description">{{ description or 'Connections create trust, encourage open communication, and build a culture of collaboration.' }}</div>
+
+                        <!-- Avatar -->
+                        <div class="avatar-container">
+                            {% if avatarPath %}
+                                <img src="{{ avatarPath }}" alt="Avatar" class="avatar-img" />
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="right-section">
+                        <!-- Background image with dark overlay -->
+                        {% if backgroundImagePath %}
+                            <img src="{{ backgroundImagePath }}" alt="Background" class="background-img" />
+                        {% endif %}
+                        <div class="background-overlay"></div>
+                        
+                        <!-- Venn circles -->
+                        <div class="venn-wrapper">
+                            <div class="big-circle"></div>
+                            <div class="small-circle-left"></div>
+                            <div class="small-circle-right"></div>
+                        </div>
+
+                        <!-- Venn labels -->
+                        <div class="venn-labels">
+                            <!-- Culture (top center of big circle) -->
+                            <div class="venn-label-culture">{{ (vennLabels.culture if vennLabels else {})|default('Culture', true) }}</div>
+
+                            <!-- Managers (center of left small circle) -->
+                            <div class="venn-label-managers">{{ (vennLabels.managers if vennLabels else {})|default('Managers', true) }}</div>
+
+                            <!-- Teams (center of right small circle) -->
+                            <div class="venn-label-teams">{{ (vennLabels.teams if vennLabels else {})|default('Teams', true) }}</div>
+
+                            <!-- Center plus button -->
+                            <div class="center-plus">
+                                <div class="plus-horizontal"></div>
+                                <div class="plus-vertical"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        {% set defaultTabs = tabs if tabs and tabs|length > 0 else ['The Problem','The Solution','Guiding the way','Connection','Transformation','The Journey'] %}
+                        {% set activeIndex = activeTabIndex|default(3) %}
+                        {% for tab in defaultTabs %}
+                            <div class="tab {% if loop.index0 == activeIndex %}tab-active{% endif %}">
+                                <span>{{ tab }}</span>
+                                {% if loop.index0 == activeIndex %}
+                                    <div class="tab-active-indicator"></div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            {% elif templateId == 'change-management-tabs-slide' or templateId == 'change-management-tabs' %}
+                <!-- Change Management Tabs Slide Template -->
+                <div class="change-mgmt-tabs-slide">
+                    <div class="top-tabs-wrap">
+                        {% set defaultTopTabs = topTabs if topTabs and topTabs|length > 0 else ['Change management fundamentals', 'The need for change', 'Building a change-ready culture', 'Effective communication and engagement'] %}
+                        {% set tabColors = [['#0F58F9','#FFFFFF'],['#FFFFFF','#09090B'],['#0F58F9','#FFFFFF'],['#FFFFFF','#09090B']] %}
+                        {% for tab in defaultTopTabs %}
+                            <div class="tab-row {% if loop.index0 % 2 == 0 %}tab-row-blue{% else %}tab-row-white{% endif %}">{{ tab }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="content">
+                        <div class="avatar">
+                            {% if avatarPath %}
+                                <img src="{{ avatarPath }}" alt="Profile photo" class="avatar-img" />
+                            {% endif %}
+                        </div>
+                        <div class="heading">{{ heading or 'Communication is the lifeblood\nof successful change initiatives.' }}</div>
+
+                        <div class="capsules-wrap">
+                            {% set defaultPills = pills if pills and pills|length >= 3 else ['Organization', 'Communication', 'Stakeholders'] %}
+                            {% for i in range(3) %}
+                                <div class="capsule {% if loop.index0 == 1 %}capsule-active{% endif %}">
+                                    {{ defaultPills[loop.index0] if defaultPills[loop.index0] else '' }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Company logo" class="logo-img" />
+                        {% else %}
+                            <div class="logo-placeholder">
+                                <div class="logo-circle">
+                                    <div class="logo-circle-h"></div>
+                                    <div class="logo-circle-v"></div>
+                                </div>
+                                <span class="logo-text">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Page number with line -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '39' }}</div>
+                    </div>
+                </div>
+
+            {% elif templateId == 'data-driven-insights-slide' or templateId == 'data-driven-insights' %}
+                <!-- Data Driven Insights Slide Template -->
+                <div class="data-driven-insights-slide">
+                    <div class="tag">
+                        <div class="tag-dot"></div>
+                        <div>{{ tag or 'Presentation' }}</div>
+                    </div>
+
+                    <div class="title-wrap">
+                        <div class="title">{{ title or 'Data-Driven Insights: Statistics and Trends' }}</div>
+                    </div>
+
+                    <div class="desc-wrap">
+                        <div class="description">{{ description or 'Provide statistics about the market size to show the potential for growth. Share how many customers your company has acquired to date. Share product performance statistics to show how your product compares to competitors, etc.' }}</div>
+                    </div>
+
+                    <div class="charts-wrap">
+                        <!-- Left Panel -->
+                        <div class="panel">
+                            <div class="chart-title">{{ leftChartTitle or 'The global market for XYZ product is estimated to reach $XX billion by 2025, growing at a CAGR of XX% from 2020 to 2025' }}</div>
+                            <div class="chart-area">
+                                <div class="y-axis">
+                                    <div style="position: absolute; left: 0; bottom: 0;">0</div>
+                                    {% if yTicks %}
+                                        {% for tick in yTicks %}
+                                            <div style="position: absolute; left: 0; bottom: {{ tick * 2 }}px;">{{ tick }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for tick in [20,40,60,80] %}
+                                            <div style="position: absolute; left: 0; bottom: {{ tick * 2 }}px;">{{ tick }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="bars-row">
+                                    {% set defaultLeftBars = leftBars if leftBars and leftBars|length > 0 else [33,39,55,44,67] %}
+                                    {% set defaultLeftValues = leftValues if leftValues and leftValues|length > 0 else ['33M','39M','55M','44M','67M'] %}
+                                    {% set defaultBarLabels = barLabels if barLabels and barLabels|length > 0 else ['2017','2018','2019','2020','2021'] %}
+                                    {% for i in range(defaultLeftBars|length) %}
+                                        {% set barHeight = defaultLeftBars[i] * 2 %}
+                                        <div class="bar" style="height: {{ barHeight }}px;">
+                                            <div class="bar-value">{{ defaultLeftValues[i] if defaultLeftValues[i] else '' }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="year-row">
+                                {% for label in defaultBarLabels %}
+                                    <div class="year-label">{{ label }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Right Panel -->
+                        <div class="panel">
+                            <div class="chart-title">{{ rightChartTitle or 'Our product has a 4.8-star rating on the App Store and a 95% customer satisfaction score based on user surveys.' }}</div>
+                            <div class="chart-area">
+                                <div class="y-axis">
+                                    <div style="position: absolute; left: 0; bottom: 0;">0</div>
+                                    {% if yTicks %}
+                                        {% for tick in yTicks %}
+                                            <div style="position: absolute; left: 0; bottom: {{ tick * 2 }}px;">{{ tick }}</div>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for tick in [20,40,60,80] %}
+                                            <div style="position: absolute; left: 0; bottom: {{ tick * 2 }}px;">{{ tick }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                                <div class="bars-row">
+                                    {% set defaultRightBars = rightBars if rightBars and rightBars|length > 0 else [33,39,55,44,67] %}
+                                    {% set defaultRightValues = rightValues if rightValues and rightValues|length > 0 else ['33M','39M','55M','44M','67M'] %}
+                                    {% for i in range(defaultRightBars|length) %}
+                                        {% set barHeight = defaultRightBars[i] * 2 %}
+                                        <div class="bar" style="height: {{ barHeight }}px;">
+                                            <div class="bar-value">{{ defaultRightValues[i] if defaultRightValues[i] else '' }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="year-row">
+                                {% for label in defaultBarLabels %}
+                                    <div class="year-label">{{ label }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-metrics">
+                        {% set defaultMetrics = metrics if metrics and metrics|length > 0 else [
+                            {'value': '+XM', 'caption': 'customers since our launch in 2016'},
+                            {'value': '$XXM', 'caption': 'reaching in total revenue for 2020'},
+                            {'value': 'XM', 'caption': 'active users who spend an average of 30 minutes per day using our product.'}
+                        ] %}
+                        {% for metric in defaultMetrics %}
+                            <div>
+                                <div class="metric-value">{{ metric.value or '' }}</div>
+                                <div class="metric-caption">{{ metric.caption or '' }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="avatar">
+                        {% if avatarPath %}
+                            <img src="{{ avatarPath }}" alt="Avatar" class="avatar-img" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Logo section -->
+                    <div class="logo-container">
+                        {% if logoPath %}
+                            <img src="{{ logoPath }}" alt="Logo" class="logo-img" />
+                        {% endif %}
+                        <span class="logo-text">{{ logoText or 'Your Logo' }}</span>
+                    </div>
+
+                    <!-- Page number -->
+                    <div class="page-number-container">
+                        <div class="page-line"></div>
+                        <div class="page-number">{{ pageNumber or '1' }}</div>
+                    </div>
+                </div>
+
+            {% elif templateId == 'proof-statistics-slide' or templateId == 'proof-statistics' %}
+                <!-- Proof Statistics Slide Template -->
+                <div class="proof-statistics-slide">
+                    <!-- Tag -->
+                    <div class="tag">
+                        <div class="tag-container">
+                            <div class="tag-dot"></div>
+                            <div class="tag-text">{{ tagText or 'Presentation' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="title">{{ title or 'The Proof Is in the Pudding' }}</div>
+
+                    <!-- Description -->
+                    <div class="description">{{ description or 'We know that numbers speak louder than words, so here are some key stats that demonstrate the power of [Product Name]:' }}</div>
+
+                    <!-- Statistics Grid -->
+                    <div class="statistics-grid">
+                        {% set defaultStatistics = statistics if statistics and statistics|length > 0 else [
+                            {'value': 'XX%', 'description': 'Percentage increase in productivity'},
+                            {'value': 'XX%', 'description': 'Percentage increase in productivity'},
+                            {'value': 'XX%', 'description': 'Percentage increase in productivity'},
+                            {'value': 'XX%', 'description': 'Percentage increase in productivity'},
+                            {'value': 'XX%', 'description': 'Percentage increase in productivity'},
+                            {'value': 'XX%', 'description': 'Percentage increase in productivity'}
+                        ] %}
+                        {% for stat in defaultStatistics %}
+                            <div class="statistic-item">
+                                <div class="statistic-value">{{ stat.value or 'XX%' }}</div>
+                                <div class="statistic-description">{{ stat.description or 'Percentage increase in productivity' }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Right Section - Conclusion and Bullet Points -->
+                    <div class="right-section">
+                        <!-- Conclusion Text -->
+                        <div class="conclusion-text">{{ conclusionText or "With these impressive results, it's clear that [Product Name] is the real deal, Don't miss out on the opportunity to take your business to the next level- try [Product Name] today." }}</div>
+
+                        <!-- Bullet Points -->
+                        <div class="bullet-points">
+                            {% set defaultBulletPoints = bulletPoints if bulletPoints and bulletPoints|length > 0 else [
+                                "With these impressive results, it's clear that",
+                                "With these impressive results, it's clear that",
+                                "With these impressive results, it's clear that"
+                            ] %}
+                            {% for bulletPoint in defaultBulletPoints %}
+                                <div class="bullet-point">
+                                    <div class="bullet-icon">
+                                        <svg width="8" height="10" viewBox="0 0 6 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5.53846 2.27823C6.15385 2.59901 6.15385 3.40099 5.53846 3.72177L1.38462 5.8871C0.769231 6.20789 -3.10607e-08 5.8069 0 5.16532L2.09658e-07 0.834678C2.40719e-07 0.193101 0.769231 -0.207887 1.38462 0.112902L5.53846 2.27823Z" fill="#0F58F9"/>
+                                        </svg>
+                                    </div>
+                                    <div class="bullet-text">{{ bulletPoint }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Profile Image -->
+                    <div class="profile-image">
+                        {% if profileImagePath %}
+                            <img src="{{ profileImagePath }}" alt="{{ profileImageAlt or 'Profile image' }}" class="profile-image-img" />
+                        {% endif %}
+                    </div>
+
+                    <!-- Logo in bottom-right corner -->
+                    <div class="logo-container">
+                        {% if logoNew %}
+                            <img src="{{ logoNew }}" alt="Company logo" class="logo-img" />
+                        {% else %}
+                            <div class="logo-placeholder">
+                                <div class="logo-circle">
+                                    <div class="logo-circle-h"></div>
+                                    <div class="logo-circle-v"></div>
+                                </div>
+                                <span class="logo-text">Your Logo</span>
+                            </div>
+                        {% endif %}
+                    </div>
 
                     <!-- Page number with line -->
                     <div class="page-number-container">
