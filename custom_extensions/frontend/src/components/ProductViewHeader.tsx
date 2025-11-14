@@ -103,7 +103,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   // Check if current component is a quiz to show Export button
   const isQuiz = projectData?.component_name === 'QuizDisplay';
   const isOnePager = projectData?.component_name === 'TextPresentationDisplay';
-  const shouldShowAuthToggle = !isOnePager;
+  const shouldShowAuthToggle = !(isOnePager || isQuiz);
   const isVideoLesson = projectData?.component_name === 'VideoLessonDisplay' || 
                         projectData?.component_name === 'VideoLessonPresentationDisplay';
   const isCourse = projectData?.component_name === 'TrainingPlanTable';
@@ -593,7 +593,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
     <header className="sticky top-0 z-50 h-[120px] md:h-16 bg-white flex flex-row justify-between items-center gap-4 py-[14px]" style={{ borderBottom: '1px solid #E4E4E7' }}>
         <div className="max-w-10xl mx-auto w-full flex flex-row justify-between items-center gap-4 px-[14px]">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-y-2 gap-x-4 text-left">
-          <div className="flex flex-row justify-between">{renderHomeButton()}
+          <div className="flex flex-row w-full md:w-auto justify-between">{renderHomeButton()}
           {currentIsAuthorized ? (
             <div
               className="block md:hidden flex items-center"

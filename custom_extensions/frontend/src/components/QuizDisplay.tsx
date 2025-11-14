@@ -51,6 +51,8 @@ interface QuizDisplayProps {
   onTextChange?: (path: (string | number)[], newValue: any) => void;
   parentProjectName?: string;
   lessonNumber?: number;
+  isAuthorized?: boolean;
+  onAuthorizationChange?: (value: boolean) => void;
 }
 
 // Explanation Field Component
@@ -102,9 +104,9 @@ const ExplanationField: React.FC<ExplanationFieldProps> = ({
   }
 
   return (
-    <div className={`${className} p-4 bg-[#D8FDF9] rounded-lg`}>
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0">
+    <div className={`${className} p-2 md:p-4 bg-[#D8FDF9] rounded-lg`}>
+      <div className="flex items-start gap-1 md:gap-3">
+        <div className="flex-shrink-0 mt-2 md:mt-0">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g clipPath="url(#clip0_904_128436)">
               <path d="M14.5349 1.8677C13.3208 0.662148 11.7134 0 10.0035 0C9.98804 0 9.97222 3.90625e-05 9.95675 0.00015625C8.28746 0.0119141 6.70695 0.665938 5.50633 1.84176C4.30547 3.01781 3.6191 4.58437 3.57375 6.25277C3.52644 7.99141 4.16328 9.63809 5.36695 10.8895C6.3148 11.875 6.83679 13.1857 6.83679 14.5804V17.2633C6.83679 17.8145 7.21949 18.2777 7.733 18.402V18.7597C7.733 19.4436 8.28937 20 8.97324 20H11.024C11.7079 20 12.2643 19.4436 12.2643 18.7597V18.4041C12.7823 18.283 13.1694 17.8177 13.1694 17.2633V14.5805C13.1694 13.2041 13.7057 11.8782 14.6796 10.8471C15.8115 9.64875 16.4349 8.0807 16.4349 6.43176C16.4349 4.7052 15.7601 3.0843 14.5349 1.8677ZM11.483 18.7598C11.483 19.0129 11.2771 19.2188 11.0241 19.2188H8.97328C8.72019 19.2188 8.51429 19.0129 8.51429 18.7598V18.435H11.483V18.7598ZM12.3882 17.2633C12.3882 17.4786 12.213 17.6538 11.9977 17.6538H11.8737H8.12367H8.00859C7.79324 17.6538 7.61808 17.4786 7.61808 17.2633V15.0416H12.3882V17.2633ZM9.38949 14.2604V9.31945H10.6064V14.2603H9.38949V14.2604ZM14.1118 10.3106C13.0757 11.4075 12.4736 12.7994 12.3966 14.2603H11.3877V9.31945H11.7388C12.3632 9.31945 12.8712 8.81148 12.8712 8.18707V8.12652C12.8712 7.50211 12.3632 6.99414 11.7388 6.99414C11.1144 6.99414 10.6064 7.50211 10.6064 8.12652V8.5382H9.38949V8.12652C9.38949 7.50211 8.88152 6.99414 8.25715 6.99414H8.18019C7.55582 6.99414 7.04785 7.50211 7.04785 8.12652V8.18707C7.04785 8.81145 7.55582 9.31945 8.18019 9.31945H8.60824V14.2603H7.61004C7.53547 12.7829 6.94558 11.4037 5.93004 10.3479C4.87261 9.24855 4.31312 7.80172 4.35472 6.27402C4.43652 3.2666 6.95203 0.802617 9.96226 0.781367C11.4816 0.770703 12.9081 1.35336 13.9845 2.42207C15.0609 3.4909 15.6537 4.91492 15.6537 6.43176C15.6537 7.88043 15.1061 9.25793 14.1118 10.3106ZM11.3877 8.5382V8.12652C11.3877 7.93289 11.5452 7.77539 11.7388 7.77539C11.9324 7.77539 12.0899 7.93293 12.0899 8.12652V8.18707C12.0899 8.3807 11.9324 8.5382 11.7388 8.5382H11.3877ZM8.6082 8.12652V8.5382H8.18015C7.98656 8.5382 7.82906 8.3807 7.82906 8.18707V8.12652C7.82906 7.93289 7.98656 7.77539 8.18015 7.77539H8.25711C8.4507 7.77539 8.6082 7.93297 8.6082 8.12652Z" fill="#434343"/>
@@ -135,7 +137,7 @@ const ExplanationField: React.FC<ExplanationFieldProps> = ({
   );
 };
 
-const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber }) => {
+const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onTextChange, parentProjectName, lessonNumber, isAuthorized = true, onAuthorizationChange }) => {
   const [userAnswers, setUserAnswers] = useState<Record<number, any>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -143,8 +145,43 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
   const [showQuestionTypeMenu, setShowQuestionTypeMenu] = useState(false);
   const questionTypeMenuRef = useRef<HTMLDivElement>(null);
+  const [localIsAuthorized, setLocalIsAuthorized] = useState<boolean>(isAuthorized);
   const searchParams = useSearchParams();
   const { t } = useLanguage();
+
+  useEffect(() => {
+    setLocalIsAuthorized(isAuthorized);
+  }, [isAuthorized]);
+  const currentIsAuthorized = localIsAuthorized;
+  const handleAuthToggle = (value: boolean) => {
+    if (value === currentIsAuthorized) return;
+    setLocalIsAuthorized(value);
+    onAuthorizationChange?.(value);
+  };
+  const renderAuthToggle = () => (
+    <div className="flex items-center gap-1 bg-gray-100 rounded-md p-0.5">
+      <button
+        onClick={() => handleAuthToggle(true)}
+        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+          currentIsAuthorized
+            ? 'bg-white text-gray-900 shadow-sm'
+            : 'text-gray-600 hover:text-gray-900'
+        }`}
+      >
+        Auth
+      </button>
+      <button
+        onClick={() => handleAuthToggle(false)}
+        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+          !currentIsAuthorized
+            ? 'bg-white text-gray-900 shadow-sm'
+            : 'text-gray-600 hover:text-gray-900'
+        }`}
+      >
+        Unauth
+      </button>
+    </div>
+  );
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -454,10 +491,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
 
   const renderMatching = (question: MatchingQuestion, index: number) => {
     const userAnswer = userAnswers[index] || {};
-    const isCorrect = Object.entries(question.correct_matches).every(
-      ([promptId, optionId]: [string, string]) => userAnswer[promptId] === optionId
-    );
-    const showResult = isSubmitted && showAnswers;
+    const canEditMatching = Boolean(isEditing && onTextChange);
 
     const handleMatchChange = (promptId: string, newOptionId: string) => {
       const newCorrectMatches = {
@@ -467,126 +501,182 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
       handleTextSubmit(['questions', index, 'correct_matches'], newCorrectMatches);
     };
 
-    return (
-      <div>
+    if (canEditMatching) {
+      return (
         <div>
-          <div className="grid grid-cols-2 gap-4 mb-2">
-            <h4 className="font-light ml-2 text-sm text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
-            <h4 className="font-light text-sm text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
-          </div>
-          {question.prompts.map((prompt, promptIndex) => {
-            const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
-            const matchedOptionIndex = question.options.findIndex(opt => opt.id === question.correct_matches[prompt.id]);
-            return (
-              <div key={prompt.id} className="grid grid-cols-2 gap-4 mb-2">
-                <div className="flex items-center">
-                  <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
-                    {prompt.id}
-                  </span>
-                  {editingField?.type === 'prompt' && editingField.questionIndex === index && editingField.promptIndex === promptIndex ? (
-                    <input
-                      type="text"
-                      value={getInputValue(['questions', index, 'prompts', promptIndex, 'text'], prompt.text)}
-                      onChange={(e) => handleInputChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                      onBlur={(e) => handleBlur(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
-                      autoFocus
-                      className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
-                    />
-                  ) : (
-                    <span 
-                      className="text-black cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
-                      onClick={() => onTextChange && setEditingField({type: 'prompt', questionIndex: index, promptIndex})}
-                    >
-                      {prompt.text}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center">
-                  <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
-                    {matchedOption?.id}
-                  </span>
-                  {editingField?.type === 'match-option' && editingField.questionIndex === index && editingField.optionIndex === matchedOptionIndex ? (
-                    <input
-                      type="text"
-                      value={getInputValue(['questions', index, 'options', matchedOptionIndex, 'text'], matchedOption?.text || '')}
-                      onChange={(e) => handleInputChange(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
-                      onBlur={(e) => handleBlur(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
-                      autoFocus
-                      className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
-                    />
-                  ) : (
-                    <div className="flex items-center flex-1">
-                      {onTextChange ? (
-                        <select
-                          value={question.correct_matches[prompt.id] || ''}
-                          onChange={(e) => handleMatchChange(prompt.id, e.target.value)}
-                          className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718] cursor-pointer"
-                        >
-                          <option value="" disabled>{t('quiz.selectOption', 'Select option')}</option>
-                          {question.options.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.text.substring(0, 30)}{option.text.length > 30 ? '...' : ''}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className="text-[#171718]">
-                          {matchedOption?.text}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* Options section for editing all options */}
-        {onTextChange && (
-          <div className="mt-4 pt-4 border-t">
-            <h4 className="font-light mb-2 text-sm text-[#878787]">{t('quiz.options', 'Answer Options')}:</h4>
-            <div className="space-y-2">
-              {question.options.map((option, optionIndex) => (
-                <div key={option.id} className="flex items-center">
-                  <span className="w-4 h-4 bg-green-500 text-white rounded-full flex items-center justify-center font-regular mr-2 text-xs">
-                    {option.id}
-                  </span>
-                  {editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === optionIndex ? (
-                    <input
-                      type="text"
-                      value={getInputValue(['questions', index, 'options', optionIndex, 'text'], option.text)}
-                      onChange={(e) => handleInputChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
-                      onBlur={(e) => handleBlur(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
-                      autoFocus
-                      className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
-                    />
-                  ) : (
-                    <span 
-                      className="text-[#171718] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
-                      onClick={() => setEditingField({type: 'option', questionIndex: index, optionIndex})}
-                    >
-                      {option.text}
-                    </span>
-                  )}
-                </div>
-              ))}
+          <div>
+            <div className="grid grid-cols-2 gap-4 mb-2">
+              <h4 className="font-light ml-2 text-sm text-[#878787]">{t('quiz.prompts', 'Items')}:</h4>
+              <h4 className="font-light text-sm text-[#878787]">{t('quiz.correctMatches', 'Matches')}:</h4>
             </div>
+            {question.prompts.map((prompt, promptIndex) => {
+              const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
+              const matchedOptionIndex = question.options.findIndex(opt => opt.id === question.correct_matches[prompt.id]);
+              return (
+                <div key={prompt.id} className="grid grid-cols-2 gap-4 mb-2">
+                  <div className="flex items-center">
+                    <span className="w-4 h-4 bg-[#0F58F9] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
+                      {prompt.id}
+                    </span>
+                    {editingField?.type === 'prompt' && editingField.questionIndex === index && editingField.promptIndex === promptIndex ? (
+                      <input
+                        type="text"
+                        value={getInputValue(['questions', index, 'prompts', promptIndex, 'text'], prompt.text)}
+                        onChange={(e) => handleInputChange(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                        onBlur={(e) => handleBlur(['questions', index, 'prompts', promptIndex, 'text'], e.target.value)}
+                        autoFocus
+                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-black"
+                      />
+                    ) : (
+                      <span 
+                        className="text-black cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                        onClick={() => onTextChange && setEditingField({type: 'prompt', questionIndex: index, promptIndex})}
+                      >
+                        {prompt.text}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    <span className="w-4 h-4 bg-[#D817FF] text-white rounded-full flex items-center justify-center font-regular mr-1 text-xs">
+                      {matchedOption?.id}
+                    </span>
+                    {editingField?.type === 'match-option' && editingField.questionIndex === index && editingField.optionIndex === matchedOptionIndex ? (
+                      <input
+                        type="text"
+                        value={getInputValue(['questions', index, 'options', matchedOptionIndex, 'text'], matchedOption?.text || '')}
+                        onChange={(e) => handleInputChange(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
+                        onBlur={(e) => handleBlur(['questions', index, 'options', matchedOptionIndex, 'text'], e.target.value)}
+                        autoFocus
+                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
+                      />
+                    ) : (
+                      <div className="flex items-center flex-1">
+                        {onTextChange ? (
+                          <select
+                            value={question.correct_matches[prompt.id] || ''}
+                            onChange={(e) => handleMatchChange(prompt.id, e.target.value)}
+                            className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718] cursor-pointer"
+                          >
+                            <option value="" disabled>{t('quiz.selectOption', 'Select option')}</option>
+                            {question.options.map((option) => (
+                              <option key={option.id} value={option.id}>
+                                {option.text.substring(0, 30)}{option.text.length > 30 ? '...' : ''}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="text-[#171718]">
+                            {matchedOption?.text}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Options section for editing all options */}
+          {onTextChange && (
+            <div className="mt-4 pt-4 border-t">
+              <h4 className="font-light mb-2 text-sm text-[#878787]">{t('quiz.options', 'Answer Options')}:</h4>
+              <div className="space-y-2">
+                {question.options.map((option, optionIndex) => (
+                  <div key={option.id} className="flex items-center">
+                    <span className="w-4 h-4 bg-green-500 text-white rounded-full flex items-center justify-center font-regular mr-2 text-xs">
+                      {option.id}
+                    </span>
+                    {editingField?.type === 'option' && editingField.questionIndex === index && editingField.optionIndex === optionIndex ? (
+                      <input
+                        type="text"
+                        value={getInputValue(['questions', index, 'options', optionIndex, 'text'], option.text)}
+                        onChange={(e) => handleInputChange(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
+                        onBlur={(e) => handleBlur(['questions', index, 'options', optionIndex, 'text'], e.target.value)}
+                        autoFocus
+                        className="flex-1 p-1 border-b-2 border-blue-500 bg-transparent outline-none text-[#171718]"
+                      />
+                    ) : (
+                      <span 
+                        className="text-[#171718] cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition-colors"
+                        onClick={() => setEditingField({type: 'option', questionIndex: index, optionIndex})}
+                      >
+                        {option.text}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <ExplanationField
+            explanation={question.explanation}
+            questionIndex={index}
+            isEditing={isEditing || false}
+            editingField={editingField}
+            onBlur={handleBlur}
+            onInputChange={handleInputChange}
+            getInputValue={getInputValue}
+            setEditingField={setEditingField}
+            t={t}
+            className="mt-6 pt-4"
+          />
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="rounded-[28px] border border-[#E5E7FB] shadow-[0_12px_40px_rgba(15,88,249,0.08)] bg-white overflow-hidden">
+          <div className="bg-gradient-to-b from-[#E6ECFF] to-[#DBE4FF] px-4 py-4 border-b border-[#CCD6FF]">
+            <p className="text-xs uppercase tracking-wide text-[#3A4FBA] font-semibold mb-1">
+              {t('quiz.matchingHeading', 'Items → Correct matches:')}
+            </p>
+            <p className="text-[#1F2471] text-base font-semibold leading-snug">
+              {question.question_text}
+            </p>
+          </div>
+          <div className="p-4 space-y-3">
+            {question.prompts.map((prompt, promptIndex) => {
+              const matchedOption = question.options.find(opt => opt.id === question.correct_matches[prompt.id]);
+              return (
+                <div
+                  key={prompt.id}
+                  className="rounded-2xl border border-[#EEF2FF] bg-white px-3 py-3 shadow-[0_8px_24px_rgba(15,88,249,0.08)] flex flex-col gap-3 sm:flex-row sm:items-start"
+                >
+                  <div className="flex items-start gap-2 flex-1">
+                    <span className="w-7 h-7 rounded-full bg-[#0F58F9] text-white text-sm font-semibold flex items-center justify-center">
+                      {promptIndex + 1}
+                    </span>
+                    <p className="text-[#1C1D2A] text-sm leading-relaxed">
+                      {prompt.text}
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-2 flex-1">
+                    <span className="w-7 h-7 rounded-full bg-[#D817FF] text-white text-sm font-semibold flex items-center justify-center">
+                      {matchedOption?.id}
+                    </span>
+                    <p className="text-[#1C1D2A] text-sm leading-relaxed">
+                      {matchedOption?.text}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {question.explanation && (
+          <div className="rounded-2xl bg-[#E6FFF5] border border-[#BAF5DC] px-4 py-3 flex gap-3 items-start">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0 text-[#0F5132]">
+              <path d="M10 1.66602C5.39998 1.66602 1.66665 5.39935 1.66665 9.99935C1.66665 14.5994 5.39998 18.3327 10 18.3327C14.6 18.3327 18.3333 14.5994 18.3333 9.99935C18.3333 5.39935 14.6 1.66602 10 1.66602ZM10.8333 14.5827H9.16665V12.916H10.8333V14.5827ZM10.8333 11.2494H9.16665V5.41602H10.8333V11.2494Z" fill="currentColor"/>
+            </svg>
+            <p className="text-sm leading-relaxed text-[#0F5132]">
+              {question.explanation}
+            </p>
           </div>
         )}
-        
-        <ExplanationField
-          explanation={question.explanation}
-          questionIndex={index}
-          isEditing={isEditing || false}
-          editingField={editingField}
-          onBlur={handleBlur}
-          onInputChange={handleInputChange}
-          getInputValue={getInputValue}
-          setEditingField={setEditingField}
-          t={t}
-          className="mt-6 pt-4"
-        />
       </div>
     );
   };
@@ -917,7 +1007,7 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
         </div>
 
         {/* Question Content */}
-        <div className="p-6">
+        <div className="p-4 md:p-6">
         {questionType === 'multiple-choice' && renderMultipleChoice(question as MultipleChoiceQuestion, index)}
         {questionType === 'multi-select' && renderMultiSelect(question as MultiSelectQuestion, index)}
         {questionType === 'matching' && renderMatching(question as MatchingQuestion, index)}
@@ -931,10 +1021,15 @@ const QuizDisplay: React.FC<QuizDisplayProps> = ({ dataToDisplay, isEditing, onT
   return (
     <div className="min-h-screen bg-[#F2F2F4]">
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 pb-8">
-        <div className="text-sm text-[#797979] mb-6">
-          {questions.length} questions total
-      </div>
+      <div className="max-w-7xl mx-auto px-2 md:px-6 pb-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div className="text-sm text-[#797979]">
+            {questions.length} questions total
+          </div>
+          <div className="flex justify-start sm:justify-end">
+            {renderAuthToggle()}
+          </div>
+        </div>
 
       <div className="space-y-6">
         {questions.map((question, index) => renderQuestion(question, index))}

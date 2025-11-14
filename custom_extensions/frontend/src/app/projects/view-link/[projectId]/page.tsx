@@ -2079,6 +2079,8 @@ export default function ProjectInstanceViewPage() {
             onTextChange={handleTextChange}
             parentProjectName={parentProjectName}
             lessonNumber={lessonNumber}
+            isAuthorized={isAuthorized}
+            onAuthorizationChange={setIsAuthorized}
           />
         );
       case COMPONENT_NAME_LESSON_PLAN:
