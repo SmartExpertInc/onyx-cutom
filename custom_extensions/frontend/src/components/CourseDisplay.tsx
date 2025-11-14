@@ -366,11 +366,11 @@ const CourseDisplay: React.FC<CourseDisplayProps> = ({
                                 </div>
                               </div>
 
-                              <div className="flex flex-wrap gap-3 sm:hidden pt-2">
+                              <div className="flex gap-2 sm:hidden pt-2 flex-nowrap w-full">
                                 {contentColumnConfigs.map((config) =>
                                   renderContentCell(config, {
                                     keyPrefix: 'mobile-',
-                                    extraClasses: 'flex-1 min-w-[90px] border border-[#E0E0E0] rounded-md py-2 px-2'
+                                    extraClasses: 'flex-1 min-w-0 py-2 px-2'
                                   })
                                 )}
                               </div>
