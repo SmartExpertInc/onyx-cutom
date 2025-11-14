@@ -110,6 +110,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
   const isPresentation = projectData?.component_name === 'SlideDeckDisplay' || projectData?.component_name === 'VideoProductDisplay';
   const isVideoProduct = projectData?.component_name === 'VideoProductDisplay';
   const shouldShowLinkButtons = enableLinkViewButtons && (isCourse || isPresentation || isVideoProduct || isQuiz);
+  const isQuizLinkView = shouldShowLinkButtons && isQuiz;
   const isMobileMidViewport = viewportWidth !== null && viewportWidth >= 390 && viewportWidth < 640;
   const isMobileViewport = viewportWidth !== null && viewportWidth < 640;
   const useMobileLinkViewLayout = isMobileMidViewport && enableLinkViewButtons && shouldShowLinkButtons;
@@ -262,7 +263,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   return trainingPlanData?.mainTitle || projectData?.name || t('interface.viewNew.courseOutline', 'Course Outline');
                 })()}
               </h1>
-              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isQuiz && isMobileViewport) && (
+              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isQuiz && isMobileViewport) && !isQuizLinkView && (
                 <>
                   <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -299,7 +300,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                   </div>
                 </>
               )}
-              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isQuiz && isMobileViewport) && (
+              {!isVideoLesson && !hideCloudAndArrowIndicators && !(isOnePager && isQuiz && isMobileViewport) && !isQuizLinkView && (
                 <>
                   <div className="h-6 w-px bg-gray-300 mx-2"></div>
                   <div className="flex items-center">
@@ -313,7 +314,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
                 </>
               )}
             </div>
-            {(enableLinkViewButtons || isOnePager || isQuiz) && (
+            {((enableLinkViewButtons || isOnePager || isQuiz) && !(isQuiz && !isMobileViewport)) && (
                 <div className="flex items-center gap-1.5 text-[10px] text-[#878787]">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <g clipPath="url(#clip0_4291_33172)">
@@ -618,7 +619,7 @@ export const ProductViewHeader: React.FC<ProductViewHeaderProps> = ({
           {shouldShowLinkButtons && (
             <div className="flex items-center space-x-2">
               {showDraftButton && renderDraftButton()}
-              {renderExportControl()}
+              {!isQuizLinkView && renderExportControl()}
               {renderCopyLinkButton()}
             </div>
           )}
