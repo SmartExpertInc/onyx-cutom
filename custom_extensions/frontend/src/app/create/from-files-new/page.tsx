@@ -15,7 +15,7 @@ import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
 import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModal";
 import { BackButton } from "../components/BackButton";
 import { buildKnowledgeBaseContext, KnowledgeBaseSelection } from "@/lib/knowledgeBaseSelection";
-import { trackImportFiles } from "@/lib/mixpanelClient";
+import { timeEvent } from "@/lib/mixpanelClient";
 
 // StepCard component for the old step-based interface
 interface StepCardProps {
@@ -158,30 +158,6 @@ export default function FromFilesNew() {
     }
 
     setKnowledgeBaseSelection(selection);
-
-    if (uniqueConnectorSources.length > 0) {
-      trackImportFiles('Connectors', uniqueConnectorSources);
-    } else if (selection.filePaths.length > 0) {
-      const fileExtensionsForTracking: string[] = Array.from(
-        new Set(
-          selection.filePaths
-            .map((filePath) => {
-              try {
-                const name = (filePath.split('/').pop() || filePath).split('?')[0];
-                const parts = name.split('.');
-                return parts.length > 1 ? parts.pop()?.toLowerCase() : undefined;
-              } catch {
-                return undefined;
-              }
-            })
-            .filter((ext): ext is string => !!ext)
-        )
-      );
-      if (fileExtensionsForTracking.length > 0) {
-        trackImportFiles('Files', fileExtensionsForTracking);
-      }
-    }
-
     setIsSmartDriveModalOpen(false);
     router.push('/create/from-files-new/upload');
   };
@@ -268,7 +244,10 @@ export default function FromFilesNew() {
               t('interface.fromFiles.wordDocs', 'Word docs'),
               t('interface.fromFiles.pdfs', 'PDFs')
             ]}
-            onClick={handleUploadFileClick}
+            onClick={() => {
+              timeEvent('Import Material');
+              handleUploadFileClick();
+            }}
           />
 
           <ImportCard
@@ -278,7 +257,10 @@ export default function FromFilesNew() {
               t('interface.fromFiles.anyFileFromSmartdrive', 'Any file from smartdrive'),
               t('interface.fromFiles.allFilesFromConnectors', 'All files from connectors')
             ]}
-            onClick={() => setIsSmartDriveModalOpen(true)}
+            onClick={() => {
+              timeEvent('Import Material');
+              setIsSmartDriveModalOpen(true);
+            }}
           />
 
           <ImportCard
@@ -289,7 +271,10 @@ export default function FromFilesNew() {
               t('interface.fromFiles.blogPostsArticles', 'Blog post & articles'),
               t('interface.fromFiles.notionDocs', 'Notion docs')
             ]}
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              timeEvent('Import Material');
+              setIsModalOpen(true);
+            }}
           />
         </div>
       </div>

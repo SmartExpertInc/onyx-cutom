@@ -281,14 +281,15 @@ export const trackSaveDraft = async (productType: string, exportFormat: string, 
   );
 };
 
-export const trackImportFiles = async (importType: string, fileFormat: string[]) => {
+export const trackImportMaterial = async (importType: string, fileFormat: string[], action: string) => {
   const props = {
     "Import Type": importType,
-    "Formats": fileFormat
+    "Formats": fileFormat,
+    "Action": action
   };
 
   await track(
-    "Import Files", 
+    "Import Material", 
     props, 
     { transport: "sendBeacon", send_immediately: true }
   );

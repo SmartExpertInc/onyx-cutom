@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "../contexts/LanguageContext";
 import { KnowledgeBaseSelection, KnowledgeBaseConnector } from "@/lib/knowledgeBaseSelection";
+import { trackImportMaterial } from "@/lib/mixpanelClient";
 
 interface ImportFromUrlModalProps {
   isOpen: boolean;
@@ -195,55 +196,58 @@ export const ImportFromUrlModal: React.FC<ImportFromUrlModalProps> = ({
           });
         }
 
+        trackImportMaterial('URL', ["url"], "Completed");
         setIsProcessing(false);
         onClose();
       } catch (error: any) {
+        trackImportMaterial('URL', ["url"], "Failed");
         console.error('Error processing URLs:', error);
         setError(error.message || t('interface.importFromUrl.error', 'Failed to process URLs. Please try again.'));
         setIsProcessing(false);
       }
     } else {
       // Legacy upload mode (fallback)
-    if (onImport) {
-      onImport(validUrls);
-    }
-    
-    // Create placeholder files for URLs
-    const urlFiles = validUrls.map((url) => {
-      try {
-        const urlObj = new URL(url);
-        const fileName = urlObj.hostname + urlObj.pathname;
-        
-        return {
-          id: Math.random().toString(36).substr(2, 9),
-          name: fileName,
-          extension: '.url',
-            url: url,
-        };
-      } catch (error) {
-        return {
-          id: Math.random().toString(36).substr(2, 9),
-          name: url,
-          extension: '.url',
-          url: url,
-        };
+      if (onImport) {
+        onImport(validUrls);
       }
-    });
-    
-    localStorage.setItem('uploadedFiles', JSON.stringify(urlFiles));
-    
-    if (typeof window !== 'undefined') {
-      (window as any).pendingUploadFiles = urlFiles.map(file => ({
-        name: file.name + file.extension,
-        size: 0,
-        type: 'text/uri-list',
-        lastModified: Date.now(),
-        url: file.url,
-      }));
-    }
-    
-    onClose();
-    router.push('/create/from-files-new/upload');
+      
+      // Create placeholder files for URLs
+      const urlFiles = validUrls.map((url) => {
+        try {
+          const urlObj = new URL(url);
+          const fileName = urlObj.hostname + urlObj.pathname;
+          
+          return {
+            id: Math.random().toString(36).substr(2, 9),
+            name: fileName,
+            extension: '.url',
+              url: url,
+          };
+        } catch (error) {
+          return {
+            id: Math.random().toString(36).substr(2, 9),
+            name: url,
+            extension: '.url',
+            url: url,
+          };
+        }
+      });
+      
+      localStorage.setItem('uploadedFiles', JSON.stringify(urlFiles));
+      
+      if (typeof window !== 'undefined') {
+        (window as any).pendingUploadFiles = urlFiles.map(file => ({
+          name: file.name + file.extension,
+          size: 0,
+          type: 'text/uri-list',
+          lastModified: Date.now(),
+          url: file.url,
+        }));
+      }
+      
+      trackImportMaterial('URL', ["url"], "Completed");
+      onClose();
+      router.push('/create/from-files-new/upload');
     }
   };
 

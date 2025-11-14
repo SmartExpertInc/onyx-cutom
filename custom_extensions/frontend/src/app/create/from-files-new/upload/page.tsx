@@ -9,7 +9,7 @@ import { ImportFromSmartDriveModal } from "@/components/ImportFromSmartDriveModa
 import { ImportFromUrlModal } from "@/components/ImportFromUrlModal";
 import { BackButton } from "../../components/BackButton";
 import { buildKnowledgeBaseContext, KnowledgeBaseSelection, KnowledgeBaseConnector } from "@/lib/knowledgeBaseSelection";
-import { trackImportFiles } from "@/lib/mixpanelClient";
+import { trackImportMaterial } from "@/lib/mixpanelClient";
 
 interface UploadedFile {
   id: string;
@@ -159,8 +159,7 @@ export default function UploadFilesPage() {
 
   const saveKnowledgeBaseSelection = React.useCallback(
     (
-      selection: KnowledgeBaseSelection | null,
-      options?: { track?: boolean }
+      selection: KnowledgeBaseSelection | null
     ) => {
       if (typeof window === "undefined") return;
 
@@ -223,35 +222,6 @@ export default function UploadFilesPage() {
         console.error("Failed to persist knowledge base selection:", error);
       }
 
-      if (options?.track) {
-        if (context.connectorSources.length > 0) {
-          trackImportFiles(
-            "Connectors",
-            Array.from(new Set(context.connectorSources))
-          );
-        } else if (context.selectedFiles.length > 0) {
-          const fileExtensionsForTracking: string[] = Array.from(
-            new Set(
-              context.selectedFiles
-                .map((filePath) => {
-                  try {
-                    const name = (filePath.split("/").pop() || filePath).split("?")[0];
-                    const parts = name.split(".");
-                    return parts.length > 1 ? parts.pop()?.toLowerCase() : undefined;
-                  } catch {
-                    return undefined;
-                  }
-                })
-                .filter((ext): ext is string => !!ext)
-            )
-          );
-
-          if (fileExtensionsForTracking.length > 0) {
-            trackImportFiles("Files", fileExtensionsForTracking);
-          }
-        }
-      }
-
       setKnowledgeBaseSelection(normalizedSelection);
     },
     []
@@ -312,8 +282,7 @@ export default function UploadFilesPage() {
             {
               filePaths: Array.isArray(parsed.filePaths) ? parsed.filePaths : [],
               connectors: Array.isArray(parsed.connectors) ? parsed.connectors : [],
-            },
-            { track: false }
+            }
           );
         }
       }
@@ -328,7 +297,7 @@ export default function UploadFilesPage() {
       connectorSources: string[];
       connectorIds: number[];
     }) => {
-      saveKnowledgeBaseSelection(payload.selection, { track: true });
+      saveKnowledgeBaseSelection(payload.selection);
       setShowImportOptions(false);
       setIsSmartDriveModalOpen(false);
     },
@@ -344,8 +313,7 @@ export default function UploadFilesPage() {
         {
           filePaths: remainingFilePaths,
           connectors: knowledgeBaseSelection.connectors,
-        },
-        { track: false }
+        }
       );
       return;
     }
@@ -358,8 +326,7 @@ export default function UploadFilesPage() {
         {
           filePaths: knowledgeBaseSelection.filePaths,
           connectors: remainingConnectors,
-        },
-        { track: false }
+        }
       );
       return;
     }
@@ -391,6 +358,18 @@ export default function UploadFilesPage() {
       } catch (error) {
         console.error("Failed to persist knowledge base context:", error);
       }
+
+      const formats: string[] = [];      
+      // Extract formats from connectors (use connector source as format identifier)
+      if (knowledgeBaseSelection.connectors.length > 0) {
+        knowledgeBaseSelection.connectors.forEach((connector) => {
+          const source = connector.source?.toLowerCase();
+          if (source && !formats.includes(source)) {
+            formats.push(source);
+          }
+        });
+      }
+      await trackImportMaterial("Connector", formats, "Completed");
 
       router.push(`/create/generate?${searchParams.toString()}`);
       return;
@@ -464,6 +443,18 @@ export default function UploadFilesPage() {
         sessionStorage.setItem('tempFileContextId', result.context_id);
         sessionStorage.setItem('tempFileContextSummary', JSON.stringify(result.summary));
         
+        const formats: string[] = [];        
+        uploadedFiles.forEach((file) => {
+          // Extract extension without the dot
+          const ext = file.extension.replace('.', '').toLowerCase();
+          if (ext) {
+            if (!formats.includes(ext)) {
+              formats.push(ext);
+            }
+          }
+        });
+        await trackImportMaterial("File", formats, "Completed");
+        
         // Clean up local storage
         localStorage.removeItem('currentUploadedFiles');
         if (typeof window !== 'undefined') {
@@ -474,6 +465,7 @@ export default function UploadFilesPage() {
         router.push('/create/generate?fromTempFiles=true');
         
       } catch (error) {
+        trackImportMaterial("File", [], "Failed");
         console.error('Error uploading files:', error);
         setShowProcessingModal(false);
         alert(`Failed to process files: ${error instanceof Error ? error.message : 'Unknown error'}`);
